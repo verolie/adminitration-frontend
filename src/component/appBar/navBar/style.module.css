@@ -1,0 +1,78 @@
+.gridContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 20px;
+  margin: 0;
+}
+
+.gridContainer .nameUser {
+  display: block;
+  text-decoration: none;
+  color: #626262;
+  font-size: 16px;
+  padding-left: 15px;
+}
+
+.gridUserIcon {
+  display: flex;
+  align-items: center;
+  padding-left: 0;
+}
+
+.userIcon {
+  size: 100px;
+  color: #626262;
+  font-size: 50px;
+  padding-left: 0;
+}
+
+.gridUserName {
+  align-content: center;
+  padding-left: 10px;
+}
+
+.menuLogout {
+  margin-left: 0 !important;
+  width: 250px;
+  margin-top: 10px;
+}
+
+.customMenuItem {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  color: black;
+  gap: 10px;
+}
+
+.customMenuItem > p {
+  font-size: 16px;
+}
+
+.gridUser {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.gridUser:hover .nameUser {
+  color: #ababab;
+}
+
+.appLogo {
+  display: flex;
+  align-items: center;
+}
+
+.appName {
+  padding-left: 15px;
+  display: block;
+  text-decoration: none;
+  color: #626262;
+  font-size: 16px;
+  font-weight: bold;
+}

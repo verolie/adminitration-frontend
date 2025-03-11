@@ -1,0 +1,22 @@
+.icon {
+  display: flex;
+  font-size: 30px;
+  color: #ffffff;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0px;
+}
+.iconDevice {
+  display: flex;
+  font-size: 23px;
+  color: #ffffff;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0px;
+}
+
+.iconImage {
+  margin-left: 3px;
+  display: flex;
+  align-items: center;
+}

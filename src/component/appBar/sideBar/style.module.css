@@ -1,0 +1,100 @@
+.sidenav {
+  height: 100%;
+  width: 280px;
+  position: fixed;
+  z-index: 1;
+  top: 70px;
+  left: 0;
+  background-color: #00569f;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 10px;
+}
+
+.sidenav a {
+  padding: 0;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 400;
+  font-style: normal;
+  color: #ffffff;
+  display: block;
+  transition: 0.3s;
+}
+.sidenav p {
+  padding: 8px 8px 8px 8px;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 400;
+  font-style: normal;
+  color: #ffffff;
+  display: block;
+  margin: 0;
+}
+
+.sidenav a:hover {
+  background-color: #003f84;
+}
+
+.gridContainer {
+  align-items: center;
+  margin-bottom: 5px;
+  margin-left: 10px;
+  margin-right: 20px;
+}
+
+.accordion {
+  padding: 0;
+  background-color: transparent;
+  border: 0px;
+  color: white;
+}
+
+.sidenav .accordion:hover {
+  background-color: #003f84;
+}
+
+.gridContainerSummary {
+  align-items: center;
+  margin-left: 3px;
+}
+.accordionSummary {
+  background-color: #00569f;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: 3px !important;
+  padding-left: 3px;
+}
+
+.sidenav .accordionSummary:hover {
+  background-color: #003f84;
+}
+
+.accordionDetails {
+  background-color: #213670;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 40px;
+}
+
+.sidenav .accordionDetails:hover {
+  background-color: #003f84;
+}
+.accordionDetails .subTab {
+  font-size: 14px;
+}
+.titleSubUnit {
+  padding-left: 12px;
+}
+
+.activeMenu {
+  background-color: #003f84;
+  /* Change to your desired color */
+  color: white;
+}
+
+.activeMenu .MuiTypography-root {
+  color: white;
+}
