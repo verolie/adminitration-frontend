@@ -1,6 +1,6 @@
 .sidenav {
   height: 100%;
-  width: 280px;
+  width: 90px;
   position: fixed;
   z-index: 1;
   top: 70px;
@@ -8,93 +8,104 @@
   background-color: #00569f;
   overflow-x: hidden;
   transition: 0.5s;
-  padding-left: 0;
-  padding-right: 0;
-  padding-top: 10px;
+  display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
 }
 
 .sidenav a {
   padding: 0;
   text-decoration: none;
-  font-size: 18px;
+  font-size: 10px;
   font-weight: 400;
-  font-style: normal;
   color: #ffffff;
   display: block;
   transition: 0.3s;
 }
+
 .sidenav p {
-  padding: 8px 8px 8px 8px;
-  text-decoration: none;
-  font-size: 18px;
+  padding: 8px;
+    font-size: 12px;
   font-weight: 400;
-  font-style: normal;
   color: #ffffff;
-  display: block;
   margin: 0;
 }
 
-.sidenav a:hover {
-  background-color: #003f84;
-}
-
-.gridContainer {
+.labelContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 5px;
-  margin-left: 10px;
-  margin-right: 20px;
+  text-align: center;
+  margin: 0;
+  transition: background-color 0.3s ease;
+  width: 100%;
 }
 
-.accordion {
-  padding: 0;
-  background-color: transparent;
-  border: 0px;
-  color: white;
-}
-
-.sidenav .accordion:hover {
+.labelContainer:hover {
   background-color: #003f84;
 }
 
-.gridContainerSummary {
+.iconLabel {
+  padding-top: 10px;
+  display: flex;
   align-items: center;
-  margin-left: 3px;
-}
-.accordionSummary {
-  background-color: #00569f;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  margin-left: 3px !important;
-  padding-left: 3px;
+  justify-content: center;
+    width: 100%;
 }
 
-.sidenav .accordionSummary:hover {
-  background-color: #003f84;
+.textLabel {
+  text-align: center;
+  width: 100%;
+  padding: 4px 0;
 }
 
-.accordionDetails {
-  background-color: #213670;
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 40px;
-}
-
-.sidenav .accordionDetails:hover {
-  background-color: #003f84;
-}
-.accordionDetails .subTab {
-  font-size: 14px;
-}
 .titleSubUnit {
-  padding-left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+    width: 100%;
 }
 
-.activeMenu {
+.popup {
+  position: fixed;
+  left: 90px;
+  z-index: 1000;
   background-color: #003f84;
-  /* Change to your desired color */
   color: white;
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+    min-width: 150px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    width: 150px;
+    visibility: visible;
+    opacity: 1;
 }
 
-.activeMenu .MuiTypography-root {
-  color: white;
+.popupLabel {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 8px;
+  color: #ffffff;
+}
+
+.submenuList {
+  /* margin-top: 8px; */
+  background-color: #ffffff;
+}
+
+.submenuItem {
+  font-size: 12px;
+  padding: 6px 12px;
+  cursor: pointer;
+  color: #333F50 !important;
+  /* Warna teks default */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.submenuItem:hover {
+  background-color: #003f84;
+  color: #ffffff !important;
 }

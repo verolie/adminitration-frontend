@@ -1,26 +1,22 @@
 import Head from "next/head";
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import AppBar from "../component/appBar/appBar";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { Container } from "@mui/material";
+import TabPage from "@/component/tabPage/tabPage";
+import { useAppContext } from "@/context/context";
 
 export default function Home() {
+  const { tabs, removeTab } = useAppContext();
+
   return (
     <>
       <Head>
         <title>Create Next App</title>
       </Head>
-      <AppBar></AppBar>
+      <AppBar />
+      <Container className={styles.containerBody}>
+        <TabPage tabs={tabs} page="main" onRemoveTab={removeTab} />
+      </Container>
     </>
   );
 }

@@ -1,11 +1,12 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { IMenu } from './data/menu';
-import { ISettings } from './data/settings';
-import { IError } from './data/error';
-import { ILoading } from './data/loading';
-import { IErrorField } from './data/errorField';
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { IMenu } from "./data/menu";
+import { ISettings } from "./data/settings";
+import { IError } from "./data/error";
+import { ILoading } from "./data/loading";
+import { IErrorField } from "./data/errorField";
+import { menuList } from "@/utils/constant/menuList";
 
 export interface IFilter {
   field: string;
@@ -24,6 +25,7 @@ interface AppContextProps {
   roles: { category: string; permissions: string[] }[];
   messageAlert: string | null;
   openAlert: boolean;
+  tabs: { label: string; content: React.ReactNode }[];
   updateErrorMessage: (error: string) => void;
   updateCurrentMenu: (menu: string) => void;
   updateSettings: (settings: ISettings) => void;
@@ -39,6 +41,8 @@ interface AppContextProps {
   resetErrorFieldMessage: () => void;
   showAlert: (message: string) => void;
   closeAlert: () => void;
+  addTab: (label: string) => void;
+  removeTab: (label: string) => void;
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined);
@@ -52,9 +56,9 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   children,
   initialSessionId = null,
 }) => {
-  const [menu, setMenu] = useState<IMenu>({ currentMenu: 'home' });
+  const [menu, setMenu] = useState<IMenu>({ currentMenu: "home" });
   const [settings, setSettings] = useState<ISettings>({ darkTheme: false });
-  const [error, setError] = useState<IError>({ errorMessage: '' });
+  const [error, setError] = useState<IError>({ errorMessage: "" });
   const [loading, setLoading] = useState<ILoading>({ loadingActive: false });
   const [sessionId, setSessionId] = useState<string | null>(initialSessionId);
   const [errorField, setErrorField] = useState<IErrorField[]>([]);
@@ -62,8 +66,11 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   const [roles, setRoles] = useState<
     { category: string; permissions: string[] }[]
   >([]);
-  const [messageAlert, setMessageAlert] = useState<string | null>('');
+  const [messageAlert, setMessageAlert] = useState<string | null>("");
   const [openAlert, setOpenAlert] = useState(false);
+  const [tabs, setTabs] = React.useState<
+    { label: string; content: React.ReactNode }[]
+  >([]);
 
   const updateErrorMessage = (error: string) => {
     setError({ errorMessage: error });
@@ -85,6 +92,8 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     setSessionId(id);
   };
 
+  //update roles
+
   const updateRoles = (role: { category: string; permissions: string[] }[]) => {
     setRoles(role);
   };
@@ -92,6 +101,8 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   const resetRoles = () => {
     setRoles([]);
   };
+
+  //Update filter
 
   const updateFilter = (index: number, newFilter: IFilter) => {
     setFilters((prevFilters) => {
@@ -114,15 +125,18 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     setErrorField([]);
   };
 
+  //Error Field Message
+
   const addErrorFieldMessage = (newFilter: IErrorField[]) => {
     setErrorField(newFilter);
-    console.log('error field ', errorField);
+    console.log("error field ", errorField);
   };
 
   const resetErrorFieldMessage = () => {
     setErrorField([]);
   };
 
+  //Alert
   const showAlert = (message: string) => {
     setMessageAlert(message);
     setOpenAlert(true);
@@ -131,6 +145,39 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   const closeAlert = () => {
     setMessageAlert(null);
     setOpenAlert(false);
+  };
+
+  //page tab
+  const addTab = (label: string) => {
+    console.log("test ini label ", label);
+
+    let foundTab = menuList.find((menu) => menu.label === label);
+
+    if (!foundTab) {
+      for (const menu of menuList) {
+        const foundSub = menu.submenu?.find((sub) => sub.label === label);
+        if (foundSub) {
+          foundTab = { ...menu, label: foundSub.label, path: foundSub.path }; // Gunakan data submenu
+          break;
+        }
+      }
+    }
+
+    if (foundTab) {
+      setTabs((prevTabs) => {
+        if (prevTabs.some((tab) => tab.label === foundTab!.label)) {
+          return prevTabs;
+        }
+        return [
+          ...prevTabs,
+          { label: foundTab!.label, content: foundTab!.path },
+        ];
+      });
+    }
+  };
+
+  const removeTab = (label: string) => {
+    setTabs((prevTabs) => prevTabs.filter((tab) => tab.label !== label));
   };
 
   const contextValue: AppContextProps = {
@@ -144,6 +191,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     roles,
     messageAlert,
     openAlert,
+    tabs,
     updateErrorMessage,
     updateCurrentMenu,
     updateSettings,
@@ -159,6 +207,8 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     resetErrorFieldMessage,
     showAlert,
     closeAlert,
+    addTab,
+    removeTab,
   };
 
   return (
@@ -170,7 +220,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error('useAppContext must be used within an AppContextProvider');
+    throw new Error("useAppContext must be used within an AppContextProvider");
   }
   return context;
 };

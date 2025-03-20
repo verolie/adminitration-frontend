@@ -1,128 +1,82 @@
 "use client";
 import React, { useState } from "react";
 import styles from "./style.module.css";
-import Image from "next/image";
 import Container from "@mui/material/Container";
-import { styled } from "@mui/material/styles";
-import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
-import MuiAccordion, { AccordionProps } from "@mui/material/Accordion";
-import MuiAccordionSummary, {
-  AccordionSummaryProps,
-} from "@mui/material/AccordionSummary";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
-import Grid from "@mui/material/Grid";
-import Link from "next/link";
 import Typography from "@mui/material/Typography";
 import { menuList } from "@/utils/constant/menuList";
-// import LogoImage from "@/../public/logo-circular.png";
-
-const Accordion = styled((props: AccordionProps) => (
-  <MuiAccordion disableGutters elevation={0} square {...props} />
-))(({ theme }) => ({
-  border: `1px solid ${theme.palette.divider}`,
-  "&:not(:last-child)": {
-    borderBottom: 0,
-  },
-  "&::before": {
-    display: "none",
-  },
-}));
-
-const AccordionSummary = styled((props: AccordionSummaryProps) => (
-  <MuiAccordionSummary
-    expandIcon={
-      <ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem", color: "white" }} />
-    }
-    {...props}
-  />
-))(({ theme }) => ({
-  backgroundColor:
-    theme.palette.mode === "dark"
-      ? "rgba(255, 255, 255, .05)"
-      : "rgba(0, 0, 0, .03)",
-  flexDirection: "row",
-  justifyContent: "space-between",
-  margin: 0,
-  "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-    transform: "rotate(90deg)",
-  },
-  "& .MuiAccordionSummary-content": {
-    margin: 0,
-    flexGrow: 1,
-  },
-}));
-
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: "1px solid rgba(0, 0, 0, .125)",
-}));
+import { useAppContext } from "@/context/context";
 
 const SideBar = () => {
-  const [expanded, setExpanded] = useState<string | false>(false);
-
-  const handleChange =
-    (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
-      setExpanded(newExpanded ? panel : false);
-    };
+  const { addTab } = useAppContext();
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
   return (
     <Container className={styles.sidenav}>
-      {menuList.map((item) =>
-        item.submenu && item.submenu.length > 0 ? (
-          <Accordion
-            key={item.label}
-            expanded={expanded === item.label}
-            onChange={handleChange(item.label)}
-            className={styles.accordion}
-            style={{ width: "100%" }}
-          >
-            <AccordionSummary
-              aria-controls={`${item.label}-content`}
-              id={`${item.label}-header`}
-              className={styles.accordionSummary}
+      {menuList.map((item) => {
+        if (item.submenu && item.submenu.length > 0) {
+          return (
+            <div
+              key={item.label}
+              className={`${styles.labelContainer} ${
+                hoveredItem === item.label ? styles.hovered : ""
+              }`}
+              onMouseEnter={() => setHoveredItem(item.label)}
+              onMouseLeave={() => setHoveredItem(null)}
             >
-              <Grid container className={styles.gridContainerSummary}>
-                <Grid item xs={2}>
-                  {item.icon}
-                </Grid>
-                <Grid item xs={8} className={styles.titleSubUnit}>
-                  <Typography>{item.label}</Typography>
-                </Grid>
-              </Grid>
-            </AccordionSummary>
-            {item.submenu.map((subItem) => (
-              <Link
-                key={subItem.path}
-                href={subItem.path}
-                passHref
-                style={{ padding: 0 }}
-              >
-                <AccordionDetails className={styles.accordionDetails}>
-                  <Typography className={styles.subTab}>
-                    {subItem.label}
+              <div className={styles.iconLabel}>{item.icon}</div>
+              <div className={styles.titleSubUnit}>
+                <Typography className={styles.textLabel}>
+                  {item.label}
+                </Typography>
+              </div>
+
+              {hoveredItem === item.label && (
+                <div
+                  className={styles.popup}
+                  onMouseEnter={() => setHoveredItem(item.label)}
+                  onMouseLeave={() => setHoveredItem(null)}
+                >
+                  <Typography className={styles.popupLabel}>
+                    {item.label}
                   </Typography>
-                </AccordionDetails>
-              </Link>
-            ))}
-          </Accordion>
-        ) : (
-          <Link
-            key={item.path}
-            href={item.path}
-            passHref
-            style={{ padding: 0 }}
+                  <div className={styles.submenuList}>
+                    {item.submenu.map((sub) => (
+                      <Typography
+                        key={sub.label}
+                        className={styles.submenuItem}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addTab(sub.label);
+                        }}
+                      >
+                        {sub.label}
+                      </Typography>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        // Jika tidak ada submenu, buat elemen biasa
+        return (
+          <div
+            key={item.label}
+            className={`${styles.labelContainer} ${
+              hoveredItem === item.label ? styles.hovered : ""
+            }`}
+            onMouseEnter={() => setHoveredItem(item.label)}
+            onMouseLeave={() => setHoveredItem(null)}
+            onClick={() => addTab(item.label)} // Klik langsung tambahkan tab
           >
-            <Grid container className={styles.gridContainer}>
-              <Grid item xs={2} className={styles.logoPosition}>
-                {item.icon}
-              </Grid>
-              <Grid item xs={9} sx={{ padding: 0 }}>
-                <Typography>{item.label}</Typography>
-              </Grid>
-            </Grid>
-          </Link>
-        )
-      )}
+            <div className={styles.iconLabel}>{item.icon}</div>
+            <div className={styles.titleSubUnit}>
+              <Typography className={styles.textLabel}>{item.label}</Typography>
+            </div>
+          </div>
+        );
+      })}
     </Container>
   );
 };
