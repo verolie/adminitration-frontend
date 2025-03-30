@@ -2,7 +2,7 @@ import TabPage from "@/component/tabPage/tabPage";
 import * as React from "react";
 import InformasiUmum from "./InformasiUmum/InformasiUmum";
 import Saldo from "./Saldo/Saldo";
-import LainLain from "./Saldo/Saldo";
+import LainLain from "./LainLain/LainLain";
 
 export default function DataBaru() {
   const tabs = [

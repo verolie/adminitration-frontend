@@ -1,0 +1,90 @@
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-family: "Roboto", sans-serif;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+}
+
+.cell {
+  padding: 10px;
+  border: 1px solid #ddd;
+  position: relative;
+  white-space: pre-wrap;
+  /* Pastikan semua cell bisa memiliki elemen posisi absolut */
+}
+
+.cellAction {
+  padding: 10px;
+  border: 1px solid #ddd;
+  position: relative;
+  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.sortButton {
+  margin-left: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.filterInput {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 170px;
+  height: 20px;
+  padding: 5px;
+  font-size: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  display: none;
+  z-index: 10;
+  /* Pastikan tidak tertutup elemen lain */
+}
+
+.showFilter {
+  display: block !important;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.headerLabel {
+  flex-grow: 1;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.filterButton{
+  border: none;
+  background-color: transparent;
+}
+
+.headerTable{
+  background: #00569F;
+    color: #ffff;
+}
+
+.editMenu {
+  display: flex;
+  gap: 10px;
+  /* Add spacing between buttons */
+}

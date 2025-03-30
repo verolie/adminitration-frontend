@@ -168,7 +168,7 @@ a.secondary {
 }
 
 .containerBody {
-  width: 100%;
+  width: calc(100% - 90px);
   height: 90vh;
   margin-top: 70px;
   margin-left: 90px;
