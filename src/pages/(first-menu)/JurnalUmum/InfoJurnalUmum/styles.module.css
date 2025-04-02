@@ -1,0 +1,23 @@
+.editFilterTable {
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.filterTextField {
+    display: flex;
+    gap: 16px;
+    width: 70%;
+}
+
+.buttonGroup {
+    display: flex;
+    gap: 8px;
+    /* Jarak antar tombol */
+}
+
+.buttonGroup button {
+    width: 50%;
+}

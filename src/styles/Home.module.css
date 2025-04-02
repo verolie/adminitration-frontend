@@ -168,10 +168,10 @@ a.secondary {
 }
 
 .containerBody {
-  width: calc(100% - 90px);
+  width: calc(100% - 98px);
   height: 90vh;
   margin-top: 70px;
-  margin-left: 90px;
-  margin-right: 0;
+  margin-left: 93px;
   padding: 10px 0 0;
+  max-width: none;
 }

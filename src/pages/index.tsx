@@ -4,8 +4,11 @@ import AppBar from "../component/appBar/appBar";
 import { Container } from "@mui/material";
 import TabPage from "@/component/tabPage/tabPage";
 import { useAppContext } from "@/context/context";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 
 export default function Home() {
+  useSessionTimeout();
+
   const { tabs, removeTab } = useAppContext();
 
   return (
@@ -14,9 +17,10 @@ export default function Home() {
         <title>Create Next App</title>
       </Head>
       <AppBar />
-      <Container className={styles.containerBody}>
+      <Container sx={{ minWidth: "unset" }} className={styles.containerBody}>
         <TabPage tabs={tabs} page="main" onRemoveTab={removeTab} />
       </Container>
     </>
   );
 }
+

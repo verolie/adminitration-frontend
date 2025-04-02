@@ -6,42 +6,40 @@ import Container from "@mui/material/Container";
 import styles from "./styles.module.css";
 import SideBar from "./sideBar/sideBar";
 import NavBar from "./navBar/navBar";
-// import useTimeOutSession from '@/hooks/useTimeOutSession';
-// import { logoutProcess } from '@/login/functions/frontend/logoutProcess';
-// import { getUserName } from '../../utils/getLoggedInUserData';
-// import { useContextUpdate } from '@/hooks/useContextUpdate';
-// import { useRouter } from "next/navigation";
+import { decryptData } from "@/utils/encryption";
+import Cookies from "js-cookie";
+import { SessionData } from "@/utils/model/sessionData";
 
 interface ResponsiveAppBarProps {
   isLogin?: boolean;
-  // sessionId: string | null;
 }
 
 const ResponsiveAppBar: React.FC<ResponsiveAppBarProps> = ({
   isLogin = true,
-  // sessionId,
 }) => {
   const [username, setUsername] = useState<string | null>(null);
-  // const router = useRouter();
-
-  // useTimeOutSession(isLogin, logoutProcess);
-  // useContextUpdate(isLogin, sessionId);
 
   const fetchUsername = useCallback(async () => {
     if (typeof window !== "undefined") {
-      const encryptedData = localStorage.getItem("token");
-      // const fetchedUsername = await getUserName(
-      //   isLogin,
-      //   sessionId,
-      //   encryptedData
-      // );
-      // setUsername(fetchedUsername);
-      setUsername("test user");
+      const encryptedSession = Cookies.get("sessionId");
+
+      if (!encryptedSession) {
+        setUsername(null);
+        return;
+      }
+
+      try {
+        const sessionData: SessionData = decryptData(
+          encryptedSession
+        ) as SessionData;
+        console.log("user detail ", sessionData);
+        setUsername(sessionData.username || "Unknown User");
+      } catch (error) {
+        console.error("Failed to decrypt session:", error);
+        setUsername("Unknown User");
+      }
     }
-  }, [
-    isLogin,
-    // sessionId
-  ]);
+  }, [isLogin]);
 
   useEffect(() => {
     fetchUsername();

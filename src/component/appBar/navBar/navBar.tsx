@@ -12,6 +12,7 @@ import Fade from "@mui/material/Fade";
 import Typography from "@mui/material/Typography";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { logoutProcess } from "@/utils/logoutProcess";
 
 interface ResponsiveNavBarProps {
   onClickChangePass: () => void;
@@ -31,6 +32,11 @@ const NavBar: React.FC<ResponsiveNavBarProps> = ({
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    logoutProcess(); // Jalankan proses logout
+    handleClose(); // Tutup menu
   };
 
   return (
@@ -61,7 +67,7 @@ const NavBar: React.FC<ResponsiveNavBarProps> = ({
           <p>Change Password</p>
           <PasswordIcon className={styles.logoutIcon} />
         </MenuItem>
-        <MenuItem className={styles.customMenuItem}>
+        <MenuItem onClick={handleLogout} className={styles.customMenuItem}>
           <p>Log Out</p>
           <ExitToAppIcon className={styles.logoutIcon} />
         </MenuItem>

@@ -9,11 +9,12 @@ import Home from "@/pages/(first-menu)/Home/Home";
 import Company from "@/pages/(first-menu)/Company/Company";
 import AkunPerkiraan from "@/pages/(first-menu)/AkunPerkiraan/AkunPerkiraan";
 import JurnalUmum from "@/pages/(first-menu)/JurnalUmum/JurnalUmum";
+import User from "@/pages/(first-menu)/User/User";
 
 interface MenuList {
   no: number;
   label: string;
-  path: React.ReactNode; // Bisa berupa komponen
+  path: React.ReactNode;
   icon: React.ReactNode;
   submenu?: SubItemList[] | null;
   roles?: string[];
@@ -21,7 +22,7 @@ interface MenuList {
 
 interface SubItemList {
   label: string;
-  path: React.ReactNode; // Bisa berupa komponen
+  path: React.ReactNode;
   roles: string[];
 }
 
@@ -29,7 +30,7 @@ export const menuList: MenuList[] = [
   {
     no: 1,
     label: "Home",
-    path: <Home />, // Menggunakan komponen
+    path: <Home />,
     icon: <HomeIcon className={styles.icon} />,
     submenu: null,
     roles: ["Dashboard"],
@@ -51,7 +52,7 @@ export const menuList: MenuList[] = [
         src="/images/icon/buku-besar.svg"
         width={22}
         height={28}
-        alt="Unit Icon"
+        alt="Buku Besar Icon"
         className={styles.iconImage}
       />
     ),
@@ -68,5 +69,13 @@ export const menuList: MenuList[] = [
       },
     ],
     roles: ["Sub-Division"],
+  },
+  {
+    no: 4,
+    label: "User", // Menu User setelah Buku Besar
+    path: <User />,
+    icon: <PeopleAlt className={styles.icon} />, // Sesuaikan dengan icon yang diinginkan
+    submenu: null,
+    roles: ["User Management"], // Sesuaikan dengan role yang diperlukan
   },
 ];

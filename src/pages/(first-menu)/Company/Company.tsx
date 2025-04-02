@@ -1,16 +1,15 @@
 import TabPage from "@/component/tabPage/tabPage";
 import * as React from "react";
-import SettingsPage from "../SettingPage/SettingPage";
-import OverviewPage from "../OverviewPage/OverviewPage";
+import InfoCompany from "./InfoCompany/InfoCompany";
+import CreateCompany from "./CreateCompany/CreateCompany";
 
 export default function Company() {
   const tabs = [
-    { label: "Info", content: <OverviewPage /> },
-    { label: "Create Company", content: <SettingsPage /> },
+    { label: "Info", content: <InfoCompany /> },
+    { label: "Create Company", content: <CreateCompany /> },
   ];
   return (
     <>
-      <div>Ini halaman Company</div>
       <TabPage tabs={tabs} page="sub" />
     </>
   );
