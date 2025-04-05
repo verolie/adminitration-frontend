@@ -4,6 +4,7 @@ import styles from "./styles.module.css";
 import Table from "@/component/table/table";
 import Button from "@/component/button/button";
 import PopupModal from "@/component/popupModal/popUpModal";
+import { PopUpUserContent } from "./popUpUser/popUpUserContent";
 
 interface Column<T> {
   key: keyof T;
@@ -73,13 +74,15 @@ export default function InfoUser() {
         />
       </div>
 
-      {/* <PopupModal
+      <PopupModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         data={selectedData}
         mode={modalMode}
-        renderContent={(data) => popUpInfoAcctContent(data, modalMode)} 
-      /> */}
+        renderContent={(data) =>
+          data ? <PopUpUserContent data={data} mode={modalMode} /> : null
+        }
+      />
     </>
   );
 }

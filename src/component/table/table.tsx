@@ -25,7 +25,6 @@ const Table = <T extends Record<string, any>>({
   const [sortKey, setSortKey] = useState<keyof T | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [filters, setFilters] = useState<Partial<Record<keyof T, string>>>({});
-  const [activeFilterKey, setActiveFilterKey] = useState<keyof T | null>(null);
 
   const handleSort = (key: keyof T) => {
     setSortOrder(sortKey === key && sortOrder === "asc" ? "desc" : "asc");
@@ -34,10 +33,6 @@ const Table = <T extends Record<string, any>>({
 
   const handleFilterChange = (key: keyof T, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const toggleFilter = (key: keyof T) => {
-    setActiveFilterKey((prev) => (prev === key ? null : key));
   };
 
   const sortedData = [...data].sort((a, b) => {
@@ -70,10 +65,20 @@ const Table = <T extends Record<string, any>>({
   return (
     <div className={styles.tableContainer}>
       <table className={styles.table}>
-        <thead className={styles.headerTable}>
+        <colgroup>
+          {columns.map((_, idx) => (
+            <col key={idx} style={{ width: `${100 / columns.length}%` }} />
+          ))}
+          <col style={{ width: "100px" }} /> {/* Width untuk kolom "Actions" */}
+        </colgroup>
+
+        <thead>
           <tr>
             {columns.map((col) => (
-              <th key={col.key as string} className={styles.cell}>
+              <th
+                key={col.key as string}
+                className={`${styles.headerCell} ${styles.headerTable}`}
+              >
                 <div className={styles.headerRow}>
                   <span className={styles.headerLabel}>{col.label}</span>
                   <div className={styles.actions}>
@@ -91,32 +96,29 @@ const Table = <T extends Record<string, any>>({
                         <ArrowUpDown size={16} color="white" />
                       )}
                     </button>
-                    <button
-                      className={styles.filterButton}
-                      onClick={() => toggleFilter(col.key)}
-                    >
-                      <Filter size={16} color="white" />
-                    </button>
                   </div>
                 </div>
-                {activeFilterKey === col.key && (
-                  <input
-                    type="text"
-                    className={`${styles.filterInput} ${
-                      activeFilterKey === col.key ? styles.showFilter : ""
-                    }`}
-                    placeholder={`Filter ${col.label}`}
-                    value={filters[col.key] || ""}
-                    onChange={(e) =>
-                      handleFilterChange(col.key, e.target.value)
-                    }
-                  />
-                )}
               </th>
             ))}
-            <th className={styles.cell}>Actions</th>
+            <th className={`${styles.headerCell} ${styles.headerTable}`}>
+              Actions
+            </th>
+          </tr>
+          <tr>
+            {columns.map((col) => (
+              <th key={col.key as string} className={styles.headerCell}>
+                <input
+                  type="text"
+                  value={filters[col.key] || ""}
+                  onChange={(e) => handleFilterChange(col.key, e.target.value)}
+                  className={styles.filterInputInline}
+                />
+              </th>
+            ))}
+            <th className={styles.headerCell}></th>
           </tr>
         </thead>
+
         <tbody>
           {filteredData.map((item, index) => (
             <tr key={index}>

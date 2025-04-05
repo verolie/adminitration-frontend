@@ -21,7 +21,7 @@ const accountType = [
     label: "test 3",
   },
 ];
-export default function DataBaru() {
+export default function CreateAkunPerkiraan() {
   const [selectedAcctType, setSelectedAcctType] = React.useState("");
   const [kodePerkiraanValue, setKodePerkiraanValue] = React.useState("");
   const [namaValue, setNamaValue] = React.useState("");

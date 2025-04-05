@@ -38,6 +38,19 @@
     margin-bottom: 10px;
 }
 
-.container{
+.dialogContent {
+    max-height: 60vh;
+    /* atau 70vh, sesuai selera */
+    overflow-y: auto;
+    padding-right: 8px;
+    /* biar ada space buat scrollbar */
+}
+
+.container {
     margin: 10px 10px;
+    width: 100%;
+    }
+    
+    .dialogPaper {
+        height: auto;
 }

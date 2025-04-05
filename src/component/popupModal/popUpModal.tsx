@@ -27,9 +27,19 @@ const PopupModal = <T,>({
   if (!data) return null;
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="sm"
+      PaperProps={{
+        style: { maxHeight: "80vh" }, // Atur tinggi maksimal modal
+      }}
+    >
       <DialogTitle>{mode === "view" ? "Detail Data" : "Edit Data"}</DialogTitle>
-      <DialogContent>{renderContent(data)}</DialogContent>
+      <DialogContent className={styles.dialogContent}>
+        {renderContent(data)}
+      </DialogContent>
       <DialogActions>
         {mode === "edit" && (
           <>

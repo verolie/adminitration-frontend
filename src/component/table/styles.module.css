@@ -1,15 +1,29 @@
 .tableContainer {
   width: 100%;
-  overflow-x: auto;
+  max-height: calc(100vh - 249px);
   border: 1px solid #ddd;
   border-radius: 10px;
   font-family: "Roboto", sans-serif;
+  overflow-y: auto;
+    overflow-x: auto;
+    position: relative;
 }
-
 .table {
   width: 100%;
   border-collapse: collapse;
-  overflow: hidden;
+  table-layout: auto;
+  }
+  
+  .thead {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+  
+  .tbody {
+    max-height: calc(100vh - 289px);
+    overflow-y: auto;
+    width: 100%;
 }
 
 .cell {
@@ -17,17 +31,14 @@
   border: 1px solid #ddd;
   position: relative;
   white-space: pre-wrap;
-  /* Pastikan semua cell bisa memiliki elemen posisi absolut */
+  min-width: 180px;
 }
 
 .cellAction {
-  padding: 10px;
+padding: 10px;
   border: 1px solid #ddd;
   position: relative;
-  text-align: right;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+  white-space: pre-wrap;
 }
 
 .sortButton {
@@ -38,24 +49,15 @@
   font-size: 14px;
 }
 
-.filterInput {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  width: 170px;
-  height: 20px;
+.filterInputInline {
+  width: 100%;
+  height: 28px;
   padding: 5px;
-  font-size: 12px;
-  border: 1px solid #ddd;
+  font-size: 13px;
+    border: 1px solid #ccc;
   border-radius: 4px;
-  background: white;
-  display: none;
-  z-index: 10;
-  /* Pastikan tidak tertutup elemen lain */
-}
-
-.showFilter {
-  display: block !important;
+  background: #fff;
+    box-sizing: border-box;
 }
 
 .headerRow {
@@ -78,9 +80,31 @@
   background-color: transparent;
 }
 
-.headerTable{
+.headerTable {
   background: #00569F;
-    color: #ffff;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.headerCell {
+  position: sticky;
+  top: 0;
+  /* nanti diganti pakai nth-child */
+  background: #00569F;
+  z-index: 1000;
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+  
+  /* Baris ke-2 (filter row), offset-nya digeser biar gak tiban baris pertama) */
+  thead tr:nth-child(2) .headerCell {
+    top: 41px;
+    /* sesuai tinggi header baris pertama */
+    border: 2px solid #ccc;
+    background: white;
+    z-index: 999;
 }
 
 .editMenu {

@@ -1,12 +1,12 @@
 import TabPage from "@/component/tabPage/tabPage";
 import * as React from "react";
 import InfoAkunPerkiraan from "./SubPage/Info/InfoAkunPerkiraan";
-import DataBaru from "./SubPage/DataBaruAkunPerkiraan/DataBaru";
+import CreateAkunPerkiraan from "./SubPage/DataBaruAkunPerkiraan/DataBaru";
 
 export default function AkunPerkiraan() {
   const tabs = [
     { label: "Info", content: <InfoAkunPerkiraan /> },
-    { label: "Data Baru", content: <DataBaru /> },
+    { label: "Create Akun Perkiraan", content: <CreateAkunPerkiraan /> },
   ];
   return (
     <>

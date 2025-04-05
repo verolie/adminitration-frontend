@@ -17,10 +17,11 @@
 }
 
 .boxBackground {
-/* background-color: #f9f9f9; */
-border-radius: 0px 0px 10px 10px;
-border: 1px solid #ddd;
-box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.1);
+    /* background-color: #f9f9f9; */
+        border-radius: 0px 0px 10px 10px;
+        border: 1px solid #ddd;
+        box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.1);
+    max-height: calc(100vh - 50px);
 }
 .boxPanel {
     padding: 10px;

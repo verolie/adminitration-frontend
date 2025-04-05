@@ -4,6 +4,8 @@ import * as React from "react";
 import styles from "./styles.module.css";
 import Typography from "@mui/material/Typography/Typography";
 import Button from "@/component/button/button";
+import AreaText from "@/component/textField/areaText";
+import SelectedTextField from "@/component/textField/selectedText";
 
 interface DataRow {
   kodePerkiraan: string;
@@ -12,29 +14,103 @@ interface DataRow {
   saldo: string;
 }
 
+const accountType = [
+  {
+    value: "test 1",
+    label: "test 1",
+  },
+  {
+    value: "test 2",
+    label: "test 2",
+  },
+  {
+    value: "test 3",
+    label: "test 3",
+  },
+];
+
 export const popUpInfoAcctContent = (data: DataRow, mode: "view" | "edit") => {
   const [saldoValue, setSaldoValue] = React.useState(data.saldo);
-  const [tanggalAwalValue, setTanggalAwalValue] = React.useState<Date | null>(
-    null
+  const [tanggalAwalValue, setTanggalAwalValue] = React.useState<string>("");
+  const [selectedAcctType, setSelectedAcctType] = React.useState(data.tipeAkun);
+  const [kodePerkiraanValue, setKodePerkiraanValue] = React.useState(
+    data.kodePerkiraan
   );
+  const [namaValue, setNamaValue] = React.useState(data.nama);
+  const [catatanValue, setCatatanValue] = React.useState("");
+
+  const handleAkunPerkiraanChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setKodePerkiraanValue(event.target.value);
+  };
+
+  React.useEffect(() => {
+    if (mode === "edit" && data) {
+      setSaldoValue(data.saldo);
+      setSelectedAcctType(data.tipeAkun);
+      setKodePerkiraanValue(data.kodePerkiraan);
+      setNamaValue(data.nama);
+      // Reset atau isi ulang field lainnya juga kalau perlu
+    }
+  }, [data, mode]);
+
+  const handleNamaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNamaValue(event.target.value);
+  };
 
   const handleSaldoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSaldoValue(event.target.value);
   };
 
-  const handleTanggalAwalChange = (newDate: Date | null) => {
-    setTanggalAwalValue(newDate);
+  const handleTanggalAwalChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setTanggalAwalValue(event.target.value);
   };
 
-  const onSubmit = (status: "active" | "submit") => () => {
-    console.log(`Saving as ${status}`, {
-      saldo: saldoValue,
-      tanggalAwal: tanggalAwalValue,
-    });
+  const handleCatatanChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setCatatanValue(event.target.value);
   };
 
   return (
     <div className={styles.container}>
+      <div className={styles.titleField}>
+        <Typography className={styles.titleText}>Informasi Umum</Typography>
+      </div>
+      <div className={styles.container}>
+        <div className={styles.inputField}>
+          <Typography className={styles.labelText}>Tipe Akun</Typography>
+          <SelectedTextField
+            label="Tipe Akun"
+            options={accountType}
+            value={selectedAcctType}
+            onChange={(e) => setSelectedAcctType(e.target.value)}
+          />
+        </div>
+        <div className={styles.inputField}>
+          <Typography className={styles.labelText}>Kode Perkiraan</Typography>
+          <FieldText
+            label="Kode Perkiraan"
+            value={kodePerkiraanValue}
+            onChange={handleAkunPerkiraanChange}
+          ></FieldText>
+        </div>
+        <div className={styles.inputField}>
+          <Typography className={styles.labelText}>Nama</Typography>
+          <FieldText
+            label="Nama"
+            value={namaValue}
+            onChange={handleNamaChange}
+          ></FieldText>
+          <Typography className={styles.infoText}>
+            Contoh: BCA a/c XXX-XXX, dll
+          </Typography>
+        </div>
+      </div>
+      <div className={styles.titleField}>
+        <Typography className={styles.titleText}>Saldo</Typography>
+      </div>
       <div className={styles.container}>
         <div className={styles.inputField}>
           <Typography className={styles.labelText}>Saldo Perkiraan</Typography>
@@ -42,22 +118,27 @@ export const popUpInfoAcctContent = (data: DataRow, mode: "view" | "edit") => {
             label="Saldo"
             value={saldoValue}
             onChange={handleSaldoChange}
-          />
+          ></FieldText>
         </div>
         <div className={styles.inputField}>
           <Typography className={styles.labelText}>Tanggal Awal</Typography>
           <DatePickerField
-            value={
-              tanggalAwalValue
-                ? tanggalAwalValue.toISOString().split("T")[0]
-                : ""
-            }
-            onChange={(e) =>
-              handleTanggalAwalChange(
-                e.target.value ? new Date(e.target.value) : null
-              )
-            }
-          />
+            value={tanggalAwalValue}
+            onChange={handleTanggalAwalChange}
+          ></DatePickerField>
+        </div>
+      </div>
+      <div className={styles.titleField}>
+        <Typography className={styles.titleText}>Lain Lain</Typography>
+      </div>
+      <div className={styles.container}>
+        <div className={styles.inputField}>
+          <Typography className={styles.labelText}>Catatan</Typography>
+          <AreaText
+            label="Catatan"
+            value={catatanValue}
+            onChange={handleCatatanChange}
+          ></AreaText>
         </div>
       </div>
     </div>

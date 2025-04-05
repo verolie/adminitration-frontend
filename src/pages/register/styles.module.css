@@ -24,7 +24,7 @@
 .card {
   background-color: white;
   width: 45rem;
-  height: 44rem;
+  height: fit-content;
   display: flex;
   flex-direction: column;
   border-radius: 10px;

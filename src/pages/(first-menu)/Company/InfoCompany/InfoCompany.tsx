@@ -6,7 +6,7 @@ import SelectedTextField from "@/component/textField/selectedText";
 import Table from "@/component/table/table";
 import Button from "@/component/button/button";
 import PopupModal from "@/component/popupModal/popUpModal";
-import { popUpInfoAcctContent } from "../../AkunPerkiraan/SubPage/Info/popupInfoAcctContent/popUpInfoAcctContent";
+import { popUpCompanyContent } from "./popUpCompany/popUpCompanyContent";
 
 const accountType = [
   { value: "test 1", label: "test 1" },
@@ -137,13 +137,13 @@ export default function InfoAkunPerkiraan() {
         />
       </div>
 
-      {/* <PopupModal
+      <PopupModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         data={selectedData}
         mode={modalMode}
-        renderContent={(data) => popUpInfoAcctContent(data, modalMode)}
-      /> */}
+        renderContent={(data) => popUpCompanyContent(data, modalMode)}
+      />
     </>
   );
 }

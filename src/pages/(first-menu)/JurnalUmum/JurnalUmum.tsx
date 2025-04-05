@@ -6,7 +6,7 @@ import CreateJurnalUmum from "./CreateJurnalUmum/CreateJurnalUmum";
 export default function JurnalUmum() {
   const tabs = [
     { label: "Info", content: <InfoJurnalUmum /> },
-    { label: "Create Company", content: <CreateJurnalUmum /> },
+    { label: "Create Jurnal Umum", content: <CreateJurnalUmum /> },
   ];
   return (
     <>

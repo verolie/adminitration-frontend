@@ -63,9 +63,11 @@ export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
         <Tabs
           value={value}
           onChange={handleChange}
+          variant="scrollable"
+          scrollButtons="auto"
           aria-label="dynamic tabs"
           sx={{
-            "& .MuiTabs-indicator ": {
+            "& .MuiTabs-indicator": {
               height: "0px !important",
               borderBottom: "none !important",
             },

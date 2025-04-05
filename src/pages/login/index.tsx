@@ -56,7 +56,7 @@ function Login() {
       });
 
       setTimeout(() => {
-        router.push("/");
+        router.push("/choose-company");
       }, 2000); // Biar user bisa lihat alert sebelum diarahkan ke login
     } catch (error: any) {
       console.error("Register Error:", error.message);
