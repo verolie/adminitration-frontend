@@ -5,15 +5,29 @@ import { useRouter } from "next/navigation";
 import { Box, Autocomplete, TextField, Button } from "@mui/material";
 import styles from "./styles.module.css";
 import { useAppContext } from "@/context/context";
-
-const mockCompanies = ["Company A", "Company B", "Company C", "Company D"];
+import { fetchCompany } from "../(first-menu)/Company/function/fetchCompany";
+import { Company } from "../(first-menu)/Company/model/companyModel";
 
 function ChooseCompany() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [company, setCompany] = useState<string | null>(null);
-
+  const [companyList, setCompanyList] = useState<Company[]>([]);
   const { updateSettings, showAlert } = useAppContext();
+
+  useEffect(() => {
+    getCompanies();
+  }, [showAlert]);
+
+  const getCompanies = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const result: Company[] = await fetchCompany({}, token);
+      setCompanyList(result);
+    } catch (error: any) {
+      showAlert(error.message || "Failed to load companies");
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -22,9 +36,13 @@ function ChooseCompany() {
       return;
     }
 
-    setIsLoading(true);
+    // Cari ID dari nama yang dipilih
+    const selected = companyList.find((c) => c.nama === company);
+    if (selected?.id) {
+      localStorage.setItem("companyID", selected.id);
+    }
 
-    // Simpan company ke context
+    setIsLoading(true);
     updateSettings({ darkTheme: false, selectedCompany: company });
 
     setTimeout(() => {
@@ -35,6 +53,11 @@ function ChooseCompany() {
 
   const handleCompanyClick = (value: string) => {
     setCompany(value);
+
+    const selected = companyList.find((c) => c.nama === value);
+    if (selected?.id) {
+      localStorage.setItem("companyID", selected.id);
+    }
   };
 
   return (
@@ -55,7 +78,7 @@ function ChooseCompany() {
               <label>Company</label>
               <Autocomplete
                 freeSolo
-                options={mockCompanies}
+                options={companyList.map((c) => c.nama || "Unknown Company")}
                 value={company}
                 onInputChange={(_, newInputValue) => setCompany(newInputValue)}
                 renderInput={(params) => (
@@ -71,14 +94,16 @@ function ChooseCompany() {
             <div>
               <h4>List Company</h4>
               <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
-                {mockCompanies.map((comp) => (
+                {companyList.map((comp) => (
                   <Button
-                    key={comp}
+                    key={comp.id}
                     variant="outlined"
                     size="small"
-                    onClick={() => handleCompanyClick(comp)}
+                    onClick={() =>
+                      handleCompanyClick(comp.nama || "Unknown Company")
+                    }
                   >
-                    {comp}
+                    {comp.nama}
                   </Button>
                 ))}
               </Box>

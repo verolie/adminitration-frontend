@@ -7,11 +7,14 @@ import Table from "@/component/table/table";
 import Button from "@/component/button/button";
 import PopupModal from "@/component/popupModal/popUpModal";
 import { popUpInfoAcctContent } from "./popupInfoAcctContent/popUpInfoAcctContent";
+import { fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraan";
 
 const accountType = [
-  { value: "test 1", label: "test 1" },
-  { value: "test 2", label: "test 2" },
-  { value: "test 3", label: "test 3" },
+  { id: 1, name: "Asset" },
+  { id: 2, name: "Utang" },
+  { id: 3, name: "Modal" },
+  { id: 4, name: "Pendapatan" },
+  { id: 5, name: "Beban" },
 ];
 
 const statusType = [
@@ -27,30 +30,6 @@ interface DataRow {
   saldo: string;
 }
 
-const data: DataRow[] = [
-  { kodePerkiraan: "10", nama: "Kas", tipeAkun: "Asset", saldo: "5000000" },
-  { kodePerkiraan: "1001", nama: "Kas", tipeAkun: "Asset", saldo: "5000000" },
-  {
-    kodePerkiraan: "1001312",
-    nama: "Kas Cabang",
-    tipeAkun: "Asset",
-    saldo: "2000000",
-  },
-  {
-    kodePerkiraan: "100131212",
-    nama: "Bank Mandiri",
-    tipeAkun: "Asset",
-    saldo: "5000000",
-  },
-  { kodePerkiraan: "1002", nama: "Bank", tipeAkun: "Asset", saldo: "12000000" },
-  {
-    kodePerkiraan: "1002321",
-    nama: "Bank Mandiri",
-    tipeAkun: "Asset",
-    saldo: "8000000",
-  },
-];
-
 interface Column<T> {
   key: keyof T;
   label: string;
@@ -64,31 +43,32 @@ const columns: Column<DataRow>[] = [
   { key: "saldo", label: "Saldo", align: "right" },
 ];
 
-const formatKodePerkiraan = (kode: string, data: DataRow[]): string => {
-  let parentKode = data
-    .map((row) => row.kodePerkiraan)
-    .filter((k) => k.length < kode.length && kode.startsWith(k))
-    .sort((a, b) => b.length - a.length)[0];
+function formatKodePerkiraan(kode: string, allData: DataRow[]): string {
+  const level = kode.split(".").length - 1;
+  const target = allData.find((item) => item.kodePerkiraan === kode);
 
-  let indentLevel = parentKode ? parentKode.length / 2 + 1 : 0;
-  let indentSpaces = " ".repeat(indentLevel * 2);
+  if (!target) return kode;
 
-  return `${indentSpaces}${kode}`;
+  const indent = "  ".repeat(level);
+  return `${indent}${target.kodePerkiraan}`;
+}
+
+const handleInboxClick = (item: DataRow) => {
+  console.log("Klik inbox:", item);
+  // setSelectedData(item);
+  // setModalMode("view"); // Atau custom mode lain
+  // setIsModalOpen(true);
 };
 
-const formattedData = data.map((row) => ({
-  ...row,
-  kodePerkiraan: formatKodePerkiraan(row.kodePerkiraan, data),
-  saldo: row.saldo.toLocaleString(),
-}));
-
 export default function InfoAkunPerkiraan() {
-  const [selectedAcctType, setSelectedAcctType] = React.useState("");
+  const [selectedAcctType, setSelectedAcctType] = React.useState<number | "">(
+    ""
+  );
   const [selectedStatusType, setStatusType] = React.useState("");
   const [selectedData, setSelectedData] = React.useState<DataRow | null>(null);
   const [modalMode, setModalMode] = React.useState<"view" | "edit">("view");
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [tableData, setTableData] = React.useState<DataRow[]>(formattedData);
+  const [tableData, setTableData] = React.useState<DataRow[]>([]);
 
   const handleTambahData = () => {
     console.log("Tambah Data diklik");
@@ -108,15 +88,52 @@ export default function InfoAkunPerkiraan() {
     setIsModalOpen(true);
   };
 
+  React.useEffect(() => {
+    getData();
+  }, []);
+
+  const getData = async () => {
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyID");
+
+    if (!token || !companyId) {
+      console.error("Token atau Company ID tidak tersedia.");
+      return;
+    }
+
+    try {
+      const rawData = await fetchAkunPerkiraan({ companyId }, token);
+
+      const mappedData: DataRow[] = rawData.map((item: any) => ({
+        kodePerkiraan: item.kode_akun,
+        nama: item.nama_akun,
+        tipeAkun: item.tipe_akun,
+        saldo: item.saldo,
+      }));
+
+      const formatted = mappedData.map((row) => ({
+        ...row,
+        kodePerkiraan: formatKodePerkiraan(row.kodePerkiraan, mappedData),
+      }));
+
+      setTableData(formatted);
+    } catch (error) {
+      console.error("Gagal ambil data akun perkiraan", error);
+    }
+  };
+
   return (
     <>
       <div className={styles.editFilterTable}>
         <div className={styles.filterTextField}>
           <SelectedTextField
             label="Tipe Akun"
-            options={accountType}
             value={selectedAcctType}
-            onChange={(e) => setSelectedAcctType(e.target.value)}
+            onChange={(e) => setSelectedAcctType(Number(e.target.value))}
+            options={accountType.map((type) => ({
+              value: type.id,
+              label: type.name,
+            }))}
           />
           <SelectedTextField
             label="Status"
@@ -146,6 +163,7 @@ export default function InfoAkunPerkiraan() {
           data={tableData}
           onDelete={handleDelete}
           onEdit={handleEdit}
+          // onInboxClick={handleInboxClick}
         />
       </div>
 

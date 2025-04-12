@@ -1,0 +1,68 @@
+.tableContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.headerRow,
+.dataRow {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+    align-items: center;
+}
+
+.headerRow {
+    display: grid;
+    grid-template-columns: 50px repeat(6, 1fr) 50px;
+    font-weight: bold;
+    padding: 8px;
+    color: #757A7E;
+}
+.headerCell {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #757A7E;
+}
+
+.dataRow {
+    padding: 8px 0;
+    border-bottom: 1px solid #ccc;
+}
+
+.addRowButton {
+    margin-top: 16px;
+}
+
+.addRowButton button {
+    padding: 8px 16px;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.noColumn,
+.aksiColumn {
+    width: 50px;
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #757A7E;
+}
+
+.noColumnContent,
+.aksiColumnContent {
+    width: 50px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dataRow {
+    display: grid;
+    grid-template-columns: 50px repeat(6, 1fr) 50px;
+    /* 6 editable fields between No and Aksi */
+    gap: 8px;
+    align-items: center;
+}

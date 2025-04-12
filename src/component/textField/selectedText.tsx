@@ -4,8 +4,8 @@ import styles from "./styles.module.css";
 
 interface SelectedTextFieldProps {
   label: string;
-  options: { value: string; label: string }[];
-  value: string;
+  options: { value: string | number; label: string }[];
+  value: string | number;
   sx?: object;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -17,6 +17,9 @@ const SelectedTextField: React.FC<SelectedTextFieldProps> = ({
   sx,
   onChange,
 }) => {
+  const defaultSx = { width: "40%" };
+  const mergedSx = { ...defaultSx, ...sx };
+
   return (
     <TextField
       select
@@ -25,7 +28,7 @@ const SelectedTextField: React.FC<SelectedTextFieldProps> = ({
       onChange={onChange}
       size="small"
       className={styles.selectedText}
-      sx={sx}
+      sx={mergedSx}
       InputLabelProps={{ shrink: false }}
     >
       {options.map((option) => (

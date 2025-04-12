@@ -9,4 +9,5 @@ export const logoutProcess = () => {
 const clearSession = () => {
       Cookies.remove("sessionId");
       localStorage.removeItem("token");
+      localStorage.removeItem("companyID");
     };

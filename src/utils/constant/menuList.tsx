@@ -2,6 +2,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import DomainIcon from "@mui/icons-material/Domain";
 import PeopleAlt from "@mui/icons-material/PeopleAlt";
 import BuildIcon from "@mui/icons-material/Build";
+import PolicyIcon from "@mui/icons-material/Policy";
 import Image from "next/image";
 import React from "react";
 import styles from "./style/menuBar.module.css";
@@ -9,6 +10,7 @@ import Home from "@/pages/(first-menu)/Home/Home";
 import Company from "@/pages/(first-menu)/Company/Company";
 import AkunPerkiraan from "@/pages/(first-menu)/AkunPerkiraan/AkunPerkiraan";
 import JurnalUmum from "@/pages/(first-menu)/JurnalUmum/JurnalUmum";
+import ObjekHukum from "@/pages/(first-menu)/ObjekHukum/ObjekHukum";
 import User from "@/pages/(first-menu)/User/User";
 
 interface MenuList {
@@ -78,4 +80,12 @@ export const menuList: MenuList[] = [
     submenu: null,
     roles: ["User Management"], // Sesuaikan dengan role yang diperlukan
   },
+  {
+    no: 5,
+    label: "Objek Hukum",
+    path: <ObjekHukum />,
+    icon: <PolicyIcon className={styles.icon} />,
+    submenu: null,
+    roles: ["Objek Hukum"],
+  }
 ];

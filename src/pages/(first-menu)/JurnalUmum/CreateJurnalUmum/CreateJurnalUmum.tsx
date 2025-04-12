@@ -6,131 +6,232 @@ import FieldText from "@/component/textField/fieldText";
 import Button from "@/component/button/button";
 import DatePickerField from "@/component/textField/dateAreaText";
 import AreaText from "@/component/textField/areaText";
+import TableInsertManual from "@/component/tableInsertManual/tableInserManual";
+import { JurnalUmum } from "../model/jurnalUmumModel";
+import { createJurnalUmum } from "../function/createJurnalUmum";
+import { fetchAkunPerkiraanDetail } from "../function/fetchAkunPerkiraanDetail";
 
-const accountType = [
-  { value: "test 1", label: "test 1" },
-  { value: "test 2", label: "test 2" },
-  { value: "test 3", label: "test 3" },
-];
+type RowData = {
+  no: string;
+  rekening: string;
+  bukti: string;
+  debit: string;
+  kredit: string;
+  keterangan: string;
+  tanggal: string;
+};
+
+type Column<T> = {
+  field: keyof T;
+  label: string;
+  type: "text" | "select" | "date";
+  options?: { label: string; value: string }[]; // Only for "select" type
+};
 
 export default function DataBaru() {
-  const [selectedJurnal, setSelectedJurnal] = React.useState("");
-  const [selectedAkunPerkiraan, setSelectedAkunPerkiraan] = React.useState("");
   const [kodeAkunValue, setKodeAkunValue] = React.useState("");
-  const [namaAkunValue, setNamaAkunValue] = React.useState("");
-  const [debitValue, setDebitValue] = React.useState("");
-  const [kreditValue, setKreditValue] = React.useState("");
+  const [totalDebit, setTotalDebit] = React.useState(0);
+  const [totalKredit, setTotalKredit] = React.useState(0);
   const [tanggalValue, setTanggalValue] = React.useState("");
   const [buktiValue, setBuktiValue] = React.useState("");
   const [deskripsiValue, setDeskripsiValue] = React.useState("");
+  const [rows, setRows] = React.useState<RowData[]>([
+    {
+      no: "",
+      rekening: "",
+      bukti: "",
+      debit: "",
+      kredit: "",
+      keterangan: "",
+      tanggal: "",
+    },
+  ]);
+  const [akunOptions, setAkunOptions] = React.useState<
+    { value: string; label: string }[]
+  >([]);
 
-  const onSubmit = (status: "active" | "submit") => () => {
-    const payload = {
-      kodeAkun: kodeAkunValue,
-      namaAkun: namaAkunValue,
-      jurnal: selectedJurnal,
-      akunPerkiraan: selectedAkunPerkiraan,
-      debit: debitValue,
-      kredit: kreditValue,
-      tanggal: tanggalValue,
-      bukti: buktiValue,
-      deskripsi: deskripsiValue,
-      status,
+  const columns: Column<RowData>[] = React.useMemo(
+    () => [
+      {
+        field: "rekening",
+        label: "Rekening",
+        type: "select",
+        options: akunOptions,
+      },
+      { field: "bukti", label: "Bukti", type: "text" },
+      { field: "debit", label: "Debit", type: "text" },
+      { field: "kredit", label: "Kredit", type: "text" },
+      { field: "keterangan", label: "Keterangan", type: "text" },
+    ],
+    [akunOptions]
+  );
+
+  React.useEffect(() => {
+    const fetchAkun = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const companyId = localStorage.getItem("companyID");
+
+        if (!token || !companyId) return;
+
+        const data = await fetchAkunPerkiraanDetail(
+          { companyId }, // pastikan AkunPerkiraan hanya butuh ini
+          token
+        );
+
+        console.log("contoh ", data);
+        const akunList = data.map((akun: any) => ({
+          value: akun.id.toString(),
+          label: `${akun.kode_akun} - ${akun.nama_akun}`,
+        }));
+
+        setAkunOptions(akunList);
+      } catch (err) {
+        console.error("Gagal fetch akun:", err);
+      }
     };
 
-    console.log("Submitting data:", payload);
+    fetchAkun();
+  }, []);
+  const handleRowChange = (
+    index: number,
+    field: keyof RowData,
+    value: string
+  ) => {
+    const updatedRows = [...rows];
+    updatedRows[index][field] = value;
+    setRows(updatedRows);
+  };
+
+  const handleAddRow = () => {
+    setRows([
+      ...rows,
+      {
+        no: "",
+        rekening: "",
+        bukti: "",
+        debit: "",
+        kredit: "",
+        keterangan: "",
+        tanggal: "",
+      },
+    ]);
+  };
+
+  React.useEffect(() => {
+    let debit = 0;
+    let kredit = 0;
+
+    rows.forEach((row) => {
+      debit += parseFloat(row.debit) || 0;
+      kredit += parseFloat(row.kredit) || 0;
+    });
+
+    setTotalDebit(debit);
+    setTotalKredit(kredit);
+  }, [rows]);
+
+  const handleDeleteRow = (index: number) => {
+    const updatedRows = [...rows];
+    updatedRows.splice(index, 1);
+    setRows(updatedRows);
+  };
+
+  const onSubmit = (status: "active" | "submit") => async () => {
+    if (totalDebit !== totalKredit) {
+      alert("Total debit dan kredit harus seimbang.");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const companyId = localStorage.getItem("companyID");
+
+      if (companyId && token) {
+        const data: JurnalUmum = {
+          faktur: kodeAkunValue,
+          tgl: tanggalValue,
+          totalDebit: totalDebit,
+          totalKredit: totalKredit,
+          companyId: companyId,
+          jurnalDetail: rows.map((row, index) => ({
+            akunPerkiraanDetailId: Number(row.rekening),
+            bukti: row.bukti,
+            debit: parseFloat(row.debit) || 0,
+            kredit: parseFloat(row.kredit) || 0,
+            urut: index + 1,
+            keterangan: row.keterangan,
+          })),
+        };
+
+        const result = await createJurnalUmum(data, token);
+        alert(`Jurnal berhasil disimpan: ${result}`);
+      }
+    } catch (error: any) {
+      alert(`Gagal menyimpan jurnal: ${error.message}`);
+    }
   };
 
   return (
     <div className={styles.container}>
       <div className={styles.titleField}>
-        <Typography className={styles.titleText}>Informasi Umum</Typography>
+        <Typography className={styles.titleText}>Data Faktur</Typography>
       </div>
       <div className={styles.container}>
-        <div className={styles.inputField}>
-          <Typography className={styles.labelText}>Kode Akun</Typography>
-          <FieldText
-            label="Kode Akun"
-            value={kodeAkunValue}
-            onChange={(e) => setKodeAkunValue(e.target.value)}
-          />
-        </div>
-        <div className={styles.inputField}>
-          <Typography className={styles.labelText}>Nama Akun</Typography>
-          <FieldText
-            label="Nama Akun"
-            value={namaAkunValue}
-            onChange={(e) => setNamaAkunValue(e.target.value)}
-          />
-        </div>
-        <div className={styles.inputField}>
-          <Typography className={styles.labelText}>Jurnal</Typography>
-          <SelectedTextField
-            label="Jurnal"
-            options={accountType}
-            value={selectedJurnal}
-            onChange={(e) => setSelectedJurnal(e.target.value)}
-          />
-        </div>
-        <div className={styles.inputField}>
-          <Typography className={styles.labelText}>Akun Perkiraan</Typography>
-          <SelectedTextField
-            label="Akun Perkiraan"
-            options={accountType}
-            value={selectedAkunPerkiraan}
-            onChange={(e) => setSelectedAkunPerkiraan(e.target.value)}
-          />
+        <div className={styles.rowContainer}>
+          <div className={styles.inputField}>
+            <Typography className={styles.labelText}>Nomor Faktur</Typography>
+            <FieldText
+              label="Nomor Faktur"
+              value={kodeAkunValue}
+              onChange={(e) => setKodeAkunValue(e.target.value)}
+              sx={{ width: "100%" }}
+            />
+          </div>
+          <div className={styles.inputField}>
+            <Typography className={styles.labelText}>Tanggal</Typography>
+            <DatePickerField
+              value={tanggalValue}
+              onChange={(e) => setTanggalValue(e.target.value)}
+              sx={{ width: "100%" }}
+            />
+          </div>
         </div>
       </div>
 
       <div className={styles.titleField}>
-        <Typography className={styles.titleText}>Saldo</Typography>
+        <Typography className={styles.titleText}>Data Jurnal</Typography>
       </div>
-      <div className={styles.container}>
-        <div className={styles.inputField}>
-          <Typography className={styles.labelText}>Debit</Typography>
-          <FieldText
-            label="Debit"
-            value={debitValue}
-            onChange={(e) => setDebitValue(e.target.value)}
-          />
-        </div>
-        <div className={styles.inputField}>
-          <Typography className={styles.labelText}>Kredit</Typography>
-          <FieldText
-            label="Kredit"
-            value={kreditValue}
-            onChange={(e) => setKreditValue(e.target.value)}
-          />
-        </div>
-        <div className={styles.inputField}>
-          <Typography className={styles.labelText}>Tanggal</Typography>
-          <DatePickerField
-            value={tanggalValue}
-            onChange={(e) => setTanggalValue(e.target.value)}
-          />
-        </div>
-      </div>
+      <TableInsertManual
+        rows={rows}
+        onChange={handleRowChange}
+        addRow={handleAddRow} // pakai yang ini, bukan yang bawah
+        deleteRow={handleDeleteRow} // pakai yang ini juga
+        columns={columns}
+      />
 
-      <div className={styles.titleField}>
-        <Typography className={styles.titleText}>Lain-Lain</Typography>
-      </div>
       <div className={styles.container}>
-        <div className={styles.inputField}>
-          <Typography className={styles.labelText}>Bukti</Typography>
-          <FieldText
-            label="Bukti"
-            value={buktiValue}
-            onChange={(e) => setBuktiValue(e.target.value)}
-          />
-        </div>
-        <div className={styles.inputField}>
-          <Typography className={styles.labelText}>Deskripsi</Typography>
-          <AreaText
-            label="Deskripsi"
-            value={deskripsiValue}
-            onChange={(e) => setDeskripsiValue(e.target.value)}
-          />
+        <div className={styles.rowContainer}>
+          <div className={styles.inputField}>
+            <Typography className={styles.labelText}>Total Debit</Typography>
+            <FieldText
+              label="0"
+              value={totalDebit.toString()}
+              onChange={(e) => setKodeAkunValue(e.target.value)}
+              sx={{ width: "100%" }}
+              disabled={true}
+            />
+          </div>
+          <div className={styles.inputField}>
+            <Typography className={styles.labelText}>Total Kredit</Typography>
+            <FieldText
+              label="0"
+              value={totalKredit.toString()}
+              onChange={(e) => setKodeAkunValue(e.target.value)}
+              sx={{ width: "100%" }}
+              disabled={true}
+            />
+          </div>
         </div>
       </div>
 

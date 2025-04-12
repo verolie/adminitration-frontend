@@ -41,6 +41,18 @@ padding: 10px;
   white-space: pre-wrap;
 }
 
+.cellInbox {
+  padding: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border: 1px solid #ddd;
+  background-color: #00569F;
+  display: flex;
+  align-items: center;
+  /* Vertikal center */
+  justify-content: center;
+  /* Horizontal center */
+}
 .sortButton {
   margin-left: 10px;
   border: none;
@@ -111,4 +123,35 @@ padding: 10px;
   display: flex;
   gap: 10px;
   /* Add spacing between buttons */
+}
+.inboxButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.loadingRow {
+  text-align: center;
+  padding: 20px;
+  color: white;
+}
+
+.loadingSpinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  border-top: 3px solid #888;
+  animation: spin 1s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

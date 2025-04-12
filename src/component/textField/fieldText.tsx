@@ -6,13 +6,15 @@ interface FieldText {
   label: string;
   value: string;
   sx?: object;
+  disabled?: boolean; // Tambahkan ini
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const CustomTextField: React.FC<FieldText> = ({
   label,
   value,
-  sx,
+  sx = {},
+  disabled = false, // default false
   onChange,
 }) => {
   return (
@@ -21,9 +23,9 @@ const CustomTextField: React.FC<FieldText> = ({
       value={value}
       onChange={onChange}
       size="small"
+      disabled={disabled} // Tambahkan ke sini
       className={styles.customTextField}
-      sx={sx}
-      // InputLabelProps={{ shrink: false }}
+      sx={{ width: "40%", ...sx }}
     />
   );
 };

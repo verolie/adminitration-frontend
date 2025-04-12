@@ -24,7 +24,7 @@
 
 .alertBox {
     position: fixed;
-    top: 20px;
+    top: 78px;
     right: 20px;
     display: flex;
     align-items: center;
@@ -36,6 +36,7 @@
     color: #333;
     font-size: 16px;
     animation: slideIn 0.1s ease-out;
+    z-index: 1700;
 }
 
 .hidden {

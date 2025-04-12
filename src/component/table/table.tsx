@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ArrowUpDown, ChevronUp, ChevronDown, Filter } from "lucide-react";
 import EditMenu from "./editMenu";
 import styles from "./styles.module.css";
+// import Inbox from "@mui/icons-material/Inbox";
 
 interface Column<T> {
   key: keyof T;
@@ -14,13 +15,17 @@ interface TableProps<T> {
   data: T[];
   onDelete: (item: T) => void;
   onEdit: (item: T) => void;
+  isLoading?: boolean;
+  observerRef?: React.RefObject<HTMLTableRowElement | null>;
 }
 
 const Table = <T extends Record<string, any>>({
   columns,
-  data,
+  data = [],
   onDelete,
   onEdit,
+  isLoading,
+  observerRef,
 }: TableProps<T>) => {
   const [sortKey, setSortKey] = useState<keyof T | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -35,23 +40,25 @@ const Table = <T extends Record<string, any>>({
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const sortedData = [...data].sort((a, b) => {
-    if (!sortKey) return 0;
-    const valA = a[sortKey];
-    const valB = b[sortKey];
+  const sortedData = Array.isArray(data)
+    ? [...data].sort((a, b) => {
+        if (!sortKey) return 0;
+        const valA = a[sortKey];
+        const valB = b[sortKey];
 
-    if (typeof valA === "number" && typeof valB === "number") {
-      return sortOrder === "asc" ? valA - valB : valB - valA;
-    }
+        if (typeof valA === "number" && typeof valB === "number") {
+          return sortOrder === "asc" ? valA - valB : valB - valA;
+        }
 
-    if (typeof valA === "string" && typeof valB === "string") {
-      return sortOrder === "asc"
-        ? valA.localeCompare(valB)
-        : valB.localeCompare(valA);
-    }
+        if (typeof valA === "string" && typeof valB === "string") {
+          return sortOrder === "asc"
+            ? valA.localeCompare(valB)
+            : valB.localeCompare(valA);
+        }
 
-    return 0;
-  });
+        return 0;
+      })
+    : [];
 
   const filteredData = sortedData.filter((item) =>
     columns.every(
@@ -66,6 +73,7 @@ const Table = <T extends Record<string, any>>({
     <div className={styles.tableContainer}>
       <table className={styles.table}>
         <colgroup>
+          <col style={{ width: "50px" }} />
           {columns.map((_, idx) => (
             <col key={idx} style={{ width: `${100 / columns.length}%` }} />
           ))}
@@ -74,6 +82,9 @@ const Table = <T extends Record<string, any>>({
 
         <thead>
           <tr>
+            {/* {onInboxClick && (
+              <th className={`${styles.headerCell} ${styles.headerTable}`}></th>
+            )} */}
             {columns.map((col) => (
               <th
                 key={col.key as string}
@@ -105,6 +116,7 @@ const Table = <T extends Record<string, any>>({
             </th>
           </tr>
           <tr>
+            {/* {onInboxClick && <th className={styles.headerCell}></th>} */}
             {columns.map((col) => (
               <th key={col.key as string} className={styles.headerCell}>
                 <input
@@ -143,6 +155,20 @@ const Table = <T extends Record<string, any>>({
               )}
             </tr>
           ))}
+
+          {/* Always render observer trigger row */}
+          <tr ref={observerRef}>
+            <td colSpan={columns.length + 1} style={{ height: "50px" }} />
+          </tr>
+
+          {isLoading && (
+            <tr>
+              <td colSpan={columns.length + 1} className={styles.loadingRow}>
+                <div className={styles.loadingSpinner}></div>
+                <span style={{ marginLeft: "8px" }}>Loading data...</span>
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>

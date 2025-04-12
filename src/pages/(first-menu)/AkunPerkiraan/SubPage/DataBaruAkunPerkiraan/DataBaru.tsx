@@ -6,28 +6,79 @@ import FieldText from "@/component/textField/fieldText";
 import Button from "@/component/button/button";
 import DatePickerField from "@/component/textField/dateAreaText";
 import AreaText from "@/component/textField/areaText";
+import { fetchAkunPerkiraanInduk } from "../../function/fetchAkunPerkiraanInduk";
+import { fetchAkunPerkiraanSub } from "../../function/fetchAkunPerkiraanSub";
+import { createAkunPerkiraan } from "../../function/createAkunPerkiraan";
 
 const accountType = [
-  {
-    value: "test 1",
-    label: "test 1",
-  },
-  {
-    value: "test 2",
-    label: "test 2",
-  },
-  {
-    value: "test 3",
-    label: "test 3",
-  },
+  { id: 1, name: "Asset" },
+  { id: 2, name: "Utang" },
+  { id: 3, name: "Modal" },
+  { id: 4, name: "Pendapatan" },
+  { id: 5, name: "Beban" },
 ];
+
 export default function CreateAkunPerkiraan() {
-  const [selectedAcctType, setSelectedAcctType] = React.useState("");
+  const [selectedAcctType, setSelectedAcctType] = React.useState<number | "">(
+    ""
+  );
   const [kodePerkiraanValue, setKodePerkiraanValue] = React.useState("");
   const [namaValue, setNamaValue] = React.useState("");
   const [saldoValue, setSaldoValue] = React.useState("");
   const [tanggalAwalValue, setTanggalAwalValue] = React.useState("");
   const [catatanValue, setCatatanValue] = React.useState("");
+  const [levelAkun, setLevelAkun] = React.useState<
+    "induk" | "sub" | "detail" | ""
+  >("");
+  const [selectedIndukAkun, setSelectedIndukAkun] = React.useState("");
+  const [selectedSubAkun, setSelectedSubAkun] = React.useState("");
+  const [indukAkunList, setIndukAkunList] = React.useState([]);
+  const [subAkunList, setSubAkunList] = React.useState([]);
+
+  React.useEffect(() => {
+    fetchData();
+  }, [levelAkun]);
+
+  React.useEffect(() => {
+    setSelectedIndukAkun("");
+    setSelectedSubAkun("");
+
+    fetchData();
+  }, [levelAkun]);
+
+  const fetchData = async () => {
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyID");
+    if (!companyId || !token) return;
+
+    if (levelAkun === "sub" || levelAkun === "detail") {
+      try {
+        const result = await fetchAkunPerkiraanInduk({ companyId }, token);
+        setIndukAkunList(
+          result.map((item: any) => ({
+            value: item.id,
+            label: `${item.kode_akun} - ${item.nama_akun}`,
+          }))
+        );
+      } catch (error) {
+        console.error("Gagal ambil akun induk", error);
+      }
+    }
+
+    if (levelAkun === "detail") {
+      try {
+        const result = await fetchAkunPerkiraanSub({ companyId }, token);
+        setSubAkunList(
+          result.map((item: any) => ({
+            value: item.id,
+            label: `${item.kode_akun} - ${item.nama_akun}`,
+          }))
+        );
+      } catch (error) {
+        console.error("Gagal ambil akun sub", error);
+      }
+    }
+  };
 
   const handleAkunPerkiraanChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -53,23 +104,96 @@ export default function CreateAkunPerkiraan() {
     setCatatanValue(event.target.value);
   };
 
-  const onSubmit = (status: "active" | "submit") => () => {
-    const payload = {
-      accountType: selectedAcctType,
-      kodePerkiraan: kodePerkiraanValue,
-      nama: namaValue,
-      saldo: saldoValue,
-      tanggalAwal: tanggalAwalValue,
-      status,
-    };
+  const onSubmit = (status: "active" | "submit") => async () => {
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyID");
 
-    console.log("Submitting data:", payload);
+    if (!token || !companyId || !levelAkun) {
+      console.error("Token, Company ID, atau level akun tidak tersedia");
+      return;
+    }
+
+    try {
+      let payload: any = {
+        companyId,
+        kodeAkun: kodePerkiraanValue,
+        namaAkun: namaValue,
+        keterangan: catatanValue,
+      };
+
+      if (levelAkun === "sub") {
+        payload = {
+          ...payload,
+          akunPerkiraanIndukId: selectedIndukAkun,
+        };
+      }
+
+      if (levelAkun === "detail") {
+        payload = {
+          ...payload,
+          akunPerkiraanIndukId: selectedIndukAkun,
+          akunPerkiraanSubId: selectedSubAkun,
+          tipeAkunId: selectedAcctType,
+          saldoAwal: saldoValue,
+          tanggalAwal: tanggalAwalValue,
+          status,
+        };
+      }
+
+      const message = await createAkunPerkiraan(payload, levelAkun, token);
+      alert(`Berhasil: ${message}`);
+    } catch (error: any) {
+      alert(`Gagal membuat akun: ${error.message}`);
+    }
   };
 
   return (
     <>
       {
         <div className={styles.container}>
+          <div className={styles.titleField}>
+            <Typography className={styles.titleText}>Akun Perkiraan</Typography>
+          </div>
+          <div className={styles.container}>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>Opsi Akun</Typography>
+              <SelectedTextField
+                label="Opsi Akun"
+                value={levelAkun}
+                onChange={(e) =>
+                  setLevelAkun(e.target.value as "induk" | "sub" | "detail")
+                }
+                options={[
+                  { value: "induk", label: "Induk" },
+                  { value: "sub", label: "Sub" },
+                  { value: "detail", label: "Detail" },
+                ]}
+              />
+            </div>
+            {(levelAkun === "sub" || levelAkun === "detail") && (
+              <div className={styles.inputField}>
+                <Typography className={styles.labelText}>Induk Akun</Typography>
+                <SelectedTextField
+                  label="Induk Akun"
+                  value={selectedIndukAkun}
+                  onChange={(e) => setSelectedIndukAkun(e.target.value)}
+                  options={indukAkunList}
+                />
+              </div>
+            )}
+
+            {levelAkun === "detail" && (
+              <div className={styles.inputField}>
+                <Typography className={styles.labelText}>Sub Akun</Typography>
+                <SelectedTextField
+                  label="Sub Akun"
+                  value={selectedSubAkun}
+                  onChange={(e) => setSelectedSubAkun(e.target.value)}
+                  options={subAkunList}
+                />
+              </div>
+            )}
+          </div>
           <div className={styles.titleField}>
             <Typography className={styles.titleText}>Informasi Umum</Typography>
           </div>
@@ -78,9 +202,12 @@ export default function CreateAkunPerkiraan() {
               <Typography className={styles.labelText}>Tipe Akun</Typography>
               <SelectedTextField
                 label="Tipe Akun"
-                options={accountType}
                 value={selectedAcctType}
-                onChange={(e) => setSelectedAcctType(e.target.value)}
+                onChange={(e) => setSelectedAcctType(Number(e.target.value))}
+                options={accountType.map((type) => ({
+                  value: type.id,
+                  label: type.name,
+                }))}
               />
             </div>
             <div className={styles.inputField}>
@@ -118,13 +245,6 @@ export default function CreateAkunPerkiraan() {
                 value={saldoValue}
                 onChange={handleSaldoChange}
               ></FieldText>
-            </div>
-            <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Tanggal Awal</Typography>
-              <DatePickerField
-                value={tanggalAwalValue}
-                onChange={handleTanggalAwalChange}
-              ></DatePickerField>
             </div>
           </div>
           <div className={styles.titleField}>

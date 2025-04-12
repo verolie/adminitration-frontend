@@ -21,3 +21,12 @@
 .buttonGroup button {
     width: 50%;
 }
+.loadingText {
+    text-align: center;
+    padding: 16px;
+    color: #aaa;
+}
+
+.loaderSentinel {
+    height: 1px;
+}

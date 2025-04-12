@@ -3,6 +3,11 @@
     flex-direction: column;
     align-items: flex-start;
     margin-bottom: 16px;
+flex: 1 1 45%;
+    /* fleksibel dan tetap responsif */
+    max-width: 50%;
+    min-width: 200px;
+    /* biar ga terlalu kecil di layar kecil */
 }
 
 .labelText {
@@ -36,6 +41,14 @@
     margin: 10px 10px;
 }
 
+.rowContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    /* Optional, biar responsif */
+}
 .titleField {
     display: flex;
     flex-direction: column;

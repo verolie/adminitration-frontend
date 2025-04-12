@@ -1,6 +1,5 @@
 import { TextField } from "@mui/material";
 import React from "react";
-import styles from "./styles.module.css";
 
 interface TextAreaFieldProps {
   label: string;
@@ -12,7 +11,7 @@ interface TextAreaFieldProps {
 const TextAreaField: React.FC<TextAreaFieldProps> = ({
   label,
   value,
-  sx,
+  sx = {},
   onChange,
 }) => {
   return (
@@ -21,10 +20,9 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
       value={value}
       onChange={onChange}
       size="small"
-      className={styles.customTextField}
-      sx={sx}
       multiline
       rows={4} // Bisa diubah sesuai kebutuhan
+      sx={{ width: "40%", ...sx }}
     />
   );
 };

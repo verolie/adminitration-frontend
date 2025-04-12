@@ -1,6 +1,5 @@
 import { TextField } from "@mui/material";
 import React from "react";
-import styles from "./styles.module.css";
 
 interface DatePickerFieldProps {
   value: string;
@@ -10,7 +9,7 @@ interface DatePickerFieldProps {
 
 const DatePickerField: React.FC<DatePickerFieldProps> = ({
   value,
-  sx,
+  sx = {},
   onChange,
 }) => {
   return (
@@ -19,9 +18,8 @@ const DatePickerField: React.FC<DatePickerFieldProps> = ({
       value={value}
       onChange={onChange}
       size="small"
-      sx={sx}
-      className={styles.customTextField}
-      InputLabelProps={{ shrink: false }} // Biar label tidak tumpang tindih
+      sx={{ width: "40%", ...sx }} // default width 100%, bisa di-override
+      InputLabelProps={{ shrink: false }}
     />
   );
 };
