@@ -6,13 +6,13 @@ import { Box, Autocomplete, TextField, Button } from "@mui/material";
 import styles from "./styles.module.css";
 import { useAppContext } from "@/context/context";
 import { fetchCompany } from "../(first-menu)/Company/function/fetchCompany";
-import { Company } from "../(first-menu)/Company/model/companyModel";
+import { CompanyModel } from "../(first-menu)/Company/model/companyModel";
 
 function ChooseCompany() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [company, setCompany] = useState<string | null>(null);
-  const [companyList, setCompanyList] = useState<Company[]>([]);
+  const [companyList, setCompanyList] = useState<CompanyModel[]>([]);
   const { updateSettings, showAlert } = useAppContext();
 
   useEffect(() => {
@@ -22,7 +22,7 @@ function ChooseCompany() {
   const getCompanies = async () => {
     const token = localStorage.getItem("token");
     try {
-      const result: Company[] = await fetchCompany({}, token);
+      const result: CompanyModel[] = await fetchCompany({}, token);
       setCompanyList(result);
     } catch (error: any) {
       showAlert(error.message || "Failed to load companies");

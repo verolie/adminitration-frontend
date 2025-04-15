@@ -1,6 +1,6 @@
 .tableContainer {
   width: 100%;
-  max-height: calc(100vh - 280px);
+  max-height: calc(100vh - 249px);
   border: 1px solid #ddd;
   border-radius: 10px;
   font-family: "Roboto", sans-serif;
@@ -109,11 +109,8 @@ padding: 10px;
     padding: 10px;
     border: 1px solid #ddd;
   }
-  
-  /* Baris ke-2 (filter row), offset-nya digeser biar gak tiban baris pertama) */
   thead tr:nth-child(2) .headerCell {
     top: 41px;
-    /* sesuai tinggi header baris pertama */
     border: 2px solid #ccc;
     background: white;
     z-index: 999;
@@ -154,4 +151,25 @@ padding: 10px;
   to {
     transform: rotate(360deg);
   }
+}
+
+.expandedRow{
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 3%;
+}
+
+.smallCell {
+  width: 35px;
+  min-width: 35px;
+  max-width: 35px;
+  padding: 0 4px;
+  text-align: center;
+  /* background-color: #00569F; */
+}
+
+.expandButton{
+  border: none;
+  background-color: transparent;
+  /* color: #fff; */
 }

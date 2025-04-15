@@ -20,15 +20,14 @@ const fetchAkunPerkiraanBackend = async (data: AkunPerkiraan, token: string) => 
 
     const responseData = response.data;
 
-    console.log(responseData.data[1].kode_akun);
-
-    if (responseData.success === false) {
-      throw new Error(responseData);
+    if (!responseData.success) {
+      throw new Error(responseData.message || "Unknown Error");
     }
 
-    return responseData.data;
+    return responseData.data.data; 
   } catch (error: any) {
-    console.error("Error Response:", error.response?.data?.errors?.[0]);
+    console.error("Error Response:", error);
     throw new Error(error.response?.data?.errors?.[0] || "Fetch jurnal failed");
   }
 };
+

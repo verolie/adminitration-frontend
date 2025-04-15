@@ -1,0 +1,48 @@
+.editFilterTable {
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.filterTextField {
+    display: flex;
+    gap: 16px;
+    width: 70%;
+}
+
+.buttonGroup {
+    display: flex;
+    gap: 8px;
+    /* Jarak antar tombol */
+}
+
+.buttonGroup button {
+    width: 50%;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 253px);
+}
+
+.scrollContent {
+    max-height: calc(100vh - 100px);
+    /* Sesuaikan tinggi filter/header */
+    overflow-y: auto;
+    border-radius: 0px 0px 10px 10px;
+    border: 1px solid #ddd;
+    box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.1);
+    padding: 8px;
+}
+
+.scrollContent::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollContent::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}

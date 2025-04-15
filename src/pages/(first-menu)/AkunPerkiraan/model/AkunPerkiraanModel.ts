@@ -18,9 +18,9 @@ export interface AkunPerkiraanSub {
 
 export interface AkunPerkiraanDetail {
   id?: string;
-  kodeAkun?: string;
+  kode_akun?: string;
   companyId?: string;
-  namaAkun?: string;
+  nama_akun?: string;
   keterangan?: string;
   akunPerkiraanSubId?: number;
 }
@@ -31,4 +31,8 @@ export interface AkunPerkiraan {
   companyId: string;
   page?: number;   // optional kalau nggak selalu dikirim
   limit?: number;  // optional juga
+  kode_akun?: string;
+  nama_akun?: string;
+  keterangan?: string;
+
 }

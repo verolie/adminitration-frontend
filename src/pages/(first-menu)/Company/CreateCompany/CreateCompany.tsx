@@ -57,12 +57,12 @@ export default function CreateCompany() {
 
   return (
     <>
-      {
-        <div className={styles.container}>
+      <div className={styles.container}>
+        <div className={styles.scrollContent}>
           <div className={styles.titleField}>
             <Typography className={styles.titleText}>Detail Company</Typography>
           </div>
-          <div className={styles.container}>
+          <div className={styles.fieldContainer}>
             <div className={styles.inputField}>
               <Typography className={styles.labelText}>Nama</Typography>
               <FieldText
@@ -87,7 +87,7 @@ export default function CreateCompany() {
             />
           </div>
         </div>
-      }
+      </div>
       {alertMessage && (
         <AlertBox
           message={alertMessage.message}

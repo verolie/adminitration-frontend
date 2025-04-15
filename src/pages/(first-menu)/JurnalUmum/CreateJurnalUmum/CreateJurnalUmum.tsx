@@ -174,63 +174,65 @@ export default function DataBaru() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.titleField}>
-        <Typography className={styles.titleText}>Data Faktur</Typography>
-      </div>
-      <div className={styles.container}>
-        <div className={styles.rowContainer}>
-          <div className={styles.inputField}>
-            <Typography className={styles.labelText}>Nomor Faktur</Typography>
-            <FieldText
-              label="Nomor Faktur"
-              value={kodeAkunValue}
-              onChange={(e) => setKodeAkunValue(e.target.value)}
-              sx={{ width: "100%" }}
-            />
-          </div>
-          <div className={styles.inputField}>
-            <Typography className={styles.labelText}>Tanggal</Typography>
-            <DatePickerField
-              value={tanggalValue}
-              onChange={(e) => setTanggalValue(e.target.value)}
-              sx={{ width: "100%" }}
-            />
+      <div className={styles.scrollContent}>
+        <div className={styles.titleField}>
+          <Typography className={styles.titleText}>Data Faktur</Typography>
+        </div>
+        <div className={styles.filterContainer}>
+          <div className={styles.rowContainer}>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>Nomor Faktur</Typography>
+              <FieldText
+                label="Nomor Faktur"
+                value={kodeAkunValue}
+                onChange={(e) => setKodeAkunValue(e.target.value)}
+                sx={{ width: "100%" }}
+              />
+            </div>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>Tanggal</Typography>
+              <DatePickerField
+                value={tanggalValue}
+                onChange={(e) => setTanggalValue(e.target.value)}
+                sx={{ width: "100%" }}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className={styles.titleField}>
-        <Typography className={styles.titleText}>Data Jurnal</Typography>
-      </div>
-      <TableInsertManual
-        rows={rows}
-        onChange={handleRowChange}
-        addRow={handleAddRow} // pakai yang ini, bukan yang bawah
-        deleteRow={handleDeleteRow} // pakai yang ini juga
-        columns={columns}
-      />
+        <div className={styles.titleField}>
+          <Typography className={styles.titleText}>Data Jurnal</Typography>
+        </div>
+        <TableInsertManual
+          rows={rows}
+          onChange={handleRowChange}
+          addRow={handleAddRow}
+          deleteRow={handleDeleteRow}
+          columns={columns}
+        />
 
-      <div className={styles.container}>
-        <div className={styles.rowContainer}>
-          <div className={styles.inputField}>
-            <Typography className={styles.labelText}>Total Debit</Typography>
-            <FieldText
-              label="0"
-              value={totalDebit.toString()}
-              onChange={(e) => setKodeAkunValue(e.target.value)}
-              sx={{ width: "100%" }}
-              disabled={true}
-            />
-          </div>
-          <div className={styles.inputField}>
-            <Typography className={styles.labelText}>Total Kredit</Typography>
-            <FieldText
-              label="0"
-              value={totalKredit.toString()}
-              onChange={(e) => setKodeAkunValue(e.target.value)}
-              sx={{ width: "100%" }}
-              disabled={true}
-            />
+        <div className={styles.container}>
+          <div className={styles.rowContainer}>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>Total Debit</Typography>
+              <FieldText
+                label="0"
+                value={totalDebit.toString()}
+                onChange={(e) => setKodeAkunValue(e.target.value)}
+                sx={{ width: "100%" }}
+                disabled={true}
+              />
+            </div>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>Total Kredit</Typography>
+              <FieldText
+                label="0"
+                value={totalKredit.toString()}
+                onChange={(e) => setKodeAkunValue(e.target.value)}
+                sx={{ width: "100%" }}
+                disabled={true}
+              />
+            </div>
           </div>
         </div>
       </div>

@@ -1,11 +1,11 @@
 import axios from "axios";
-import { Company } from "../model/companyModel";
+import { CompanyModel } from "../model/companyModel";
 
-export const createCompany = async (user: Company, token: string) => {
-  return await createCompanyBackend(user, token);
+export const createCompany = async (data: CompanyModel, token: string) => {
+  return await createCompanyBackend(data, token);
 };
 
-const createCompanyBackend = async (data: Company, token: string) => {
+const createCompanyBackend = async (data: CompanyModel, token: string) => {
   try {
     const requestData = {
       nama: data.nama,

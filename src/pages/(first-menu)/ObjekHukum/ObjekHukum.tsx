@@ -1,9 +1,21 @@
-import * as React from "react";
+// app/objek-hukum/page.tsx (atau sesuai path kamu)
+"use client";
 
-export default function ObjekHukum() {
+import TabPage from "@/component/tabPage/tabPage";
+import React, { useRef, useState } from "react";
+import InfoObjekHukum from "./page/InfoOkbjekHukum/InfoObjekHukum";
+import EditObjekHukum from "./page/editObjekHukum/editObjekHukum";
+
+const ObjekHukum = () => {
+  const tabs = [
+    { label: "Info", content: <InfoObjekHukum /> },
+    { label: "Edit Objek Hukum", content: <EditObjekHukum /> },
+  ];
   return (
     <>
-      <div>Ini halaman Onjek Hukum</div>
+      <TabPage tabs={tabs} page="sub" />
     </>
   );
-}
+};
+
+export default ObjekHukum;

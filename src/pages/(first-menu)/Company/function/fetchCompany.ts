@@ -1,11 +1,11 @@
 import axios from "axios";
-import { Company } from "../model/companyModel";
+import { CompanyModel } from "../model/companyModel";
 
-export const fetchCompany = async (data: Company, token: string | null) => {
+export const fetchCompany = async (data: CompanyModel, token: string | null) => {
   return await fetchCompanyBackend(data, token);
 };
 
-const fetchCompanyBackend = async (data: Company, token: string | null) => {
+const fetchCompanyBackend = async (data: CompanyModel, token: string | null) => {
   try {
 
     const response = await axios.get(
