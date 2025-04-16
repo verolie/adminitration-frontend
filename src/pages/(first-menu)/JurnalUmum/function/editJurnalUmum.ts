@@ -1,13 +1,14 @@
 import axios from "axios";
 import { JurnalUmum } from "../model/JurnalUmumModel";
 
-export const createJurnalUmum = async (data: JurnalUmum, token: string) => {
-  return await createData(data, token);
+export const editJurnalUmum = async (data: JurnalUmum, token: string) => {
+  return await editData(data,  token);
 };
 
-const createData = async (data: JurnalUmum, token: string) => {
+const editData = async (data: JurnalUmum, token: string) => {
   try {
     const requestData = {
+      id : data.id,
       company_id: data.companyId, // sesuai field dari backend
       faktur: data.faktur,
       tgl: data.tgl,
@@ -23,8 +24,8 @@ const createData = async (data: JurnalUmum, token: string) => {
       }))
     };
 
-    const response = await axios.post(
-      "http://127.0.0.1:5000/jurnal", // Ganti sesuai endpoint kamu
+    const response = await axios.put(
+      `http://127.0.0.1:5000/jurnal/${data.companyId}`, // Ganti sesuai endpoint kamu
       requestData,
       {
         headers: {

@@ -1,13 +1,9 @@
-import { MenuItem, TextField, Typography } from "@mui/material";
-import { Add, Refresh } from "@mui/icons-material";
 import * as React from "react";
 import styles from "./styles.module.css";
-import SelectedTextField from "@/component/textField/selectedText";
 import Table from "@/component/table/table";
-import Button from "@/component/button/button";
-import PopupModal from "@/component/popupModal/popUpModal";
-import { PopUpJurnalUmumContent } from "./popUpJurnalUmum/popUpJurnalUmumContent";
 import { fetchJurnal } from "../function/fetchJurnalUmum";
+import { deleteJurnalUmum } from "../function/deleteJurnalUmum";
+import ConfirmModalPopup from "@/component/confirmModalPopup/confirmModalPopup";
 
 interface Column<T> {
   key: keyof T;
@@ -15,6 +11,7 @@ interface Column<T> {
   align?: "left" | "right" | "center";
 }
 interface DataRow {
+  id: string;
   faktur: string;
   tgl: string;
   akun_perkiraan: string;
@@ -28,11 +25,15 @@ const columns: Column<DataRow>[] = [
   { key: "total_debit", label: "Debit", align: "right" },
   { key: "total_kredit", label: "Kredit", align: "right" },
 ];
+interface InfoJurnalUmumProps {
+  onEdit: (id: string) => void;
+}
 
-export default function InfoJurnalUmum() {
+export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
   const [selectedData, setSelectedData] = React.useState<DataRow | null>(null);
-  const [modalMode, setModalMode] = React.useState<"view" | "edit">("view");
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
+  const [itemToDelete, setItemToDelete] = React.useState<DataRow | null>(null);
+
   const [tableData, setTableData] = React.useState<DataRow[]>([]);
   const [page, setPage] = React.useState(1);
   const [hasMore, setHasMore] = React.useState(true);
@@ -40,47 +41,9 @@ export default function InfoJurnalUmum() {
   const [loading, setLoading] = React.useState(false);
   const isFetching = React.useRef(false);
 
-  const handleDelete = (item: DataRow) => {
-    setTableData((prevData) =>
-      prevData.filter((row) => row.faktur !== item.faktur)
-    );
-  };
-
-  const handleEdit = (item: DataRow) => {
-    setSelectedData(item);
-    setModalMode("edit");
-    setIsModalOpen(true);
-  };
-
   React.useEffect(() => {
     fetchData(1);
   }, []);
-
-  const fetchData = async (pageNum: number) => {
-    if (isFetching.current) return;
-    isFetching.current = true;
-    setLoading(true);
-
-    const token = localStorage.getItem("token");
-    const companyId = localStorage.getItem("companyID");
-
-    try {
-      if (token && companyId) {
-        const result = await fetchJurnal({ companyId, page: pageNum }, token);
-        if (result.length === 0) {
-          setHasMore(false);
-        } else {
-          setTableData((prev) => [...prev, ...result]);
-          setPage((prev) => prev + 1); // Naikkan page hanya setelah sukses
-        }
-      }
-    } catch (err) {
-      console.error("Failed to fetch jurnal umum:", err);
-    } finally {
-      setLoading(false);
-      isFetching.current = false;
-    }
-  };
 
   React.useEffect(() => {
     if (!hasMore || loading) return;
@@ -114,6 +77,74 @@ export default function InfoJurnalUmum() {
     };
   }, [hasMore, loading, page]);
 
+  const fetchData = async (pageNum: number) => {
+    if (isFetching.current) return;
+    isFetching.current = true;
+    setLoading(true);
+
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyID");
+
+    try {
+      if (token && companyId) {
+        const result = await fetchJurnal({ companyId, page: pageNum }, token);
+        if (result.length === 0) {
+          setHasMore(false);
+        } else {
+          setTableData((prev) => [...prev, ...result]);
+          setPage((prev) => prev + 1); // Naikkan page hanya setelah sukses
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch jurnal umum:", err);
+    } finally {
+      setLoading(false);
+      isFetching.current = false;
+    }
+  };
+
+  const handleDelete = (item: DataRow) => {
+    setItemToDelete(item);
+    setIsConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyID");
+
+    if (!token || !companyId) {
+      console.error("Missing token or company ID");
+      return;
+    }
+
+    try {
+      const dataToDelete = {
+        id: itemToDelete.id,
+        companyId: companyId,
+      };
+
+      await deleteJurnalUmum(dataToDelete, token);
+
+      setTableData((prevData) =>
+        prevData.filter((row) => row.faktur !== itemToDelete.faktur)
+      );
+    } catch (error) {
+      console.error("Failed to delete item:", error);
+    } finally {
+      setIsConfirmOpen(false);
+      setItemToDelete(null);
+    }
+  };
+
+  const handleEdit = (item: DataRow) => {
+    console.log(item);
+    if (item.id) {
+      onEdit(item.id);
+    }
+  };
+
   return (
     <>
       <div className={styles.tableContainer}>
@@ -125,18 +156,14 @@ export default function InfoJurnalUmum() {
           isLoading={loading}
           observerRef={observerRef}
         />
-        {/* {hasMore && (
-          <div
-            ref={observerRef}
-            style={{
-              height: "60px",
-              marginTop: "20px",
-              background: "transparent",
-            }}
-          />
-        )} */}
+
+        <ConfirmModalPopup
+          open={isConfirmOpen}
+          onClose={() => setIsConfirmOpen(false)}
+          onConfirm={confirmDelete}
+          message={`Apakah kamu yakin ingin menghapus faktur ${itemToDelete?.faktur}?`}
+        />
       </div>
     </>
   );
 }
-

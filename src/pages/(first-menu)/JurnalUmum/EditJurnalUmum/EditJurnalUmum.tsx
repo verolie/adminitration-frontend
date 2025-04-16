@@ -10,6 +10,8 @@ import TableInsertManual from "@/component/tableInsertManual/tableInserManual";
 import { createJurnalUmum } from "../function/createJurnalUmum";
 import { fetchAkunPerkiraanDetail } from "../function/fetchAkunPerkiraanDetail";
 import { JurnalUmum } from "../model/JurnalUmumModel";
+import { fetchJurnal } from "../function/fetchJurnalUmum";
+import { fetchJurnalDetail } from "../function/fetchJurnalDetail";
 
 type RowData = {
   no: string;
@@ -28,13 +30,25 @@ type Column<T> = {
   options?: { label: string; value: string }[]; // Only for "select" type
 };
 
-export default function DataBaru() {
+interface EditJurnalUmumProps {
+  id: string;
+  onClose: () => void;
+}
+
+type FilterValue = {
+  value: string;
+  operator: FilterOperator;
+};
+
+type FilterOperator = "equals" | "contains";
+
+type FilterInput = Record<string, FilterValue>;
+
+export default function EditData({ id, onClose }: EditJurnalUmumProps) {
   const [kodeAkunValue, setKodeAkunValue] = React.useState("");
   const [totalDebit, setTotalDebit] = React.useState(0);
   const [totalKredit, setTotalKredit] = React.useState(0);
   const [tanggalValue, setTanggalValue] = React.useState("");
-  const [buktiValue, setBuktiValue] = React.useState("");
-  const [deskripsiValue, setDeskripsiValue] = React.useState("");
   const [rows, setRows] = React.useState<RowData[]>([
     {
       no: "",
@@ -130,6 +144,42 @@ export default function DataBaru() {
     setTotalDebit(debit);
     setTotalKredit(kredit);
   }, [rows]);
+
+  React.useEffect(() => {
+    const fetchDataById = async () => {
+      const token = localStorage.getItem("token");
+      const companyId = localStorage.getItem("companyID");
+
+      if (!token || !companyId) return;
+
+      try {
+        const data = await fetchJurnalDetail({ companyId, id }, token);
+
+        setKodeAkunValue(data.faktur);
+        setTanggalValue(data.tgl);
+        setTotalDebit(data.total_debit);
+        setTotalKredit(data.total_kredit);
+
+        const mappedRows = data.JurnalDetails.map(
+          (item: any, index: number) => ({
+            no: (index + 1).toString(),
+            rekening: item.id_akun_perkiraan_detail.toString(),
+            bukti: item.bukti,
+            debit: item.debit.toString(),
+            kredit: item.kredit.toString(),
+            keterangan: item.keterangan,
+            tanggal: item.tgl,
+          })
+        );
+
+        setRows(mappedRows);
+      } catch (error) {
+        console.error("Gagal fetch data jurnal untuk edit:", error);
+      }
+    };
+
+    fetchDataById();
+  }, []);
 
   const handleDeleteRow = (index: number) => {
     const updatedRows = [...rows];
@@ -248,6 +298,12 @@ export default function DataBaru() {
           size="large"
           variant="info"
           label="Save As Draft"
+          onClick={onSubmit("submit")}
+        />
+        <Button
+          size="large"
+          variant="alert"
+          label="Cancle"
           onClick={onSubmit("submit")}
         />
       </div>

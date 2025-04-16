@@ -10,30 +10,23 @@ type FilterValue = {
 
 type FilterInput = Record<string, FilterValue>;
 
-export const fetchJurnal = async (
+export const fetchJurnalDetail = async (
   data: JurnalUmum,
   token: string,
-  filter?: FilterInput
 ) => {
-  return await fetchJurnalUmumBackend(data, token, filter);
+  return await fetchJurnalUmumDetailBackend(data, token);
 };
 
-const fetchJurnalUmumBackend = async (
+const fetchJurnalUmumDetailBackend = async (
   data: JurnalUmum,
   token: string,
-  filter?: FilterInput
 ) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/jurnal/${data.companyId}`, {
+    const response = await axios.get(`http://127.0.0.1:5000/jurnal/${data.companyId}/${data.id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
-      },
-      params: {
-        page: data.page ?? 1,
-        limit: data.limit ?? 20,
-        ...(filter ? { filter: JSON.stringify(filter) } : {}),
-      },
+      }
     });
 
     const responseData = response.data;

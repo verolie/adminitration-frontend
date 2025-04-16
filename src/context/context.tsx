@@ -170,7 +170,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
         }
         return [
           ...prevTabs,
-          { label: foundTab!.label, content: foundTab!.path },
+          { label: foundTab!.label, content: foundTab!.path, closable: true },
         ];
       });
     }

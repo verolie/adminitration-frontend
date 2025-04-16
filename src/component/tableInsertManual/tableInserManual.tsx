@@ -6,6 +6,7 @@ import FieldText from "@/component/textField/fieldText";
 import SelectedTextField from "@/component/textField/selectedText";
 import DatePickerField from "@/component/textField/dateAreaText";
 import AreaText from "@/component/textField/areaText";
+import Button from "../button/button";
 
 type FieldType = "text" | "select" | "date" | "area";
 
@@ -108,9 +109,7 @@ const TableInsertManual = <T extends object>({
       ))}
 
       <div className={styles.addRowButton}>
-        <button type="button" onClick={addRow}>
-          + Tambah Baris
-        </button>
+        <Button label="+ Tambah Baris" onClick={addRow} />
       </div>
     </div>
   );

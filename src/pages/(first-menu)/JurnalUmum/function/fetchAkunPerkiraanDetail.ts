@@ -19,7 +19,7 @@ const fetchAkunPerkiraanBackend = async (data: AkunPerkiraan, token: string) => 
       },
     });
 
-    const responseData = response.data.data;
+    const responseData = response.data;
 
     console.log(responseData);
 

@@ -9,6 +9,7 @@ import styles from "./style/tabPage.module.css";
 interface TabItem {
   label: string;
   content: React.ReactNode;
+  closable?: boolean; // default: false
 }
 
 interface TabPageProps {
@@ -51,8 +52,6 @@ export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
   };
 
   const handleClose = (index: number) => {
-    if (page === "sub") return;
-
     const labelToRemove = tabs[index].label;
     onRemoveTab?.(labelToRemove);
   };
@@ -82,7 +81,7 @@ export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
               label={
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                   {tab.label}
-                  {page === "main" && (
+                  {tab.closable && (
                     <IconButton
                       size="small"
                       onClick={(e) => {

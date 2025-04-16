@@ -32,7 +32,11 @@ interface Column<T> {
   align?: "left" | "right" | "center";
 }
 
-export default function InfoAkunPerkiraan() {
+interface InfoCompanyProps {
+  onEdit: (id: string) => void;
+}
+
+export default function InfoCompany({ onEdit }: InfoCompanyProps) {
   const [selectedAcctType, setSelectedAcctType] = React.useState("");
   const [selectedStatusType, setStatusType] = React.useState("");
   const [selectedData, setSelectedData] = React.useState<CompanyModel | null>(
@@ -56,7 +60,7 @@ export default function InfoAkunPerkiraan() {
       const result = await fetchCompany({}, token); // kalau perlu filter, bisa kirim object
       console.log("result get company ", result);
       const formatted = result?.map((item: any) => ({
-        companyId: item.id,
+        id: item.id,
         nama: item.nama,
         updatedTime: item.updatedAt,
         updatedBy: "-",
@@ -79,10 +83,10 @@ export default function InfoAkunPerkiraan() {
   };
 
   const handleEdit = (item: CompanyModel) => {
-    setSelectedData(item);
-    console.log("edit data ", selectedData);
+    if (item.id) {
+      onEdit(item.id); // Panggil handler dari parent
+    }
   };
-
   return (
     <>
       <div className={styles.editFilterTable}>

@@ -1,18 +1,18 @@
 import axios from "axios";
-import { JurnalUmum } from "../model/JurnalUmumModel";
+import { CompanyModel } from "../model/companyModel";
 
-export const deleteJurnalUmum = async (data: JurnalUmum, token: string) => {
-  return await deleteCompanyBackend(data, token);
+export const editCompany = async (data: CompanyModel, token: string) => {
+  return await editCompanyBackend(data, token);
 };
 
-const deleteCompanyBackend = async (data: JurnalUmum, token: string) => {
+const editCompanyBackend = async (data: CompanyModel, token: string) => {
   try {
     const requestData = {
-      id: data.id,
+      nama: data.nama,
     };
 
     const response = await axios.post(
-      `http://127.0.0.1:5000/jurnal-umum/detail/${data.companyId}/delete-one`,
+      `http://127.0.0.1:5000/companies/${data.id}`,
       requestData,
       {
         headers: {
