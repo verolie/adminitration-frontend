@@ -5,12 +5,12 @@ import ObjekHukumAccordion from "../../function/acordionTableObjekHukum";
 import { mapObjekHukumData, ObjekHukumData } from "../../model/objekHukumModel";
 import { fetchObjekHukumData } from "../../function/fetchObjekHukumDataEdit";
 import { fetchObjekHukumDataMember } from "../../function/fetchObjekHukumDataMember";
-import { fetchAkunPerkiraanDetail } from "@/pages/(first-menu)/AkunPerkiraan/function/fetchAkunPerkiraanDetail";
 import { AkunPerkiraan } from "@/pages/(first-menu)/AkunPerkiraan/model/AkunPerkiraanModel";
 import SelectedTextField from "@/component/textField/selectedText";
 import Button from "@/component/button/button";
 import { Refresh } from "@mui/icons-material";
 import styles from "./styles.module.css";
+import { fetchAkunPerkiraan } from "@/pages/(first-menu)/AkunPerkiraan/function/fetchAkunPerkiraan";
 
 const EditObjekHukum = () => {
   const [data, setData] = useState<ObjekHukumData[]>([]);
@@ -71,7 +71,7 @@ const EditObjekHukum = () => {
   const fetchAkunPerkiraanList = async () => {
     if (!token || !companyId) return;
     try {
-      const akunData = await fetchAkunPerkiraanDetail(
+      const akunData = await fetchAkunPerkiraan(
         { companyId: companyId, page: 1, limit: 100 },
         token
       );

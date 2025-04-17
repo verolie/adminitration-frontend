@@ -151,113 +151,121 @@ export default function CreateAkunPerkiraan() {
     <>
       {
         <div className={styles.container}>
-          <div className={styles.titleField}>
-            <Typography className={styles.titleText}>Akun Perkiraan</Typography>
-          </div>
-          <div className={styles.container}>
-            <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Opsi Akun</Typography>
-              <SelectedTextField
-                label="Opsi Akun"
-                value={levelAkun}
-                onChange={(e) =>
-                  setLevelAkun(e.target.value as "induk" | "sub" | "detail")
-                }
-                options={[
-                  { value: "induk", label: "Induk" },
-                  { value: "sub", label: "Sub" },
-                  { value: "detail", label: "Detail" },
-                ]}
-              />
+          <div className={styles.scrollContent}>
+            <div className={styles.titleField}>
+              <Typography className={styles.titleText}>
+                Akun Perkiraan
+              </Typography>
             </div>
-            {(levelAkun === "sub" || levelAkun === "detail") && (
+            <div className={styles.container}>
               <div className={styles.inputField}>
-                <Typography className={styles.labelText}>Induk Akun</Typography>
+                <Typography className={styles.labelText}>Opsi Akun</Typography>
                 <SelectedTextField
-                  label="Induk Akun"
-                  value={selectedIndukAkun}
-                  onChange={(e) => setSelectedIndukAkun(e.target.value)}
-                  options={indukAkunList}
+                  label="Opsi Akun"
+                  value={levelAkun}
+                  onChange={(e) =>
+                    setLevelAkun(e.target.value as "induk" | "sub" | "detail")
+                  }
+                  options={[
+                    { value: "induk", label: "Induk" },
+                    { value: "sub", label: "Sub" },
+                    { value: "detail", label: "Detail" },
+                  ]}
                 />
               </div>
-            )}
+              {(levelAkun === "sub" || levelAkun === "detail") && (
+                <div className={styles.inputField}>
+                  <Typography className={styles.labelText}>
+                    Induk Akun
+                  </Typography>
+                  <SelectedTextField
+                    label="Induk Akun"
+                    value={selectedIndukAkun}
+                    onChange={(e) => setSelectedIndukAkun(e.target.value)}
+                    options={indukAkunList}
+                  />
+                </div>
+              )}
 
-            {levelAkun === "detail" && (
+              {levelAkun === "detail" && (
+                <div className={styles.inputField}>
+                  <Typography className={styles.labelText}>Sub Akun</Typography>
+                  <SelectedTextField
+                    label="Sub Akun"
+                    value={selectedSubAkun}
+                    onChange={(e) => setSelectedSubAkun(e.target.value)}
+                    options={subAkunList}
+                  />
+                </div>
+              )}
+            </div>
+            <div className={styles.titleField}>
+              <Typography className={styles.titleText}>
+                Informasi Umum
+              </Typography>
+            </div>
+            <div className={styles.container}>
               <div className={styles.inputField}>
-                <Typography className={styles.labelText}>Sub Akun</Typography>
+                <Typography className={styles.labelText}>Tipe Akun</Typography>
                 <SelectedTextField
-                  label="Sub Akun"
-                  value={selectedSubAkun}
-                  onChange={(e) => setSelectedSubAkun(e.target.value)}
-                  options={subAkunList}
+                  label="Tipe Akun"
+                  value={selectedAcctType}
+                  onChange={(e) => setSelectedAcctType(Number(e.target.value))}
+                  options={accountType.map((type) => ({
+                    value: type.id,
+                    label: type.name,
+                  }))}
                 />
               </div>
-            )}
-          </div>
-          <div className={styles.titleField}>
-            <Typography className={styles.titleText}>Informasi Umum</Typography>
-          </div>
-          <div className={styles.container}>
-            <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Tipe Akun</Typography>
-              <SelectedTextField
-                label="Tipe Akun"
-                value={selectedAcctType}
-                onChange={(e) => setSelectedAcctType(Number(e.target.value))}
-                options={accountType.map((type) => ({
-                  value: type.id,
-                  label: type.name,
-                }))}
-              />
+              <div className={styles.inputField}>
+                <Typography className={styles.labelText}>
+                  Kode Perkiraan
+                </Typography>
+                <FieldText
+                  label="Kode Perkiraan"
+                  value={kodePerkiraanValue}
+                  onChange={handleAkunPerkiraanChange}
+                ></FieldText>
+              </div>
+              <div className={styles.inputField}>
+                <Typography className={styles.labelText}>Nama</Typography>
+                <FieldText
+                  label="Nama"
+                  value={namaValue}
+                  onChange={handleNamaChange}
+                ></FieldText>
+                <Typography className={styles.infoText}>
+                  Contoh: BCA a/c XXX-XXX, dll
+                </Typography>
+              </div>
             </div>
-            <div className={styles.inputField}>
-              <Typography className={styles.labelText}>
-                Kode Perkiraan
-              </Typography>
-              <FieldText
-                label="Kode Perkiraan"
-                value={kodePerkiraanValue}
-                onChange={handleAkunPerkiraanChange}
-              ></FieldText>
+            <div className={styles.titleField}>
+              <Typography className={styles.titleText}>Saldo</Typography>
             </div>
-            <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Nama</Typography>
-              <FieldText
-                label="Nama"
-                value={namaValue}
-                onChange={handleNamaChange}
-              ></FieldText>
-              <Typography className={styles.infoText}>
-                Contoh: BCA a/c XXX-XXX, dll
-              </Typography>
+            <div className={styles.container}>
+              <div className={styles.inputField}>
+                <Typography className={styles.labelText}>
+                  Saldo Perkiraan
+                </Typography>
+                <FieldText
+                  label="Saldo"
+                  value={saldoValue}
+                  onChange={handleSaldoChange}
+                ></FieldText>
+              </div>
             </div>
-          </div>
-          <div className={styles.titleField}>
-            <Typography className={styles.titleText}>Saldo</Typography>
-          </div>
-          <div className={styles.container}>
-            <div className={styles.inputField}>
-              <Typography className={styles.labelText}>
-                Saldo Perkiraan
-              </Typography>
-              <FieldText
-                label="Saldo"
-                value={saldoValue}
-                onChange={handleSaldoChange}
-              ></FieldText>
+            <div className={styles.titleField}>
+              <Typography className={styles.titleText}>Lain Lain</Typography>
             </div>
-          </div>
-          <div className={styles.titleField}>
-            <Typography className={styles.titleText}>Lain Lain</Typography>
-          </div>
-          <div className={styles.container}>
-            <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Catatan</Typography>
-              <AreaText
-                label="Catatan"
-                value={catatanValue}
-                onChange={handleCatatanChange}
-              ></AreaText>
+            <div className={styles.container}>
+              <div className={styles.inputField}>
+                <Typography className={styles.labelText}>Catatan</Typography>
+                <AreaText
+                  label="Catatan"
+                  value={catatanValue}
+                  onChange={handleCatatanChange}
+                ></AreaText>
+              </div>
             </div>
           </div>
           <div className={styles.buttonLabel}>

@@ -5,9 +5,7 @@ import styles from "./styles.module.css";
 import SelectedTextField from "@/component/textField/selectedText";
 import Table from "@/component/table/table";
 import Button from "@/component/button/button";
-import PopupModal from "@/component/popupModal/popUpModal";
-import { popUpInfoAcctContent } from "./popupInfoAcctContent/popUpInfoAcctContent";
-import { fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraan";
+import { fetchAkunPerkiraanDetail } from "../../function/fetchAkunPerkiraanDetail";
 
 const accountType = [
   { id: 1, name: "Asset" },
@@ -24,6 +22,7 @@ const statusType = [
 ];
 
 interface DataRow {
+  id: string;
   kodePerkiraan: string;
   nama: string;
   tipeAkun: string;
@@ -53,21 +52,15 @@ function formatKodePerkiraan(kode: string, allData: DataRow[]): string {
   return `${indent}${target.kodePerkiraan}`;
 }
 
-const handleInboxClick = (item: DataRow) => {
-  console.log("Klik inbox:", item);
-  // setSelectedData(item);
-  // setModalMode("view"); // Atau custom mode lain
-  // setIsModalOpen(true);
-};
+interface InfoAkunPerkiraanProps {
+  onEdit: (id: string) => void;
+}
 
-export default function InfoAkunPerkiraan() {
+export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
   const [selectedAcctType, setSelectedAcctType] = React.useState<number | "">(
     ""
   );
   const [selectedStatusType, setStatusType] = React.useState("");
-  const [selectedData, setSelectedData] = React.useState<DataRow | null>(null);
-  const [modalMode, setModalMode] = React.useState<"view" | "edit">("view");
-  const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [tableData, setTableData] = React.useState<DataRow[]>([]);
 
   const handleTambahData = () => {
@@ -83,9 +76,10 @@ export default function InfoAkunPerkiraan() {
   };
 
   const handleEdit = (item: DataRow) => {
-    setSelectedData(item);
-    setModalMode("edit");
-    setIsModalOpen(true);
+    console.log(item);
+    if (item.id) {
+      onEdit(item.id);
+    }
   };
 
   React.useEffect(() => {
@@ -102,9 +96,11 @@ export default function InfoAkunPerkiraan() {
     }
 
     try {
-      const rawData = await fetchAkunPerkiraan({ companyId }, token);
+      const rawData = await fetchAkunPerkiraanDetail({ companyId }, token);
 
+      console.log("row data", rawData);
       const mappedData: DataRow[] = rawData.map((item: any) => ({
+        id: item.id,
         kodePerkiraan: item.kode_akun,
         nama: item.nama_akun,
         tipeAkun: item.tipe_akun,
@@ -163,17 +159,8 @@ export default function InfoAkunPerkiraan() {
           data={tableData}
           onDelete={handleDelete}
           onEdit={handleEdit}
-          // onInboxClick={handleInboxClick}
         />
       </div>
-
-      <PopupModal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        data={selectedData}
-        mode={modalMode}
-        renderContent={(data) => popUpInfoAcctContent(data, modalMode)}
-      />
     </>
   );
 }

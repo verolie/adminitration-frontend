@@ -1,11 +1,28 @@
 import axios from "axios";
 import { AkunPerkiraan } from "../../AkunPerkiraan/model/AkunPerkiraanModel";
 
-export const fetchAkunPerkiraanDetail = async (data: AkunPerkiraan, token: string) => {
-  return await fetchAkunPerkiraanBackend(data, token);
+type FilterOperator = "equals" | "contains" | "startsWith" | "endsWith";
+
+type FilterValue = {
+  value: string;
+  operator: FilterOperator;
 };
 
-const fetchAkunPerkiraanBackend = async (data: AkunPerkiraan, token: string) => {
+type FilterInput = Record<string, FilterValue>;
+
+export const fetchAkunPerkiraanDetail = async (
+  data: AkunPerkiraan,
+  token: string,
+  filter?: FilterInput
+) => {
+  return await fetchAkunPerkiraanBackend(data, token, filter);
+};
+
+const fetchAkunPerkiraanBackend = async (
+  data: AkunPerkiraan,
+  token: string,
+  filter?: FilterInput
+) => {
   try {
     const response = await axios.get(`http://127.0.0.1:5000/akun-perkiraan/detail`, {
       headers: {
@@ -16,6 +33,7 @@ const fetchAkunPerkiraanBackend = async (data: AkunPerkiraan, token: string) => 
         company_id: data.companyId,
         page: data.page ?? 1,
         limit: data.limit ?? 100,
+        ...(filter ? { filter: JSON.stringify(filter) } : {}),
       },
     });
 
@@ -30,6 +48,6 @@ const fetchAkunPerkiraanBackend = async (data: AkunPerkiraan, token: string) => 
     return responseData.data;
   } catch (error: any) {
     console.error("Error Response:", error.response?.data?.errors?.[0]);
-    throw new Error(error.response?.data?.errors?.[0] || "Fetch jurnal failed");
+    throw new Error(error.response?.data?.errors?.[0] || "Fetch akun perkiraan failed");
   }
 };

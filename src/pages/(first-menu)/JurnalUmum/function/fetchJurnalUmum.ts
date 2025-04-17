@@ -1,7 +1,7 @@
 import axios from "axios";
 import { JurnalUmum } from "../model/JurnalUmumModel";
 
-type FilterOperator = "equals" | "contains" | "startsWith" | "endsWith"; // Tambah kalau ada lagi
+type FilterOperator = "equals" | "contains" ; // Tambah kalau ada lagi
 
 type FilterValue = {
   value: string;

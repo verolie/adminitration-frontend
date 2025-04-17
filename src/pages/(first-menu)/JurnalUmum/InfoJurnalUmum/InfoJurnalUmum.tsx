@@ -30,7 +30,6 @@ interface InfoJurnalUmumProps {
 }
 
 export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
-  const [selectedData, setSelectedData] = React.useState<DataRow | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
   const [itemToDelete, setItemToDelete] = React.useState<DataRow | null>(null);
 
