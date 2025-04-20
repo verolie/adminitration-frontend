@@ -1,16 +1,16 @@
 import axios from "axios";
 import { AkunPerkiraan } from "../model/AkunPerkiraanModel";
 
-type FilterOperator = "equals" | "contains" ;
+type FilterOperator = "equals" | "contains" | "startsWith" | "endsWith";
 
 type FilterValue = {
-  value: string | number;
+  value: string;
   operator: FilterOperator;
 };
 
 type FilterInput = Record<string, FilterValue>;
 
-export const fetchAkunPerkiraanDetail = async (
+export const fetchAkunPerkiraan = async (
   data: AkunPerkiraan,
   token: string,
   filter?: FilterInput
@@ -24,27 +24,30 @@ const fetchAkunPerkiraanBackend = async (
   filter?: FilterInput
 ) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/akun-perkiraan/${data.companyId}`, {
+    const response = await axios.get(`http://127.0.0.1:5000/akun-perkiraan/detail/${data.companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       params: {
+        company_id: data.companyId,
         page: data.page ?? 1,
         limit: data.limit ?? 100,
         ...(filter ? { filter: JSON.stringify(filter) } : {}),
       },
     });
 
-    const responseData = response.data;
+    const responseData = response.data.data;
 
-    if (!responseData.success) {
-      throw new Error(responseData.message || "Unknown Error");
+    console.log(responseData);
+
+    if (responseData.success === false) {
+      throw new Error(responseData);
     }
 
     return responseData.data;
   } catch (error: any) {
     console.error("Error Response:", error);
-    throw new Error(error.response?.data?.errors?.[0] || "Fetch jurnal failed");
+    throw new Error(error.response?.data?.errors?.[0] || "Fetch akun perkiraan failed");
   }
 };

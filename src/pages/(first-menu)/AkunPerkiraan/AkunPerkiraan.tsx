@@ -2,14 +2,15 @@ import TabPage from "@/component/tabPage/tabPage";
 import * as React from "react";
 import InfoAkunPerkiraan from "./SubPage/Info/InfoAkunPerkiraan";
 import CreateAkunPerkiraan from "./SubPage/DataBaruAkunPerkiraan/DataBaruAkunPerkiraan";
-import EditAkunPerkiraan from "./SubPage/editAkunPerkiraan/editAkunPerkiraan";
+import EditAkunPerkiraan from "./SubPage/editAkunPerkiraan/EditAkunPerkiraan";
+import { classifyKodePerkiraan } from "./function/classifyKodePerkiraan";
 
 export default function AkunPerkiraan() {
   const [dynamicTabs, setDynamicTabs] = React.useState<
     { label: string; content: React.ReactNode; closable: boolean }[]
   >([]);
 
-  const handleAddEditTab = (id: string) => {
+  const handleAddEditTab = (id: string, kodePerkiraan: string) => {
     const label = `Edit Info Akun`;
     const isExist = dynamicTabs.find((tab) => tab.label === label);
 
@@ -19,7 +20,11 @@ export default function AkunPerkiraan() {
         {
           label,
           content: (
-            <EditAkunPerkiraan id={id} onClose={() => handleRemoveTab(label)} />
+            <EditAkunPerkiraan
+              id={id}
+              level={classifyKodePerkiraan(kodePerkiraan)}
+              onClose={() => handleRemoveTab(label)}
+            />
           ),
           closable: true,
         },

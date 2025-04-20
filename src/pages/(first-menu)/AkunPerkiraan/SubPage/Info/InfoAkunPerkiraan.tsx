@@ -5,7 +5,9 @@ import styles from "./styles.module.css";
 import SelectedTextField from "@/component/textField/selectedText";
 import Table from "@/component/table/table";
 import Button from "@/component/button/button";
-import { fetchAkunPerkiraanDetail } from "../../function/fetchAkunPerkiraanDetail";
+import { fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraan";
+import { deleteAkunPerkiraan } from "../../function/deleteAkunPerkiraan";
+import { classifyKodePerkiraan } from "../../function/classifyKodePerkiraan";
 
 const accountType = [
   { id: 1, name: "Asset" },
@@ -53,7 +55,7 @@ function formatKodePerkiraan(kode: string, allData: DataRow[]): string {
 }
 
 interface InfoAkunPerkiraanProps {
-  onEdit: (id: string) => void;
+  onEdit: (id: string, kode_akun: string) => void;
 }
 
 export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
@@ -69,16 +71,40 @@ export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
     console.log("Status:", selectedStatusType);
   };
 
-  const handleDelete = (item: DataRow) => {
-    setTableData((prevData) =>
-      prevData.filter((row) => row.kodePerkiraan !== item.kodePerkiraan)
-    );
+  const handleDelete = async (item: DataRow) => {
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyID");
+
+    if (!token || !companyId) {
+      console.error("Token atau Company ID tidak tersedia.");
+      return;
+    }
+
+    const level = classifyKodePerkiraan(item.kodePerkiraan);
+
+    try {
+      const data = {
+        id: item.id,
+        companyId: companyId,
+        kode_akun: level,
+      };
+
+      const message = await deleteAkunPerkiraan(data, token);
+
+      console.log(message);
+
+      setTableData((prevData) =>
+        prevData.filter((row) => row.kodePerkiraan !== item.kodePerkiraan)
+      );
+    } catch (error) {
+      console.error("Error deleting Akun Perkiraan:", error);
+    }
   };
 
   const handleEdit = (item: DataRow) => {
     console.log(item);
     if (item.id) {
-      onEdit(item.id);
+      onEdit(item.id, item.kodePerkiraan);
     }
   };
 
@@ -96,7 +122,7 @@ export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
     }
 
     try {
-      const rawData = await fetchAkunPerkiraanDetail({ companyId }, token);
+      const rawData = await fetchAkunPerkiraan({ companyId }, token);
 
       console.log("row data", rawData);
       const mappedData: DataRow[] = rawData.map((item: any) => ({
@@ -157,7 +183,7 @@ export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
         <Table
           columns={columns}
           data={tableData}
-          onDelete={handleDelete}
+          onDelete={handleDelete} // Pass handleDelete to Table component
           onEdit={handleEdit}
         />
       </div>

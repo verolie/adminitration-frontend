@@ -4,7 +4,7 @@ import SelectedTextField from "@/component/textField/selectedText";
 import Button from "@/component/button/button";
 import { Add, Refresh } from "@mui/icons-material";
 import styles from "./styles.module.css";
-import { fetchAkunPerkiraan } from "@/pages/(first-menu)/AkunPerkiraan/function/fetchAkunPerkiraan";
+import { fetchAkunPerkiraan } from "@/pages/(first-menu)/AkunPerkiraan/function/fetchAkunPerkiraanDetails";
 import AutocompleteTextField, {
   OptionType,
 } from "@/component/textField/autoCompleteText";

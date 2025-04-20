@@ -8,7 +8,7 @@ import {
 // Fungsi utama yang digunakan di luar
 export const createAkunPerkiraan = async (
   data: AkunPerkiraanInduk | AkunPerkiraanSub | AkunPerkiraanDetail,
-  model: "induk" | "sub" | "detail",
+  model: string,
   token: string
 ): Promise<string> => {
   switch (model) {
@@ -108,8 +108,8 @@ const createDataDetail = async (
   try {
     const requestData = {
       company_id: data.companyId,
-      kode_akun: data.kodeAkun,
-      nama_akun: data.namaAkun,
+      kode_akun: data.kode_akun,
+      nama_akun: data.nama_akun,
       keterangan: data.keterangan,
       akun_perkiraan_sub_id: data.akunPerkiraanSubId
     };

@@ -5,10 +5,9 @@ import SelectedTextField from "@/component/textField/selectedText";
 import FieldText from "@/component/textField/fieldText";
 import Button from "@/component/button/button";
 import AreaText from "@/component/textField/areaText";
-import { fetchAkunPerkiraanSub } from "../../function/fetchAkunPerkiraanSub";
 import { createAkunPerkiraan } from "../../function/createAkunPerkiraan";
-import { fetchAkunPerkiraanDetail } from "../../function/fetchAkunPerkiraanDetail";
-import { fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraan";
+import { fetchAkunPerkiraan as fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraan";
+import { fetchAkunPerkiraanInduk } from "../../function/fetchAkunPerkiraanInduk";
 
 const accountType = [
   { id: 1, name: "Asset" },
@@ -20,6 +19,7 @@ const accountType = [
 
 interface EditJurnalUmumProps {
   id: string;
+  level: string;
   onClose: () => void;
 }
 
@@ -34,6 +34,7 @@ type FilterInput = Record<string, FilterValue>;
 
 export default function EditAkunPerkiraan({
   id,
+  level,
   onClose,
 }: EditJurnalUmumProps) {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -47,9 +48,7 @@ export default function EditAkunPerkiraan({
   const [saldoValue, setSaldoValue] = React.useState("");
   const [tanggalAwalValue, setTanggalAwalValue] = React.useState("");
   const [catatanValue, setCatatanValue] = React.useState("");
-  const [levelAkun, setLevelAkun] = React.useState<
-    "induk" | "sub" | "detail" | ""
-  >("");
+  const [levelAkun, setLevelAkun] = React.useState("");
   const [selectedIndukAkun, setSelectedIndukAkun] = React.useState("");
   const [selectedSubAkun, setSelectedSubAkun] = React.useState("");
   const [indukAkunList, setIndukAkunList] = React.useState([]);
@@ -77,29 +76,49 @@ export default function EditAkunPerkiraan({
           },
         };
 
-        const akunList = await fetchAkunPerkiraanDetail(
+        const akunList = await fetchAkunPerkiraan(
           { companyId },
           token,
           filter
         );
-        const akun = akunList?.[0];
+
+        const filteredAkunList = akunList.filter(
+          (akun: any) => akun.jenis_akun === level
+        );
+
+        const akun = filteredAkunList?.[0];
+        
 
         if (akun) {
-          const akunLevel = akun.level;
+          if (level === "sub" || level === "detail") {
+            const filteredAkunIndulList = akunList.filter(
+              (akun: any) => akun.jenis_akun === "induk"
+            );
+            const akunInduk = filteredAkunIndulList?.[0];
+            const selectedAcctTypeId = accountType.find((type) => {
+              const [code] = type.name.split(" -"); // ambil bagian sebelum " -"
+              return code === akunInduk.tipe_akun;
+            })?.id;
 
-          // Set semua state berdasarkan data yang difetch
-          setLevelAkun(akunLevel);
+            // Jika selectedAcctTypeId didefinisikan, konversi ke string, jika tidak set ke string kosong
+            setSelectedIndukAkun(
+              selectedAcctTypeId !== undefined
+                ? selectedAcctTypeId.toString()
+                : ""
+            );
+          }
+          const selectedAcctTypeId =
+            accountType.find((type) => type.name === akun.tipe_akun)?.id || "";
+            
+          setLevelAkun(level);
           setKodePerkiraanValue(akun.kode_akun || "");
           setNamaValue(akun.nama_akun || "");
-          setSaldoValue(akun.saldo_awal?.toString() || "");
+          setSaldoValue(akun.saldo?.toString() || "");
           setTanggalAwalValue(akun.tanggal_awal || "");
           setCatatanValue(akun.keterangan || "");
-          setSelectedAcctType(akun.tipe_akun_id || "");
-          setSelectedIndukAkun(akun.akun_perkiraan_induk_id || "");
-          setSelectedSubAkun(akun.akun_perkiraan_sub_id || "");
-
+          setSelectedAcctType(selectedAcctTypeId || "");
           // Fetch akun induk dan sub jika perlu
-          await fetchData(akunLevel, token, companyId);
+          await fetchData(level, token, companyId);
         } else {
           setError("Data akun tidak ditemukan");
         }
@@ -112,16 +131,12 @@ export default function EditAkunPerkiraan({
     };
 
     fetchDetailAndSetup();
-  }, []);
+  }, []); // Add level to dependencies so it updates when level changes
 
-  const fetchData = async (
-    level: "induk" | "sub" | "detail",
-    token: string,
-    companyId: string
-  ) => {
+  const fetchData = async (level: string, token: string, companyId: string) => {
     if (level === "sub" || level === "detail") {
       try {
-        const result = await fetchAkunPerkiraan({ companyId }, token);
+        const result = await fetchAkunPerkiraanInduk({ companyId }, token);
         setIndukAkunList(
           result.map((item: any) => ({
             value: item.id,
@@ -130,20 +145,6 @@ export default function EditAkunPerkiraan({
         );
       } catch (error) {
         console.error("Gagal ambil akun induk", error);
-      }
-    }
-
-    if (level === "detail") {
-      try {
-        const result = await fetchAkunPerkiraanSub({ companyId }, token);
-        setSubAkunList(
-          result.map((item: any) => ({
-            value: item.id,
-            label: `${item.kode_akun} - ${item.nama_akun}`,
-          }))
-        );
-      } catch (error) {
-        console.error("Gagal ambil akun sub", error);
       }
     }
   };
@@ -189,14 +190,14 @@ export default function EditAkunPerkiraan({
         keterangan: catatanValue,
       };
 
-      if (levelAkun === "sub") {
+      if (level === "sub") {
         payload = {
           ...payload,
           akunPerkiraanIndukId: selectedIndukAkun,
         };
       }
 
-      if (levelAkun === "detail") {
+      if (level === "detail") {
         payload = {
           ...payload,
           akunPerkiraanIndukId: selectedIndukAkun,
@@ -208,7 +209,7 @@ export default function EditAkunPerkiraan({
         };
       }
 
-      const message = await createAkunPerkiraan(payload, levelAkun, token);
+      const message = await createAkunPerkiraan(payload, level, token);
       alert(`Berhasil: ${message}`);
     } catch (error: any) {
       alert(`Gagal membuat akun: ${error.message}`);
@@ -251,18 +252,6 @@ export default function EditAkunPerkiraan({
                     value={selectedIndukAkun}
                     onChange={(e) => setSelectedIndukAkun(e.target.value)}
                     options={indukAkunList}
-                  />
-                </div>
-              )}
-
-              {levelAkun === "detail" && (
-                <div className={styles.inputField}>
-                  <Typography className={styles.labelText}>Sub Akun</Typography>
-                  <SelectedTextField
-                    label="Sub Akun"
-                    value={selectedSubAkun}
-                    onChange={(e) => setSelectedSubAkun(e.target.value)}
-                    options={subAkunList}
                   />
                 </div>
               )}
