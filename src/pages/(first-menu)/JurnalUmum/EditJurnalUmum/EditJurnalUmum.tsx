@@ -12,6 +12,7 @@ import { fetchAkunPerkiraanDetail } from "../function/fetchAkunPerkiraanDetail";
 import { JurnalUmum } from "../model/JurnalUmumModel";
 import { fetchJurnal } from "../function/fetchJurnalUmum";
 import { fetchJurnalDetail } from "../function/fetchJurnalDetail";
+import { editJurnalUmum } from "../function/editJurnalUmum";
 
 type RowData = {
   no: string;
@@ -199,6 +200,7 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
 
       if (companyId && token) {
         const data: JurnalUmum = {
+          id,
           faktur: kodeAkunValue,
           tgl: tanggalValue,
           totalDebit: totalDebit,
@@ -214,7 +216,7 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
           })),
         };
 
-        const result = await createJurnalUmum(data, token);
+        const result = await editJurnalUmum(data, token);
         alert(`Jurnal berhasil disimpan: ${result}`);
       }
     } catch (error: any) {

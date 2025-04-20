@@ -6,7 +6,7 @@ import React, { useRef, useState } from "react";
 import InfoObjekHukum from "./page/InfoOkbjekHukum/InfoObjekHukum";
 import EditObjekHukum from "./page/editObjekHukum/editObjekHukum";
 
-const ObjekHukum = () => {
+const ObjekPajak = () => {
   const tabs = [
     { label: "Info", content: <InfoObjekHukum /> },
     { label: "Edit Objek Hukum", content: <EditObjekHukum /> },
@@ -18,4 +18,4 @@ const ObjekHukum = () => {
   );
 };
 
-export default ObjekHukum;
+export default ObjekPajak;

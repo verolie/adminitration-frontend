@@ -39,7 +39,7 @@ interface AkunPerkiraan {
 }
 
 export interface InfoSubObjek {
-  id: string;
+  id: number;
   kodeAkun: string;
   namaAkun: string;
   keterangan?: string;
@@ -56,7 +56,7 @@ export interface Props {
   data: ObjekHukumData[];
 }
 
-export const mapObjekHukumData = (data: any[]): ObjekHukumData[] => {
+export const mapObjekPajakData = (data: any[]): ObjekHukumData[] => {
   return data.map((objek) => ({
     id: objek.id,
     kodeObjek: objek.kode_objek,

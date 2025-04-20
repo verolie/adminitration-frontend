@@ -10,7 +10,7 @@ import Home from "@/pages/(first-menu)/Home/Home";
 import Company from "@/pages/(first-menu)/Company/Company";
 import AkunPerkiraan from "@/pages/(first-menu)/AkunPerkiraan/AkunPerkiraan";
 import JurnalUmum from "@/pages/(first-menu)/JurnalUmum/JurnalUmum";
-import ObjekHukum from "@/pages/(first-menu)/ObjekHukum/ObjekHukum";
+import ObjekPajak from "@/pages/(first-menu)/ObjekHukum/ObjekPajak";
 import User from "@/pages/(first-menu)/User/User";
 
 interface MenuList {
@@ -83,9 +83,9 @@ export const menuList: MenuList[] = [
   {
     no: 5,
     label: "Objek Hukum",
-    path: <ObjekHukum />,
+    path: <ObjekPajak />,
     icon: <PolicyIcon className={styles.icon} />,
     submenu: null,
     roles: ["Objek Hukum"],
-  }
+  },
 ];

@@ -24,20 +24,19 @@ const fetchAkunPerkiraanBackend = async (
   filter?: FilterInput
 ) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/akun-perkiraan/detail`, {
+    const response = await axios.get(`http://127.0.0.1:5000/akun-perkiraan/detail/${data.companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       params: {
-        company_id: data.companyId,
         page: data.page ?? 1,
         limit: data.limit ?? 100,
         ...(filter ? { filter: JSON.stringify(filter) } : {}),
       },
     });
 
-    const responseData = response.data;
+    const responseData = response.data.data;
 
     console.log(responseData);
 

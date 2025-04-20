@@ -3,8 +3,8 @@
 import TableOccur from "@/component/tableOccur/tableOccur";
 import { useEffect, useRef, useState } from "react";
 import { Column, InfoSubObjek, SubObjek } from "../../model/objekHukumModel";
-import { fetchObjekHukumDataMember } from "../../function/fetchObjekHukumDataMember";
 import styles from "./styles.module.css";
+import { fetchObjekObjekDataMember } from "../../function/fetchObjekPajakDataMember";
 
 const InfoObjekHukum = () => {
   const observerRef = useRef(null);
@@ -32,7 +32,7 @@ const InfoObjekHukum = () => {
     }
 
     try {
-      const response = await fetchObjekHukumDataMember(
+      const response = await fetchObjekObjekDataMember(
         { page: 1, limit: 20, companyId: companyID },
         token
       );
@@ -61,6 +61,7 @@ const InfoObjekHukum = () => {
         onEdit={handleEdit}
         observerRef={observerRef}
         isLoading={isLoading}
+        hideActions
       />
     </div>
   );

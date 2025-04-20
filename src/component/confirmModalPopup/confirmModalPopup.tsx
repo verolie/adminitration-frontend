@@ -29,7 +29,10 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
       <DialogActions>
         <Button onClick={onClose} label="Batal" variant="info" size="large" />
         <Button
-          onClick={onClose}
+          onClick={() => {
+            onConfirm();
+            onClose();
+          }}
           label="Confirm"
           variant="confirm"
           size="large"
@@ -38,5 +41,6 @@ const ConfirmDeleteModal: React.FC<ConfirmDeleteModalProps> = ({
     </Dialog>
   );
 };
+
 
 export default ConfirmDeleteModal;

@@ -108,6 +108,7 @@ export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
   };
 
   const confirmDelete = async () => {
+    console.log("data yang mau delete", itemToDelete);
     if (!itemToDelete) return;
 
     const token = localStorage.getItem("token");
@@ -123,6 +124,8 @@ export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
         id: itemToDelete.id,
         companyId: companyId,
       };
+
+      console.log("data yang mau delete", dataToDelete);
 
       await deleteJurnalUmum(dataToDelete, token);
 
@@ -156,12 +159,14 @@ export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
           observerRef={observerRef}
         />
 
-        <ConfirmModalPopup
-          open={isConfirmOpen}
-          onClose={() => setIsConfirmOpen(false)}
-          onConfirm={confirmDelete}
-          message={`Apakah kamu yakin ingin menghapus faktur ${itemToDelete?.faktur}?`}
-        />
+        {isConfirmOpen && (
+          <ConfirmModalPopup
+            open={isConfirmOpen}
+            onClose={() => setIsConfirmOpen(false)}
+            onConfirm={confirmDelete}
+            message={`Apakah kamu yakin ingin menghapus faktur ${itemToDelete?.faktur}?`}
+          />
+        )}
       </div>
     </>
   );

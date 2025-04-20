@@ -1,26 +1,39 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import ObjekHukumAccordion from "../../function/acordionTableObjekHukum";
-import { mapObjekHukumData, ObjekHukumData } from "../../model/objekHukumModel";
-import { fetchObjekHukumData } from "../../function/fetchObjekHukumDataEdit";
-import { fetchObjekHukumDataMember } from "../../function/fetchObjekHukumDataMember";
 import { AkunPerkiraan } from "@/pages/(first-menu)/AkunPerkiraan/model/AkunPerkiraanModel";
 import SelectedTextField from "@/component/textField/selectedText";
 import Button from "@/component/button/button";
-import { Refresh } from "@mui/icons-material";
+import { Add, Refresh } from "@mui/icons-material";
 import styles from "./styles.module.css";
 import { fetchAkunPerkiraan } from "@/pages/(first-menu)/AkunPerkiraan/function/fetchAkunPerkiraan";
+import AutocompleteTextField, {
+  OptionType,
+} from "@/component/textField/autoCompleteText";
+import Tag from "@/component/tag/tag";
+import { fetchObjekPajakDetail } from "../../function/fetchObjekPajakDetail";
+import { editAkunObjekPajak } from "../../function/fetchObjekPajakDataEdit";
 
 const EditObjekHukum = () => {
-  const [data, setData] = useState<ObjekHukumData[]>([]);
+  // const [data, setData] = useState<ObjekHukumData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedAkunPerkiraan, setSelectedAkunPerkiraan] =
-    useState<string>("");
+  const [selectedAkunPerkiraan, setSelectedAkunPerkiraan] = useState<
+    OptionType | undefined
+  >(undefined);
+
   const [akunPerkiraanOptions, setAkunPerkiraanOptions] = useState<
     { label: string; value: string }[]
   >([]);
+  const [selectedBadanUsahaOption, setSelectedBadanUsahaOption] = useState<
+    OptionType | undefined
+  >(undefined);
+  const [selectedNonBadanUsahaOption, setSelectedNonBadanUsahaOption] =
+    useState<OptionType | undefined>(undefined);
+  const [objekPajakOptions, setObjekPajakOptions] = useState<OptionType[]>([]);
+
+  const [badanUsahaList, setBadanUsahaList] = useState<OptionType[]>([]);
+  const [nonBadanUsahaList, setNonBadanUsahaList] = useState<OptionType[]>([]);
 
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -28,11 +41,11 @@ const EditObjekHukum = () => {
     typeof window !== "undefined" ? localStorage.getItem("companyID") : null;
 
   useEffect(() => {
-    fetchCombinedData();
+    fetchObjekPajakDetailData();
     fetchAkunPerkiraanList();
   }, []);
 
-  const fetchCombinedData = async () => {
+  const fetchObjekPajakDetailData = async () => {
     if (!token || !companyId) {
       console.warn("Token atau companyID tidak ditemukan.");
       setLoading(false);
@@ -40,26 +53,16 @@ const EditObjekHukum = () => {
     }
 
     try {
-      const [objekDataRes, memberDataRes] = await Promise.all([
-        fetchObjekHukumData({ page: 1, limit: 200 }, token),
-        fetchObjekHukumDataMember({ page: 1, limit: 200, companyId }, token),
-      ]);
+      const result = await fetchObjekPajakDetail({}, token);
+      // Asumsikan result bentuknya array of objek pajak
 
-      const allData = mapObjekHukumData(objekDataRes);
-
-      // Ambil list kode objek yang sudah dichecklist
-      const memberObjekSet = new Set(
-        memberDataRes.flatMap((item: any) =>
-          item.detail?.map((d: any) => d.kodeObjek)
-        )
-      );
-
-      const mergedData = allData.map((item) => ({
-        ...item,
-        checked: memberObjekSet.has(item.kodeObjek), // contoh penanda checklist
+      const options = result.map((item: any) => ({
+        label: `${item.kode_objek} - ${item.nama_objek}`,
+        value: item.id,
       }));
 
-      setData(mergedData);
+      console.log("data akun perkiraan ", options);
+      setObjekPajakOptions(options);
     } catch (err: any) {
       console.error("Gagal fetch data:", err);
       setError(err.message || "Gagal mengambil data");
@@ -80,7 +83,7 @@ const EditObjekHukum = () => {
 
       const options = akunData.map((item: AkunPerkiraan) => ({
         label: `${item.kode_akun} - ${item.nama_akun}`,
-        value: item.kode_akun,
+        value: item.id,
       }));
 
       setAkunPerkiraanOptions(options);
@@ -89,24 +92,180 @@ const EditObjekHukum = () => {
     }
   };
 
+  const handleTambahDataBadanUsaha = () => {
+    if (
+      selectedBadanUsahaOption &&
+      !badanUsahaList.find(
+        (item) => item.value === selectedBadanUsahaOption.value
+      )
+    ) {
+      setBadanUsahaList((prev) => [...prev, selectedBadanUsahaOption]);
+    }
+  };
+
+  const handleTambahDataNonBadanUsaha = () => {
+    if (
+      selectedNonBadanUsahaOption &&
+      !nonBadanUsahaList.find(
+        (item) => item.value === selectedNonBadanUsahaOption.value
+      )
+    ) {
+      setNonBadanUsahaList((prev) => [...prev, selectedNonBadanUsahaOption]);
+    }
+  };
+
+  const resetFormByAkunPerkiraan = (value: OptionType | undefined) => {
+    setSelectedAkunPerkiraan(value);
+    setBadanUsahaList([]);
+    setNonBadanUsahaList([]);
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
+
+  const handleEditData = async () => {
+    if (!token || !companyId) {
+      console.warn("Token atau companyId tidak tersedia.");
+      return;
+    }
+
+    if (!selectedAkunPerkiraan) {
+      alert("Silakan pilih Akun Perkiraan terlebih dahulu.");
+      return;
+    }
+
+    if (badanUsahaList.length === 0 && nonBadanUsahaList.length === 0) {
+      alert(
+        "Minimal satu tag untuk Badan Usaha atau Non Badan Usaha diperlukan."
+      );
+      return;
+    }
+
+    const mappings = [];
+
+    if (badanUsahaList.length > 0) {
+      mappings.push({
+        objek_pajak_detail_ids: badanUsahaList.map((item) =>
+          parseInt(item.value)
+        ),
+        is_badan_usaha: true,
+      });
+      console.log("badan usaha ");
+    }
+
+    if (nonBadanUsahaList.length > 0) {
+      mappings.push({
+        objek_pajak_detail_ids: nonBadanUsahaList.map((item) =>
+          parseInt(item.value)
+        ),
+        is_badan_usaha: false,
+      });
+    }
+
+    const payload = {
+      akun_perkiraan_detail_id: parseInt(selectedAkunPerkiraan.value),
+      mappings,
+    };
+
+    console.log("selectedAkunPerkiraan:", selectedAkunPerkiraan);
+
+    try {
+      const result = await editAkunObjekPajak(companyId, payload, token);
+      console.log("Berhasil update:", result);
+      alert("Berhasil update data akun objek pajak.");
+    } catch (err: any) {
+      console.error("Gagal update:", err.message);
+      alert("Terjadi kesalahan saat mengedit data.");
+    }
+  };
 
   return (
     <div className={styles.container}>
       <div className={styles.editFilterTable}>
         <div className={styles.filterTextField}>
-          <SelectedTextField
+          <AutocompleteTextField
             label="Akun Perkiraan"
             options={akunPerkiraanOptions}
             value={selectedAkunPerkiraan}
-            onChange={(e) => setSelectedAkunPerkiraan(e.target.value)}
+            onChange={resetFormByAkunPerkiraan}
+            size="medium"
           />
         </div>
+        <Button
+          size="large"
+          variant="confirm"
+          label="save"
+          onClick={handleEditData}
+        />
       </div>
 
       <div className={styles.scrollContent}>
-        <ObjekHukumAccordion data={data} />
+        <div>
+          <div className={styles.SubPanel}>
+            <p className={styles.labelText}>Badan Usaha</p>
+            <div className={styles.panel}>
+              <AutocompleteTextField
+                label="Objek Pajak"
+                options={objekPajakOptions}
+                value={selectedBadanUsahaOption}
+                onChange={setSelectedBadanUsahaOption}
+                size="large"
+              />
+              <Button
+                size="small"
+                variant="confirm"
+                icon={<Add sx={{ color: "white" }} />}
+                onClick={handleTambahDataBadanUsaha}
+              />
+            </div>
+          </div>
+          <div className={styles.tagPanel}>
+            {badanUsahaList.map((item, idx) => (
+              <Tag
+                key={idx}
+                label={item.label}
+                onCancel={() =>
+                  setBadanUsahaList((prev) =>
+                    prev.filter((_, index) => index !== idx)
+                  )
+                }
+              />
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className={styles.SubPanel}>
+            <p className={styles.labelText}>Non Badan Usaha</p>
+            <div className={styles.panel}>
+              <AutocompleteTextField
+                label="Objek Pajak"
+                options={objekPajakOptions}
+                value={selectedNonBadanUsahaOption}
+                onChange={setSelectedNonBadanUsahaOption}
+                size="large"
+              />
+              <Button
+                size="small"
+                variant="confirm"
+                icon={<Add sx={{ color: "white" }} />}
+                onClick={handleTambahDataNonBadanUsaha}
+              />
+            </div>
+          </div>
+          <div className={styles.tagPanel}>
+            {nonBadanUsahaList.map((item, idx) => (
+              <Tag
+                key={idx}
+                label={item.label}
+                onCancel={() =>
+                  setNonBadanUsahaList((prev) =>
+                    prev.filter((_, index) => index !== idx)
+                  )
+                }
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

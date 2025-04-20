@@ -4,7 +4,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Props } from "../model/objekHukumModel";
 
-const ObjekHukumAccordion: React.FC<Props> = ({ data }) => {
+const ObjekPajakAccordion: React.FC<Props> = ({ data }) => {
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
 
   // Inisialisasi checked items dari props data
@@ -60,7 +60,7 @@ const ObjekHukumAccordion: React.FC<Props> = ({ data }) => {
   );
 };
 
-export default ObjekHukumAccordion;
+export default ObjekPajakAccordion;
 
 interface AccordionItemProps {
   title: string;

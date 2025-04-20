@@ -1,14 +1,14 @@
 import axios from "axios";
 import { InfoSubObjek, SubObjek } from "../model/objekHukumModel";
 
-export const fetchObjekHukumDataMember = async (
+export const fetchObjekObjekDataMember = async (
   data: { companyId: string; page?: number; limit?: number },
   token: string
 ): Promise<InfoSubObjek[]> => {
-  return await fetchObjekHukumBackend(data, token);
+  return await fetchObjekObjekBackend(data, token);
 };
 
-const fetchObjekHukumBackend = async (
+const fetchObjekObjekBackend = async (
   data: { companyId: string; page?: number; limit?: number },
   token: string
 ): Promise<InfoSubObjek[]> => {

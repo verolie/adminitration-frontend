@@ -46,3 +46,49 @@
     background-color: rgba(0, 0, 0, 0.2);
     border-radius: 3px;
 }
+.labelText {
+    font: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+}
+
+.SubPanel {
+    margin: 15px;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    /* label di kiri, input di kanan */
+    align-items: center;
+    /* biar sejajar secara vertikal */
+    padding-bottom: 10px;
+}
+
+.listData {
+    background-color: #e0e0e0;
+    color: #333;
+    margin-right: 8px;
+    padding: 6px 12px;
+    border-radius: 16px;
+    margin-top: 8px;
+    font-size: 14px;
+    display: inline-block;
+}
+
+.panel {
+    width: 35%;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    /* Adjust the gap as needed */
+}
+
+.tagPanel {
+    margin: 15px;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    padding-bottom: 10px;
+}

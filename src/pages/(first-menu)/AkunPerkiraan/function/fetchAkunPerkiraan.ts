@@ -37,7 +37,7 @@ const fetchAkunPerkiraanBackend = async (
       },
     });
 
-    const responseData = response.data;
+    const responseData = response.data.data;
 
     console.log(responseData);
 

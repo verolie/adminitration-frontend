@@ -25,6 +25,7 @@ interface TableProps<T> {
   onEdit: (item: T) => void;
   isLoading?: boolean;
   observerRef?: React.RefObject<HTMLTableRowElement | null>;
+  hideActions?: boolean;
 }
 
 const TableOccur = <T extends Record<string, any>>({
@@ -34,6 +35,7 @@ const TableOccur = <T extends Record<string, any>>({
   onEdit,
   isLoading,
   observerRef,
+  hideActions,
 }: TableProps<T>) => {
   const [sortKey, setSortKey] = useState<keyof T | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -82,11 +84,11 @@ const TableOccur = <T extends Record<string, any>>({
     <div className={styles.tableContainer}>
       <table className={styles.table}>
         <colgroup>
-          <col style={{ width: "40px" }} /> {/* kolom expand */}
+          <col style={{ width: "40px" }} />
           {columns.map(() => (
-            <col style={{ width: `${100 / columns.length}%` }} /> // kolom lainnya dibagi rata
+            <col style={{ width: `${100 / columns.length}%` }} />
           ))}
-          <col style={{ width: "100px" }} /> {/* kolom actions */}
+          {!hideActions && <col style={{ width: "100px" }} />}{" "}
         </colgroup>
 
         <thead>
@@ -118,9 +120,11 @@ const TableOccur = <T extends Record<string, any>>({
                 </div>
               </th>
             ))}
-            <th className={`${styles.headerCell} ${styles.headerTable}`}>
-              Actions
-            </th>
+            {!hideActions && (
+              <th className={`${styles.headerCell} ${styles.headerTable}`}>
+                Actions
+              </th>
+            )}
           </tr>
           <tr>
             <th className={styles.headerCell}></th>
@@ -134,7 +138,7 @@ const TableOccur = <T extends Record<string, any>>({
                 />
               </th>
             ))}
-            <th className={styles.headerCell}></th>
+            {!hideActions && <th className={styles.headerCell}></th>}
           </tr>
         </thead>
 
@@ -186,7 +190,7 @@ const TableOccur = <T extends Record<string, any>>({
                   ))}
 
                   {/* Kolom actions */}
-                  {!item["modify"] && (
+                  {!hideActions && !item["modify"] && (
                     <td className={styles.cellAction}>
                       <EditMenu
                         onDelete={() => onDelete(item)}
@@ -198,7 +202,7 @@ const TableOccur = <T extends Record<string, any>>({
 
                 {isOpen && item.detail && (
                   <tr className={styles.expandedRow}>
-                    <td colSpan={columns.length + 2}>
+                    <td colSpan={columns.length + (hideActions ? 1 : 2)}>
                       {item.detail.map((sub: ObjekDetail, i: number) => (
                         <div
                           className={styles.expandedRow}

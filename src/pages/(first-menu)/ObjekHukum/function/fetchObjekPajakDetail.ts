@@ -1,20 +1,20 @@
 import axios from "axios";
 import { ObjekHukumData } from "../model/objekHukumModel";
 
-export const fetchObjekHukumData = async (data: ObjekHukumData, token: string) => {
-  return await fetchObjekHukumBackend(data, token);
+export const fetchObjekPajakDetail = async (data: ObjekHukumData, token: string) => {
+  return await fetchObjekPajakBackend(data, token);
 };
 
-const fetchObjekHukumBackend = async (data: ObjekHukumData, token: string) => {
+const fetchObjekPajakBackend = async (data: ObjekHukumData, token: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/objek-pajak/all`, {
+    const response = await axios.get(`http://127.0.0.1:5000/objek-pajak/detail`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       params: {
         page: data.page ?? 1,
-        limit: data.limit ?? 20,
+        limit: data.limit ?? 100,
       },
     });
 
