@@ -1,16 +1,48 @@
 import axios from "axios";
-import { InfoSubObjek, SubObjek } from "../model/objekHukumModel";
+import { InfoSubObjek } from "../model/objekHukumModel";
 
-export const fetchObjekObjekDataMember = async (
-  data: { companyId: string; page?: number; limit?: number },
+type FilterOperator = "equals" | "contains" | "startsWith" | "endsWith";
+
+type FilterValue = {
+  value: string;
+  operator: FilterOperator;
+};
+
+type FilterInput = Record<string, FilterValue>;
+
+export const fetchObjekPajakDataMember = async (
+  data: { companyId: string; page?: number; limit?: number; id?: number; isBadanUsaha?: boolean },
   token: string
 ): Promise<InfoSubObjek[]> => {
-  return await fetchObjekObjekBackend(data, token);
+  let filter: FilterInput | undefined;
+
+  if (data.id) {
+    filter = {
+      id: {
+        value: data.id.toString(),
+        operator: "equals",
+      },
+    };
+  }
+
+  if (data.isBadanUsaha !== undefined) {
+    // Adding filter for is_badan_usaha
+    filter = {
+      ...filter,
+      "objek_pajak_details.akun_objek_pajak.is_badan_usaha": {
+        value: data.isBadanUsaha.toString(),
+        operator: "equals",
+      },
+    };
+  }
+
+  return await fetchObjekObjekBackend(data, token, filter);
 };
 
 const fetchObjekObjekBackend = async (
   data: { companyId: string; page?: number; limit?: number },
-  token: string
+  token: string,
+  filter?: FilterInput
 ): Promise<InfoSubObjek[]> => {
   try {
     const response = await axios.get(
@@ -23,6 +55,7 @@ const fetchObjekObjekBackend = async (
         params: {
           page: data.page ?? 1,
           limit: data.limit ?? 20,
+          ...(filter ? { filter: JSON.stringify(filter) } : {}),
         },
       }
     );
@@ -38,19 +71,22 @@ const fetchObjekObjekBackend = async (
       kodeAkun: item.kode_akun,
       namaAkun: item.nama_akun,
       keterangan: item.keterangan,
-      detail: item.objek_pajak_details?.map((detail: any) => ({
-        id: detail.id,
-        kodeObjek: detail.kode_objek,
-        namaObjek: detail.nama_objek,
-        deskripsiObjek: detail.deskripsi_objek,
-        persentase: detail.persentase,
-      })) || [],
+      detail:
+        item.objek_pajak_details?.map((detail: any) => ({
+          id: detail.id,
+          kodeObjek: detail.kode_objek,
+          namaObjek: detail.nama_objek,
+          deskripsiObjek: detail.deskripsi_objek,
+          persentase: detail.persentase,
+          akunObjekPajakIsBadanUsaha: detail.akun_objek_pajak.is_badan_usaha, // Adding the "is_badan_usaha" status
+        })) || [],
     }));
-
 
     return mappedData;
   } catch (error: any) {
     console.error("Error Response:", error.response?.data?.errors?.[0]);
-    throw new Error(error.response?.data?.errors?.[0] || "Fetch objek hukum gagal");
+    throw new Error(
+      error.response?.data?.errors?.[0] || "Fetch objek hukum gagal"
+    );
   }
 };

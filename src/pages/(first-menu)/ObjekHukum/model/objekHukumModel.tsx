@@ -5,6 +5,7 @@ export interface ObjekDetail {
   deskripsiObjek: string;
   persentase: number;
   checked?: boolean;
+  akunObjekPajakIsBadanUsaha: boolean;
 }
 
 export interface SubObjek {

@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { AkunPerkiraan } from "@/pages/(first-menu)/AkunPerkiraan/model/AkunPerkiraanModel";
 import SelectedTextField from "@/component/textField/selectedText";
@@ -13,15 +11,14 @@ import AutocompleteTextField, {
 import Tag from "@/component/tag/tag";
 import { fetchObjekPajakDetail } from "../../function/fetchObjekPajakDetail";
 import { editAkunObjekPajak } from "../../function/fetchObjekPajakDataEdit";
+import { fetchObjekPajakDataMember } from "../../function/fetchObjekPajakDataMember";
 
 const EditObjekHukum = () => {
-  // const [data, setData] = useState<ObjekHukumData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedAkunPerkiraan, setSelectedAkunPerkiraan] = useState<
     OptionType | undefined
   >(undefined);
-
   const [akunPerkiraanOptions, setAkunPerkiraanOptions] = useState<
     { label: string; value: string }[]
   >([]);
@@ -45,6 +42,63 @@ const EditObjekHukum = () => {
     fetchAkunPerkiraanList();
   }, []);
 
+  useEffect(() => {
+    if (selectedAkunPerkiraan) {
+      const fetchData = async () => {
+        setBadanUsahaList([]);
+        setNonBadanUsahaList([]);
+        if (!token || !companyId) return;
+
+        try {
+          const result = await fetchObjekPajakDataMember(
+            { companyId: companyId, id: parseInt(selectedAkunPerkiraan.value) },
+            token
+          );
+          const allDetails = result.flatMap((item) => item?.detail ?? []);
+
+          const findOptionByLabel = (label: string) => {
+            const found = objekPajakOptions.find((opt: any) =>
+              opt.label.includes(label)
+            );
+
+            return found ? { label: found.label, value: found.value } : null;
+          };
+
+          const badanUsaha = allDetails.filter(
+            (item) => item.akunObjekPajakIsBadanUsaha
+          );
+          const nonBadanUsaha = allDetails.filter(
+            (item) => !item.akunObjekPajakIsBadanUsaha
+          );
+
+          setBadanUsahaList(
+            badanUsaha.map((item: any) => {
+              const foundOption = findOptionByLabel(item.kodeObjek);
+              return {
+                label: foundOption?.label ?? item.nama_objek,
+                value: foundOption?.value ?? item.id,
+              };
+            })
+          );
+
+          setNonBadanUsahaList(
+            nonBadanUsaha.map((item: any) => {
+              const foundOption = findOptionByLabel(item.kodeObjek);
+              return {
+                label: foundOption?.label ?? item.nama_objek,
+                value: foundOption?.value ?? item.id,
+              };
+            })
+          );
+        } catch (err) {
+          console.error("Error fetching objek pajak data:", err);
+        }
+      };
+
+      fetchData();
+    }
+  }, [selectedAkunPerkiraan, token, companyId]);
+
   const fetchObjekPajakDetailData = async () => {
     if (!token || !companyId) {
       console.warn("Token atau companyID tidak ditemukan.");
@@ -54,14 +108,10 @@ const EditObjekHukum = () => {
 
     try {
       const result = await fetchObjekPajakDetail({}, token);
-      // Asumsikan result bentuknya array of objek pajak
-
       const options = result.map((item: any) => ({
         label: `${item.kode_objek} - ${item.nama_objek}`,
         value: item.id,
       }));
-
-      console.log("data akun perkiraan ", options);
       setObjekPajakOptions(options);
     } catch (err: any) {
       console.error("Gagal fetch data:", err);
@@ -73,19 +123,16 @@ const EditObjekHukum = () => {
 
   const fetchAkunPerkiraanList = async () => {
     if (!token || !companyId) return;
+
     try {
       const akunData = await fetchAkunPerkiraan(
         { companyId: companyId, page: 1, limit: 100 },
         token
       );
-
-      console.log("akun data", akunData);
-
       const options = akunData.map((item: AkunPerkiraan) => ({
         label: `${item.kode_akun} - ${item.nama_akun}`,
         value: item.id,
       }));
-
       setAkunPerkiraanOptions(options);
     } catch (err) {
       console.error("Gagal fetch akun perkiraan:", err);
@@ -93,31 +140,36 @@ const EditObjekHukum = () => {
   };
 
   const handleTambahDataBadanUsaha = () => {
-    if (
-      selectedBadanUsahaOption &&
-      !badanUsahaList.find(
-        (item) => item.value === selectedBadanUsahaOption.value
-      )
-    ) {
+    if (selectedBadanUsahaOption) {
       setBadanUsahaList((prev) => [...prev, selectedBadanUsahaOption]);
+      // Fetch the data for the added tag
+      fetchObjekPajakDataMemberFetch(selectedBadanUsahaOption);
     }
   };
 
   const handleTambahDataNonBadanUsaha = () => {
-    if (
-      selectedNonBadanUsahaOption &&
-      !nonBadanUsahaList.find(
-        (item) => item.value === selectedNonBadanUsahaOption.value
-      )
-    ) {
+    if (selectedNonBadanUsahaOption) {
       setNonBadanUsahaList((prev) => [...prev, selectedNonBadanUsahaOption]);
+      // Fetch the data for the added tag
+      fetchObjekPajakDataMemberFetch(selectedNonBadanUsahaOption);
+    }
+  };
+
+  const fetchObjekPajakDataMemberFetch = async (option: OptionType) => {
+    if (!token || !companyId) return;
+
+    try {
+      const result = await fetchObjekPajakDataMember(
+        { companyId: companyId, id: parseInt(option.value) },
+        token
+      );
+    } catch (err) {
+      console.error("Error fetching objek pajak data member:", err);
     }
   };
 
   const resetFormByAkunPerkiraan = (value: OptionType | undefined) => {
     setSelectedAkunPerkiraan(value);
-    setBadanUsahaList([]);
-    setNonBadanUsahaList([]);
   };
 
   if (loading) return <div>Loading...</div>;
@@ -150,7 +202,6 @@ const EditObjekHukum = () => {
         ),
         is_badan_usaha: true,
       });
-      console.log("badan usaha ");
     }
 
     if (nonBadanUsahaList.length > 0) {
@@ -166,8 +217,6 @@ const EditObjekHukum = () => {
       akun_perkiraan_detail_id: parseInt(selectedAkunPerkiraan.value),
       mappings,
     };
-
-    console.log("selectedAkunPerkiraan:", selectedAkunPerkiraan);
 
     try {
       const result = await editAkunObjekPajak(companyId, payload, token);
@@ -224,11 +273,13 @@ const EditObjekHukum = () => {
               <Tag
                 key={idx}
                 label={item.label}
-                onCancel={() =>
+                onCancel={() => {
                   setBadanUsahaList((prev) =>
                     prev.filter((_, index) => index !== idx)
-                  )
-                }
+                  );
+                  // Fetching again after tag removal
+                  fetchObjekPajakDataMemberFetch(item);
+                }}
               />
             ))}
           </div>
@@ -257,11 +308,13 @@ const EditObjekHukum = () => {
               <Tag
                 key={idx}
                 label={item.label}
-                onCancel={() =>
+                onCancel={() => {
                   setNonBadanUsahaList((prev) =>
                     prev.filter((_, index) => index !== idx)
-                  )
-                }
+                  );
+                  // Fetching again after tag removal
+                  fetchObjekPajakDataMemberFetch(item);
+                }}
               />
             ))}
           </div>
