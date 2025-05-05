@@ -12,6 +12,8 @@ import AkunPerkiraan from "@/pages/(first-menu)/AkunPerkiraan/AkunPerkiraan";
 import JurnalUmum from "@/pages/(first-menu)/JurnalUmum/JurnalUmum";
 import ObjekPajak from "@/pages/(first-menu)/ObjekHukum/ObjekPajak";
 import User from "@/pages/(first-menu)/User/User";
+import LawanTransaksi from "@/pages/(first-menu)/LawanTransaksi/lawanTransaksi";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 
 interface MenuList {
   no: number;
@@ -82,10 +84,18 @@ export const menuList: MenuList[] = [
   },
   {
     no: 5,
-    label: "Objek Hukum",
+    label: "Objek Pajak",
     path: <ObjekPajak />,
     icon: <PolicyIcon className={styles.icon} />,
     submenu: null,
-    roles: ["Objek Hukum"],
+    roles: ["Objek Pajak"],
+  },
+  {
+    no: 6, // pastikan nomor urut tidak bentrok
+    label: "Lawan Transaksi",
+    path: <LawanTransaksi />, // Ganti ID_COMPANY sesuai kebutuhan
+    icon: <SwapHorizIcon className={styles.icon} />,
+    submenu: null,
+    roles: ["Lawan Transaksi"], // Atur role jika perlu
   },
 ];

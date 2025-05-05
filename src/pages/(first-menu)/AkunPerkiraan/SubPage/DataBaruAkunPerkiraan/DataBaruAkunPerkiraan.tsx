@@ -187,17 +187,6 @@ export default function CreateAkunPerkiraan() {
                 </div>
               )}
 
-              {levelAkun === "detail" && (
-                <div className={styles.inputField}>
-                  <Typography className={styles.labelText}>Sub Akun</Typography>
-                  <SelectedTextField
-                    label="Sub Akun"
-                    value={selectedSubAkun}
-                    onChange={(e) => setSelectedSubAkun(e.target.value)}
-                    options={subAkunList}
-                  />
-                </div>
-              )}
             </div>
             <div className={styles.titleField}>
               <Typography className={styles.titleText}>

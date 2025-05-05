@@ -34,7 +34,8 @@ export default function DataBaru() {
   const [totalKredit, setTotalKredit] = React.useState(0);
   const [tanggalValue, setTanggalValue] = React.useState("");
   const [buktiValue, setBuktiValue] = React.useState("");
-  const [deskripsiValue, setDeskripsiValue] = React.useState("");
+  const [deskripsiValue, setDeskripsiValue] = React.useState(""); // State untuk Deskripsi
+  const [fileUpload, setFileUpload] = React.useState<File | null>(null); // State untuk File Upload
   const [rows, setRows] = React.useState<RowData[]>([
     {
       no: "",
@@ -137,6 +138,16 @@ export default function DataBaru() {
     setRows(updatedRows);
   };
 
+  // Fungsi untuk mengubah file menjadi base64
+  const toBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
   const onSubmit = (status: "active" | "submit") => async () => {
     if (totalDebit !== totalKredit) {
       alert("Total debit dan kredit harus seimbang.");
@@ -146,6 +157,11 @@ export default function DataBaru() {
     try {
       const token = localStorage.getItem("token");
       const companyId = localStorage.getItem("companyID");
+      let fileBase64 = "";
+
+      if (fileUpload) {
+        fileBase64 = await toBase64(fileUpload);
+      }
 
       if (companyId && token) {
         const data: JurnalUmum = {
@@ -154,6 +170,8 @@ export default function DataBaru() {
           totalDebit: totalDebit,
           totalKredit: totalKredit,
           companyId: companyId,
+          deskripsi: deskripsiValue, // Sertakan deskripsi
+          file: fileBase64, // Sertakan file base64,
           jurnalDetail: rows.map((row, index) => ({
             akunPerkiraanDetailId: Number(row.rekening),
             bukti: row.bukti,
@@ -169,6 +187,13 @@ export default function DataBaru() {
       }
     } catch (error: any) {
       alert(`Gagal menyimpan jurnal: ${error.message}`);
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setFileUpload(file);
     }
   };
 
@@ -195,6 +220,29 @@ export default function DataBaru() {
                 value={tanggalValue}
                 onChange={(e) => setTanggalValue(e.target.value)}
                 sx={{ width: "100%" }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.filterContainer}>
+          <div className={styles.rowContainer}>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>Deskripsi</Typography>
+              <FieldText
+                label="Deskripsi"
+                value={deskripsiValue}
+                onChange={(e) => setDeskripsiValue(e.target.value)}
+                sx={{ width: "100%" }}
+              />
+            </div>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>Upload File</Typography>
+              <input
+                type="file"
+                onChange={handleFileChange}
+                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" // Atur jenis file yang diterima
+                style={{ width: "100%" }}
               />
             </div>
           </div>

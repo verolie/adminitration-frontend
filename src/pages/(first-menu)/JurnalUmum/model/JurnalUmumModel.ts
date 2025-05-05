@@ -5,6 +5,8 @@ export interface JurnalUmum {
   tgl?: string;
   totalDebit?: number;
   totalKredit?: number;
+  deskripsi?: string; // Tambahkan deskripsi di sini
+  file?: string; // Tambahkan file di sini
   jurnalDetail?: JurnalDetail[];
   page?: number;
   limit?: number;

@@ -50,13 +50,12 @@ export default function EditAkunPerkiraan({
   const [catatanValue, setCatatanValue] = React.useState("");
   const [levelAkun, setLevelAkun] = React.useState("");
   const [selectedIndukAkun, setSelectedIndukAkun] = React.useState("");
-  const [selectedSubAkun, setSelectedSubAkun] = React.useState("");
   const [indukAkunList, setIndukAkunList] = React.useState([]);
-  const [subAkunList, setSubAkunList] = React.useState([]);
 
   React.useEffect(() => {
-    setSelectedIndukAkun("");
-    setSelectedSubAkun("");
+    if(levelAkun =="induk"){
+      setSelectedIndukAkun("");
+    }
   }, [levelAkun]);
 
   React.useEffect(() => {
@@ -96,11 +95,10 @@ export default function EditAkunPerkiraan({
             );
             const akunInduk = filteredAkunIndulList?.[0];
             const selectedAcctTypeId = accountType.find((type) => {
-              const [code] = type.name.split(" -"); // ambil bagian sebelum " -"
+              const [code] = type.name.split(" -"); 
               return code === akunInduk.tipe_akun;
             })?.id;
 
-            // Jika selectedAcctTypeId didefinisikan, konversi ke string, jika tidak set ke string kosong
             setSelectedIndukAkun(
               selectedAcctTypeId !== undefined
                 ? selectedAcctTypeId.toString()
@@ -149,12 +147,6 @@ export default function EditAkunPerkiraan({
     }
   };
 
-  const handleAkunPerkiraanChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setKodePerkiraanValue(event.target.value);
-  };
-
   const handleNamaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNamaValue(event.target.value);
   };
@@ -190,24 +182,24 @@ export default function EditAkunPerkiraan({
         keterangan: catatanValue,
       };
 
-      if (level === "sub") {
-        payload = {
-          ...payload,
-          akunPerkiraanIndukId: selectedIndukAkun,
-        };
-      }
+      // if (level === "sub") {
+      //   payload = {
+      //     ...payload,
+      //     akunPerkiraanIndukId: selectedIndukAkun,
+      //   };
+      // }
 
-      if (level === "detail") {
-        payload = {
-          ...payload,
-          akunPerkiraanIndukId: selectedIndukAkun,
-          akunPerkiraanSubId: selectedSubAkun,
-          tipeAkunId: selectedAcctType,
-          saldoAwal: saldoValue,
-          tanggalAwal: tanggalAwalValue,
-          status,
-        };
-      }
+      // if (level === "detail") {
+      //   payload = {
+      //     ...payload,
+      //     akunPerkiraanIndukId: selectedIndukAkun,
+      //     akunPerkiraanSubId: selectedSubAkun,
+      //     tipeAkunId: selectedAcctType,
+      //     saldoAwal: saldoValue,
+      //     tanggalAwal: tanggalAwalValue,
+      //     status,
+      //   };
+      // }
 
       const message = await createAkunPerkiraan(payload, level, token);
       alert(`Berhasil: ${message}`);
@@ -281,7 +273,7 @@ export default function EditAkunPerkiraan({
                 <FieldText
                   label="Kode Perkiraan"
                   value={kodePerkiraanValue}
-                  onChange={handleAkunPerkiraanChange}
+                  disabled
                 ></FieldText>
               </div>
               <div className={styles.inputField}>

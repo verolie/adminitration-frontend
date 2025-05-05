@@ -38,7 +38,7 @@ const InfoObjekHukum = () => {
       );
       setData(response);
     } catch (err) {
-      console.error("Gagal fetch objek hukum:", err);
+      console.error("Gagal fetch objek pajak:", err);
     } finally {
       setIsLoading(false);
     }

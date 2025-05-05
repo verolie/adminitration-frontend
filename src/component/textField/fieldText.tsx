@@ -7,7 +7,7 @@ interface FieldText {
   value: string;
   sx?: object;
   disabled?: boolean; // Tambahkan ini
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const CustomTextField: React.FC<FieldText> = ({

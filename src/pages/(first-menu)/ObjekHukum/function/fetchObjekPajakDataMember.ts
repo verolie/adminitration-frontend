@@ -86,7 +86,7 @@ const fetchObjekObjekBackend = async (
   } catch (error: any) {
     console.error("Error Response:", error.response?.data?.errors?.[0]);
     throw new Error(
-      error.response?.data?.errors?.[0] || "Fetch objek hukum gagal"
+      error.response?.data?.errors?.[0] || "Fetch objek pajak gagal"
     );
   }
 };
