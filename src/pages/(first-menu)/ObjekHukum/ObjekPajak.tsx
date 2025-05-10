@@ -5,7 +5,7 @@ import TabPage from "@/component/tabPage/tabPage";
 import React, { useRef, useState } from "react";
 import InfoObjekHukum from "./page/InfoOkbjekHukum/InfoObjekHukum";
 
-const MasterTag = () => {
+const MasterTax = () => {
   const tabs = [{ label: "Info", content: <InfoObjekHukum /> }];
   return (
     <>
@@ -14,4 +14,4 @@ const MasterTag = () => {
   );
 };
 
-export default MasterTag;
+export default MasterTax;

@@ -1,7 +1,7 @@
 import HomeIcon from "@mui/icons-material/Home";
 import DomainIcon from "@mui/icons-material/Domain";
 import PeopleAlt from "@mui/icons-material/PeopleAlt";
-import BuildIcon from "@mui/icons-material/Build";
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import PolicyIcon from "@mui/icons-material/Policy";
 import Image from "next/image";
 import React from "react";
@@ -14,7 +14,7 @@ import ObjekPajak from "@/pages/(first-menu)/ObjekHukum/ObjekPajak";
 import User from "@/pages/(first-menu)/User/User";
 import LawanTransaksi from "@/pages/(first-menu)/LawanTransaksi/lawanTransaksi";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import MasterTag from "@/pages/(first-menu)/MasterTag/MasterTag";
+import MasterTax from "@/pages/(first-menu)/MasterTax/MasterTax";
 
 interface MenuList {
   no: number;
@@ -32,7 +32,6 @@ interface SubItemList {
 }
 
 // Anda bisa mengganti ikonnya dengan ikon yang sesuai dari Material UI atau library ikon lainnya
-const tagIcon = <BuildIcon className={styles.icon} />; // Misalnya, menggunakan BuildIcon
 
 export const menuList: MenuList[] = [
   {
@@ -46,21 +45,32 @@ export const menuList: MenuList[] = [
   {
     no: 2,
     label: "Perusahaan",
-    path: <Company />,
+    path: "",
     icon: <DomainIcon className={styles.icon} />,
-    submenu: null,
+    submenu: [
+      {
+        label: "Profil Perusahaan",
+        path: <Company />,
+        roles: ["Company"],
+      },
+      {
+        label: "User Management",
+        path: <User />,
+        roles: ["User Management"],
+      },
+    ],
     roles: ["Company"],
   },
   {
     no: 3,
-    label: "Buku Besar",
+    label: "Akuntansi",
     path: "",
     icon: (
       <Image
         src="/images/icon/buku-besar.svg"
         width={22}
         height={28}
-        alt="Buku Besar Icon"
+        alt="Akuntasni Icon"
         className={styles.iconImage}
       />
     ),
@@ -80,14 +90,6 @@ export const menuList: MenuList[] = [
   },
   {
     no: 4,
-    label: "User",
-    path: <User />,
-    icon: <PeopleAlt className={styles.icon} />,
-    submenu: null,
-    roles: ["User Management"],
-  },
-  {
-    no: 5,
     label: "Objek Pajak",
     path: <ObjekPajak />,
     icon: <PolicyIcon className={styles.icon} />,
@@ -95,15 +97,15 @@ export const menuList: MenuList[] = [
     roles: ["Objek Pajak"],
   },
   {
-    no: 6,
-    label: "Master Tag",
-    path: <MasterTag />,
-    icon: tagIcon, // Menggunakan ikon yang telah diganti
+    no: 5,
+    label: "Master Tax",
+    path: <MasterTax />,
+    icon: <RequestQuoteIcon className={styles.icon} />, // Menggunakan ikon yang telah diganti
     submenu: null,
-    roles: ["Master Tag"],
+    roles: ["Master Tax"],
   },
   {
-    no: 7,
+    no: 6,
     label: "Lawan Transaksi",
     path: <LawanTransaksi />,
     icon: <SwapHorizIcon className={styles.icon} />,
