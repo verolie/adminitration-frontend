@@ -3,10 +3,10 @@
 
 import TabPage from "@/component/tabPage/tabPage";
 import React, { useRef, useState } from "react";
-import InfoObjekHukum from "./page/InfoOkbjekHukum/InfoObjekHukum";
+import InfoMasterTag from "./page/InfoMasterTag/InfoMasterTag";
 
 const MasterTag = () => {
-  const tabs = [{ label: "Info", content: <InfoObjekHukum /> }];
+  const tabs = [{ label: "Info", content: <InfoMasterTag /> }];
   return (
     <>
       <TabPage tabs={tabs} page="sub" />

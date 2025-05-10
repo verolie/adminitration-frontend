@@ -14,6 +14,7 @@ import ObjekPajak from "@/pages/(first-menu)/ObjekHukum/ObjekPajak";
 import User from "@/pages/(first-menu)/User/User";
 import LawanTransaksi from "@/pages/(first-menu)/LawanTransaksi/lawanTransaksi";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import MasterTag from "@/pages/(first-menu)/MasterTag/MasterTag";
 
 interface MenuList {
   no: number;
@@ -29,6 +30,9 @@ interface SubItemList {
   path: React.ReactNode;
   roles: string[];
 }
+
+// Anda bisa mengganti ikonnya dengan ikon yang sesuai dari Material UI atau library ikon lainnya
+const tagIcon = <BuildIcon className={styles.icon} />; // Misalnya, menggunakan BuildIcon
 
 export const menuList: MenuList[] = [
   {
@@ -76,11 +80,11 @@ export const menuList: MenuList[] = [
   },
   {
     no: 4,
-    label: "User", // Menu User setelah Buku Besar
+    label: "User",
     path: <User />,
-    icon: <PeopleAlt className={styles.icon} />, // Sesuaikan dengan icon yang diinginkan
+    icon: <PeopleAlt className={styles.icon} />,
     submenu: null,
-    roles: ["User Management"], // Sesuaikan dengan role yang diperlukan
+    roles: ["User Management"],
   },
   {
     no: 5,
@@ -91,11 +95,19 @@ export const menuList: MenuList[] = [
     roles: ["Objek Pajak"],
   },
   {
-    no: 6, // pastikan nomor urut tidak bentrok
+    no: 6,
+    label: "Master Tag",
+    path: <MasterTag />,
+    icon: tagIcon, // Menggunakan ikon yang telah diganti
+    submenu: null,
+    roles: ["Master Tag"],
+  },
+  {
+    no: 7,
     label: "Lawan Transaksi",
-    path: <LawanTransaksi />, // Ganti ID_COMPANY sesuai kebutuhan
+    path: <LawanTransaksi />,
     icon: <SwapHorizIcon className={styles.icon} />,
     submenu: null,
-    roles: ["Lawan Transaksi"], // Atur role jika perlu
+    roles: ["Lawan Transaksi"],
   },
 ];
