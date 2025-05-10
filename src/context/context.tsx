@@ -172,15 +172,18 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
 
     if (foundTab) {
       setTabs((prevTabs) => {
-        if (prevTabs.some((tab) => tab.label === foundTab!.label)) {
+        // cek tab nya ada atau ngga
+        const existingTabIndex = prevTabs.findIndex((tab) => tab.label === foundTab!.label);
+        if (existingTabIndex !== -1) {
+          // kalo ada, set active tab index ke index yang sudah ada
+          setActiveTabIndex(existingTabIndex);
           return prevTabs;
         }
-        return [
-          ...prevTabs,
-          { label: foundTab!.label, content: foundTab!.path, closable: true },
-        ];
+        // kalo ngga ada, tambah tab baru
+        const newTabs = [...prevTabs, { label: foundTab!.label, content: foundTab!.path, closable: true }];
+        setActiveTabIndex(newTabs.length - 1);
+        return newTabs;
       });
-      setActiveTabIndex(tabs.length);
     }
   };
 
