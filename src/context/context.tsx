@@ -26,6 +26,7 @@ interface AppContextProps {
   messageAlert: string | null;
   openAlert: boolean;
   tabs: { label: string; content: React.ReactNode }[];
+  activeTabIndex: number;
   updateErrorMessage: (error: string) => void;
   updateCurrentMenu: (menu: string) => void;
   updateSettings: (settings: ISettings) => void;
@@ -43,6 +44,7 @@ interface AppContextProps {
   closeAlert: () => void;
   addTab: (label: string) => void;
   removeTab: (label: string) => void;
+  handleTabChange: (index: number) => void;
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined);
@@ -68,6 +70,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   >([]);
   const [messageAlert, setMessageAlert] = useState<string | null>("");
   const [openAlert, setOpenAlert] = useState(false);
+  const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
   const [tabs, setTabs] = React.useState<
     { label: string; content: React.ReactNode }[]
   >([]);
@@ -147,6 +150,10 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     setOpenAlert(false);
   };
 
+  const handleTabChange = (index: number) => {
+    setActiveTabIndex(index);
+  };
+
   //page tab
   const addTab = (label: string) => {
     console.log("test ini label ", label);
@@ -173,6 +180,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
           { label: foundTab!.label, content: foundTab!.path, closable: true },
         ];
       });
+      setActiveTabIndex(tabs.length);
     }
   };
 
@@ -192,6 +200,8 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     messageAlert,
     openAlert,
     tabs,
+    activeTabIndex,
+    handleTabChange,
     updateErrorMessage,
     updateCurrentMenu,
     updateSettings,

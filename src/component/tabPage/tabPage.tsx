@@ -5,6 +5,7 @@ import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import styles from "./style/tabPage.module.css";
+import { useAppContext } from "@/context/context";
 
 interface TabItem {
   label: string;
@@ -45,10 +46,15 @@ function CustomTabPanel(props: TabPanelProps) {
 }
 
 export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
-  const [value, setValue] = React.useState(0);
+  const { activeTabIndex, handleTabChange } = useAppContext();
+  const [ value, setValue ] = React.useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
+    if (page === "sub") {
+      setValue(newValue);
+    } else if(page === "main") {
+      handleTabChange(newValue);
+    }
   };
 
   const handleClose = (index: number) => {
@@ -60,7 +66,7 @@ export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
     <Box sx={{ width: "100%" }}>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs
-          value={value}
+          value={page === "sub" ? value : activeTabIndex}
           onChange={handleChange}
           variant="scrollable"
           scrollButtons="auto"
@@ -75,7 +81,7 @@ export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
           {tabs.map((tab, index) => (
             <Tab
               className={`${styles.tabBackround} ${
-                value === index ? styles.active : ""
+                (page === "sub" ? value : activeTabIndex) === index ? styles.active : ""
               }`}
               key={index}
               label={
@@ -101,7 +107,7 @@ export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
       </Box>
       <Box className={styles.boxBackground}>
         {tabs.map((tab, index) => (
-          <CustomTabPanel key={index} value={value} index={index}>
+          <CustomTabPanel key={index} value={page === "sub" ? value : activeTabIndex} index={index}>
             {tab.content}
           </CustomTabPanel>
         ))}
@@ -109,3 +115,4 @@ export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
     </Box>
   );
 }
+
