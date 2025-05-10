@@ -1,7 +1,7 @@
 import HomeIcon from "@mui/icons-material/Home";
 import DomainIcon from "@mui/icons-material/Domain";
 import PeopleAlt from "@mui/icons-material/PeopleAlt";
-import BuildIcon from "@mui/icons-material/Build";
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import PolicyIcon from "@mui/icons-material/Policy";
 import Image from "next/image";
 import React from "react";
@@ -14,7 +14,7 @@ import ObjekPajak from "@/pages/(first-menu)/ObjekHukum/ObjekPajak";
 import User from "@/pages/(first-menu)/User/User";
 import LawanTransaksi from "@/pages/(first-menu)/LawanTransaksi/lawanTransaksi";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
-import MasterTag from "@/pages/(first-menu)/MasterTag/MasterTag";
+import MasterTax from "@/pages/(first-menu)/MasterTax/MasterTax";
 
 interface MenuList {
   no: number;
@@ -32,7 +32,6 @@ interface SubItemList {
 }
 
 // Anda bisa mengganti ikonnya dengan ikon yang sesuai dari Material UI atau library ikon lainnya
-const tagIcon = <BuildIcon className={styles.icon} />; // Misalnya, menggunakan BuildIcon
 
 export const menuList: MenuList[] = [
   {
@@ -96,11 +95,11 @@ export const menuList: MenuList[] = [
   },
   {
     no: 6,
-    label: "Master Tag",
-    path: <MasterTag />,
-    icon: tagIcon, // Menggunakan ikon yang telah diganti
+    label: "Master Tax",
+    path: <MasterTax />,
+    icon: <RequestQuoteIcon className={styles.icon} />, // Menggunakan ikon yang telah diganti
     submenu: null,
-    roles: ["Master Tag"],
+    roles: ["Master Tax"],
   },
   {
     no: 7,

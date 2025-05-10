@@ -30,7 +30,7 @@ interface Column<T> {
   label: string;
 }
 
-const InfoMasterTag = () => {
+const InfoMasterTax = () => {
   const observerRef = useRef(null);
   const [data, setData] = useState<InfoSubObjek[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -103,26 +103,18 @@ const InfoMasterTag = () => {
   };
 
   const handleTambahData = () => {
-    router.push("/master-data/master-tag/add"); // Arahkan ke halaman tambah data
+    router.push("/master-data/master-tax/add"); // Arahkan ke halaman tambah data
   };
 
   return (
     <div>
       <div className={styles.editFilterTable}>
-        <div className={styles.buttonGroup}>
-          <Button
-            size="small"
-            variant="confirm"
-            icon={<Add sx={{ color: "white" }} />}
-            onClick={handleTambahData}
-          />
           <Button
             size="small"
             variant="info"
             icon={<Refresh sx={{ color: "white" }} />}
-            onClick={() => window.location.reload()}
+            onClick={() => fetchData()}
           />
-        </div>
       </div>
       <TableOccur
         columns={columns}
@@ -137,4 +129,4 @@ const InfoMasterTag = () => {
   );
 };
 
-export default InfoMasterTag;
+export default InfoMasterTax;

@@ -3,10 +3,10 @@
 
 import TabPage from "@/component/tabPage/tabPage";
 import React, { useRef, useState } from "react";
-import InfoMasterTag from "./page/InfoMasterTag/InfoMasterTag";
+import InfoMasterTax from "./page/InfoMasterTax/InfoMasterTax";
 
-const MasterTag = () => {
-  const tabs = [{ label: "Info", content: <InfoMasterTag /> }];
+const MasterTax = () => {
+  const tabs = [{ label: "Info", content: <InfoMasterTax /> }];
   return (
     <>
       <TabPage tabs={tabs} page="sub" />
@@ -14,4 +14,4 @@ const MasterTag = () => {
   );
 };
 
-export default MasterTag;
+export default MasterTax;
