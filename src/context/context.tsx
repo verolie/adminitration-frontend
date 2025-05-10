@@ -73,7 +73,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
   const [tabs, setTabs] = React.useState<
     { label: string; content: React.ReactNode }[]
-  >([]);
+  >([{ label: menuList[0].label, content: menuList[0].path }]);
 
   const updateErrorMessage = (error: string) => {
     setError({ errorMessage: error });

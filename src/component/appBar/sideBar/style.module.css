@@ -33,6 +33,7 @@
 }
 
 .labelContainer {
+  cursor: pointer;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -69,6 +70,7 @@
 }
 
 .popup {
+  cursor: pointer;
   position: fixed;
   left: 90px;
   z-index: 1000;
