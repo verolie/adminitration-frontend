@@ -1,19 +1,15 @@
 import axios from "axios";
 import { CompanyModel } from "../model/companyModel";
 
-export const editCompany = async (data: CompanyModel, token: string) => {
-  return await editCompanyBackend(data, token);
+export const fetchOneCompany = async (data: CompanyModel, token: string | null, companyId: string | null) => {
+  return await fetchOneCompanyBackend(data, token, companyId);
 };
 
-const editCompanyBackend = async (data: CompanyModel, token: string) => {
+const fetchOneCompanyBackend = async (data: CompanyModel, token: string | null, companyId: string | null) => {
   try {
-    const requestData = {
-      nama: data.nama,
-    };
 
-    const response = await axios.put(
-      `http://127.0.0.1:5000/companies/${data.id}`,
-      requestData,
+    const response = await axios.get(
+      `http://127.0.0.1:5000/companies/${companyId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -30,7 +26,7 @@ const editCompanyBackend = async (data: CompanyModel, token: string) => {
       throw new Error(responseData);
     }
 
-    return responseData.message;
+    return responseData.data;
   } catch (error: any) {
     console.error("Error Response:", error.response?.data?.errors[0]);
     throw new Error(error.response?.data?.errors[0] || "Company failed");

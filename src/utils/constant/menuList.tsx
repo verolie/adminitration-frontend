@@ -45,9 +45,20 @@ export const menuList: MenuList[] = [
   {
     no: 2,
     label: "Perusahaan",
-    path: <Company />,
+    path: "",
     icon: <DomainIcon className={styles.icon} />,
-    submenu: null,
+    submenu: [
+      {
+        label: "Profil Perusahaan",
+        path: <Company />,
+        roles: ["Company"],
+      },
+      {
+        label: "User Management",
+        path: <User />,
+        roles: ["User Management"],
+      },
+    ],
     roles: ["Company"],
   },
   {
@@ -79,14 +90,6 @@ export const menuList: MenuList[] = [
   },
   {
     no: 4,
-    label: "User",
-    path: <User />,
-    icon: <PeopleAlt className={styles.icon} />,
-    submenu: null,
-    roles: ["User Management"],
-  },
-  {
-    no: 5,
     label: "Objek Pajak",
     path: <ObjekPajak />,
     icon: <PolicyIcon className={styles.icon} />,
@@ -94,7 +97,7 @@ export const menuList: MenuList[] = [
     roles: ["Objek Pajak"],
   },
   {
-    no: 6,
+    no: 5,
     label: "Master Tax",
     path: <MasterTax />,
     icon: <RequestQuoteIcon className={styles.icon} />, // Menggunakan ikon yang telah diganti
@@ -102,7 +105,7 @@ export const menuList: MenuList[] = [
     roles: ["Master Tax"],
   },
   {
-    no: 7,
+    no: 6,
     label: "Lawan Transaksi",
     path: <LawanTransaksi />,
     icon: <SwapHorizIcon className={styles.icon} />,

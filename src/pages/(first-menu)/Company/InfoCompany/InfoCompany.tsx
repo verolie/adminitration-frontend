@@ -1,55 +1,28 @@
-import { MenuItem, TextField, Typography } from "@mui/material";
-import { Add, Refresh } from "@mui/icons-material";
 import * as React from "react";
 import styles from "./styles.module.css";
-import SelectedTextField from "@/component/textField/selectedText";
-import Table from "@/component/table/table";
+import { Typography } from "@mui/material";
+import FieldText from "@/component/textField/fieldText";
 import Button from "@/component/button/button";
-import { fetchCompany } from "../function/fetchCompany";
+import { fetchOneCompany } from "../function/fetchOneCompany";
+import { createCompany } from "../function/createCompany";
+import { AlertBox } from "@/component/alertBox/alertBox";
+import { editCompany } from "../function/editCompany";
 import { CompanyModel } from "../model/companyModel";
 
-const accountType = [
-  { value: "test 1", label: "test 1" },
-  { value: "test 2", label: "test 2" },
-  { value: "test 3", label: "test 3" },
-];
+export default function InfoCompany() {
+  const [namaValue, setNamaValue] = React.useState("");
+  const [alertMessage, setAlertMessage] = React.useState<{
+    message: string;
+    type: "success" | "error" | "info";
+  } | null>(null);
 
-const statusType = [
-  { value: "active", label: "Active" },
-  { value: "draft", label: "Draft" },
-  { value: "inactive", label: "Inactive" },
-];
-
-const columns: Column<CompanyModel>[] = [
-  { key: "nama", label: "Nama" },
-  { key: "updatedBy", label: "Updated By" },
-  { key: "updatedTime", label: "Updated Time" },
-];
-
-interface Column<T> {
-  key: keyof T;
-  label: string;
-  align?: "left" | "right" | "center";
-}
-
-interface InfoCompanyProps {
-  onEdit: (id: string) => void;
-}
-
-export default function InfoCompany({ onEdit }: InfoCompanyProps) {
-  const [selectedAcctType, setSelectedAcctType] = React.useState("");
-  const [selectedStatusType, setStatusType] = React.useState("");
-  const [selectedData, setSelectedData] = React.useState<CompanyModel | null>(
-    null
-  );
-  const [tableData, setTableData] = React.useState<CompanyModel[]>([]);
-
-  React.useEffect(() => {
-    fetchData();
-  }, []);
+  const handleNamaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNamaValue(event.target.value);
+  };
 
   const fetchData = async () => {
     const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyID");
 
     if (!token) {
       console.error("No token found");
@@ -57,76 +30,94 @@ export default function InfoCompany({ onEdit }: InfoCompanyProps) {
     }
 
     try {
-      const result = await fetchCompany({}, token); // kalau perlu filter, bisa kirim object
-      console.log("result get company ", result);
-      const formatted = result?.map((item: any) => ({
-        id: item.id,
-        nama: item.nama,
-        updatedTime: item.updatedAt,
-        updatedBy: "-",
-      }));
-
-      setTableData(formatted);
+      const result = await fetchOneCompany({}, token, companyId); // kalau perlu filter, bisa kirim object
+      setNamaValue(result.nama);
     } catch (err) {
       console.error("Gagal fetch company:", err);
     }
   };
 
-  const handleTambahData = () => {
-    console.log("Tambah Data diklik");
-    console.log("Tipe Akun:", selectedAcctType);
-    console.log("Status:", selectedStatusType);
-  };
+  React.useEffect(() => {
+    fetchData();
+  }, []);
 
-  const handleDelete = (item: CompanyModel) => {
-    setSelectedData(item);
-  };
+  const onSubmit = (status: "active" | "submit") => async () => {
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyID");
 
-  const handleEdit = (item: CompanyModel) => {
-    if (item.id) {
-      onEdit(item.id); // Panggil handler dari parent
+    if (!token) {
+      setAlertMessage({
+        message: "Token not found. Please log in again.",
+        type: "error",
+      });
+      return;
+    }
+
+    if (!companyId) {
+      setAlertMessage({
+        message: "Company ID not found.",
+        type: "error",
+      });
+      return;
+    }
+
+    const payload: CompanyModel = {
+      id: companyId,
+      nama: namaValue,
+    };
+
+    try {
+      const result = await editCompany(payload, token);
+      console.log("Edit Success:", result);
+
+      setAlertMessage({
+        message: "Company successfully updated!",
+        type: "success",
+      });
+
+      // onClose(); // uncomment kalau mau langsung tutup tab
+    } catch (error: any) {
+      setAlertMessage({
+        message: error.message || "Failed to update company.",
+        type: "error",
+      });
     }
   };
+
   return (
     <>
-      <div className={styles.editFilterTable}>
-        <div className={styles.filterTextField}>
-          <SelectedTextField
-            label="Tipe Akun"
-            options={accountType}
-            value={selectedAcctType}
-            onChange={(e) => setSelectedAcctType(e.target.value)}
-          />
-          <SelectedTextField
-            label="Status"
-            options={statusType}
-            value={selectedStatusType}
-            onChange={(e) => setStatusType(e.target.value)}
-          />
-        </div>
-        <div className={styles.buttonGroup}>
-          <Button
-            size="small"
-            variant="confirm"
-            icon={<Add sx={{ color: "white" }} />}
-            onClick={handleTambahData}
-          />
-          <Button
-            size="small"
-            variant="info"
-            icon={<Refresh sx={{ color: "white" }} />}
-            onClick={() => window.location.reload()}
-          />
+      <div className={styles.container}>
+        <div className={styles.scrollContent}>
+          <div className={styles.titleField}>
+            <Typography className={styles.titleText}>Detail Company</Typography>
+          </div>
+          <div className={styles.fieldContainer}>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>Nama</Typography>
+              <FieldText
+                label="Nama"
+                value={namaValue}
+                onChange={handleNamaChange}
+              ></FieldText>
+            </div>
+          </div>
+          <div className={styles.buttonLabel}>
+            <Button
+              size="large"
+              variant="confirm"
+              label="Save"
+              onClick={onSubmit("active")}
+            />
+          </div>
         </div>
       </div>
-      <div className={styles.tableContainer}>
-        <Table
-          columns={columns}
-          data={tableData}
-          onDelete={handleDelete}
-          onEdit={handleEdit}
+      {alertMessage && (
+        <AlertBox
+          message={alertMessage.message}
+          type={alertMessage.type}
+          onClose={() => setAlertMessage(null)}
         />
-      </div>
+      )}
     </>
   );
 }

@@ -35,8 +35,7 @@ export default function Company() {
   };
 
   const staticTabs = [
-    { label: "Info", content: <InfoCompany onEdit={handleAddEditTab} /> },
-    { label: "Create Company", content: <CreateCompany /> },
+    { label: "Info", content: <InfoCompany /> }
   ];
 
   const allTabs = [...staticTabs, ...dynamicTabs];
