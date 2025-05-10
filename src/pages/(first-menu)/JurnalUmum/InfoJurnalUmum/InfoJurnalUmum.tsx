@@ -47,14 +47,11 @@ export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
   React.useEffect(() => {
     if (!hasMore || loading) return;
 
-    console.log("Page:", page, "Has More:", hasMore, "Loading:", loading);
-
     const observer = new IntersectionObserver(
       (entries) => {
         const target = entries[0];
         if (target.isIntersecting && !isFetching.current) {
           fetchData(page);
-          // setPage((prev) => prev + 1);
         }
       },
       {
@@ -66,9 +63,7 @@ export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
 
     const currentRef = observerRef.current;
     if (currentRef) {
-      setTimeout(() => {
-        if (currentRef) observer.observe(currentRef);
-      }, 0);
+      observer.observe(currentRef);
     }
 
     return () => {
@@ -91,7 +86,7 @@ export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
           setHasMore(false);
         } else {
           setTableData((prev) => [...prev, ...result]);
-          setPage((prev) => prev + 1); // Naikkan page hanya setelah sukses
+          setPage((prev) => prev + 1);
         }
       }
     } catch (err) {
@@ -108,7 +103,6 @@ export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
   };
 
   const confirmDelete = async () => {
-    console.log("data yang mau delete", itemToDelete);
     if (!itemToDelete) return;
 
     const token = localStorage.getItem("token");
@@ -125,10 +119,7 @@ export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
         companyId: companyId,
       };
 
-      console.log("data yang mau delete", dataToDelete);
-
       await deleteJurnalUmum(dataToDelete, token);
-
       setTableData((prevData) =>
         prevData.filter((row) => row.faktur !== itemToDelete.faktur)
       );
@@ -141,7 +132,6 @@ export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
   };
 
   const handleEdit = (item: DataRow) => {
-    console.log(item);
     if (item.id) {
       onEdit(item.id);
     }
