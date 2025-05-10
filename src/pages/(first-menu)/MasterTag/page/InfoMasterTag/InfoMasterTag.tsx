@@ -81,7 +81,7 @@ const InfoMasterTag = () => {
           kodeObjek: item.kodeObjek,
           namaObjek: item.namaObjek,
           deskripsiObjek: item.deskripsiObjek,
-          persentase: latestPersentase,
+          persentase: latestPersentase + "%",
           kodeObjekPersentase: item.namaObjek ? `${item.kode_objek}` : "-",
         };
       });
