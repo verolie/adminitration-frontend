@@ -52,14 +52,14 @@ export const menuList: MenuList[] = [
   },
   {
     no: 3,
-    label: "Buku Besar",
+    label: "Akuntansi",
     path: "",
     icon: (
       <Image
         src="/images/icon/buku-besar.svg"
         width={22}
         height={28}
-        alt="Buku Besar Icon"
+        alt="Akuntasni Icon"
         className={styles.iconImage}
       />
     ),

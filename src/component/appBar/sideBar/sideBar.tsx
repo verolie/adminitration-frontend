@@ -36,9 +36,6 @@ const SideBar = () => {
                   onMouseEnter={() => setHoveredItem(item.label)}
                   onMouseLeave={() => setHoveredItem(null)}
                 >
-                  <Typography className={styles.popupLabel}>
-                    {item.label}
-                  </Typography>
                   <div className={styles.submenuList}>
                     {item.submenu.map((sub) => (
                       <Typography
