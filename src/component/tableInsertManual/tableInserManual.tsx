@@ -14,7 +14,7 @@ interface Column<T> {
   field: keyof T;
   label: string;
   type: FieldType;
-  options?: { value: string; label: string }[]; // buat select
+  options?: { value: string; label: string }[];
 }
 
 interface TableInsertManualProps<T extends object> {
@@ -34,83 +34,87 @@ const TableInsertManual = <T extends object>({
 }: TableInsertManualProps<T>) => {
   return (
     <div className={styles.tableContainer}>
-      {/* Header Row */}
-      <div className={styles.headerRow}>
-        <div className={styles.noColumn}>No</div>
-        {columns.map((col, i) => (
-          <div key={i} className={styles.headerCell}>
-            {col.label}
-          </div>
-        ))}
-        <div className={styles.aksiColumn}>Aksi</div>
-      </div>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>No</th>
+            {columns.map((col, i) => (
+              <th key={i}>{col.label}</th>
+            ))}
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              {columns.map((col, colIndex) => {
+                const value = row[col.field] as string;
+                const handleChange = (
+                  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+                ) => onChange(index, col.field, e.target.value);
 
-      {/* Data Rows */}
-      {rows.map((row, index) => (
-        <div key={index} className={styles.dataRow}>
-          <div className={styles.noColumnContent}>{index + 1}</div>
-          {columns.map((col, colIndex) => {
-            const value = row[col.field] as string;
-            const handleChange = (
-              e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-            ) => onChange(index, col.field, e.target.value);
-
-            switch (col.type) {
-              case "text":
-                return (
-                  <FieldText
-                    key={colIndex}
-                    label={col.label}
-                    value={value}
-                    onChange={handleChange}
-                    sx={{ width: "100%" }}
-                  />
-                );
-              case "select":
-                return (
-                  <SelectedTextField
-                    key={colIndex}
-                    label={col.label}
-                    options={col.options || []}
-                    value={value}
-                    onChange={(e) => onChange(index, col.field, e.target.value)}
-                    sx={{ width: "100%" }}
-                  />
-                );
-              case "date":
-                return (
-                  <DatePickerField
-                    key={colIndex}
-                    value={value}
-                    onChange={(e) => onChange(index, col.field, e.target.value)}
-                    sx={{ width: "100%" }}
-                  />
-                );
-              case "area":
-                return (
-                  <AreaText
-                    key={colIndex}
-                    label={col.label}
-                    value={value}
-                    onChange={handleChange}
-                    sx={{ width: "100%" }}
-                  />
-                );
-              default:
-                return null;
-            }
-          })}
-          <div className={styles.aksiColumnContent}>
-            <IconButton onClick={() => deleteRow(index)}>
-              <Delete />
-            </IconButton>
-          </div>
-        </div>
-      ))}
-
-      <div className={styles.addRowButton}>
-        <Button label="+ Tambah Baris" onClick={addRow} />
-      </div>
+                switch (col.type) {
+                  case "text":
+                    return (
+                      <td key={colIndex}>
+                        <TextField
+                          value={value}
+                          onChange={handleChange}
+                          size="small"
+                          fullWidth
+                        />
+                      </td>
+                    );
+                  case "select":
+                    return (
+                      <td key={colIndex}>
+                        <SelectedTextField
+                          label={col.label}
+                          options={col.options || []}
+                          value={value}
+                          onChange={(e) => onChange(index, col.field, e.target.value)}
+                          sx={{ width: "100%" }}
+                        />
+                      </td>
+                    );
+                  case "date":
+                    return (
+                      <td key={colIndex}>
+                        <DatePickerField
+                          value={value}
+                          onChange={(e) => onChange(index, col.field, e.target.value)}
+                          sx={{ width: "100%" }}
+                        />
+                      </td>
+                    );
+                  case "area":
+                    return (
+                      <td key={colIndex}>
+                        <AreaText
+                          label={col.label}
+                          value={value}
+                          onChange={handleChange}
+                          sx={{ width: "100%" }}
+                        />
+                      </td>
+                    );
+                  default:
+                    return null;
+                }
+              })}
+              <td>
+                <IconButton onClick={() => deleteRow(index)}>
+                  <Delete />
+                </IconButton>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <button onClick={addRow} className={styles.addButton}>
+        Add Row
+      </button>
     </div>
   );
 };

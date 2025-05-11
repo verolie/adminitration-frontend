@@ -1,119 +1,51 @@
 import * as React from "react";
 import styles from "./styles.module.css";
 import { Typography } from "@mui/material";
-import SelectedTextField from "@/component/textField/selectedText";
-import FieldText from "@/component/textField/fieldText";
-import Button from "@/component/button/button";
-import DatePickerField from "@/component/textField/dateAreaText";
-import AreaText from "@/component/textField/areaText";
-import TableInsertManual from "@/component/tableInsertManual/tableInserManual";
-import { createJurnalUmum } from "../function/createJurnalUmum";
-import { fetchAkunPerkiraanDetail } from "../function/fetchAkunPerkiraanDetail";
-import { JurnalUmum } from "../model/JurnalUmumModel";
+import Button from "../../../../component/button/button";
+import DatePickerField from "../../../../component/textField/dateAreaText";
+import FieldText from "../../../../component/textField/fieldText";
+import TableInsertSmartTax from "../function/TableInsertSmartTax";
+import { createJurnalSmartax } from "../function/createJurnalSmartax";
+import { fetchLawanTransaksi } from "../function/fetchLawanTransaksi";
 
 type RowData = {
   no: string;
-  rekening: string;
+  lawanTransaksi: string;
   bukti: string;
   debit: string;
   kredit: string;
   keterangan: string;
 };
 
-type Column<T> = {
-  field: keyof T;
-  label: string;
-  type: "text" | "select" | "date";
-  options?: { label: string; value: string }[]; // Only for "select" type
-};
-
-export default function DataBaru() {
-  const [kodeAkunValue, setKodeAkunValue] = React.useState("");
+export default function CreateJurnalSmartax() {
+  const [rows, setRows] = React.useState<RowData[]>([
+    { no: "", lawanTransaksi: "", bukti: "", debit: "", kredit: "", keterangan: "" },
+  ]);
   const [totalDebit, setTotalDebit] = React.useState(0);
   const [totalKredit, setTotalKredit] = React.useState(0);
   const [tanggalValue, setTanggalValue] = React.useState("");
-  const [buktiValue, setBuktiValue] = React.useState("");
-  const [deskripsiValue, setDeskripsiValue] = React.useState(""); // State untuk Deskripsi
-  const [fileUpload, setFileUpload] = React.useState<File | null>(null); // State untuk File Upload
-  const [rows, setRows] = React.useState<RowData[]>([
-    {
-      no: "",
-      rekening: "",
-      bukti: "",
-      debit: "",
-      kredit: "",
-      keterangan: "",
-    },
-  ]);
-  const [akunOptions, setAkunOptions] = React.useState<
-    { value: string; label: string }[]
-  >([]);
+  const [fakturValue, setFakturValue] = React.useState("");
+  const [deskripsiValue, setDeskripsiValue] = React.useState("");
+  const [fileUpload, setFileUpload] = React.useState<File | null>(null);
+  const [lawanTransaksiList, setLawanTransaksiList] = React.useState<any[]>([]);
 
-  const columns: Column<RowData>[] = React.useMemo(
-    () => [
-      {
-        field: "rekening",
-        label: "Rekening",
-        type: "select",
-        options: akunOptions,
-      },
-      { field: "bukti", label: "Bukti", type: "text" },
-      { field: "debit", label: "Debit", type: "text" },
-      { field: "kredit", label: "Kredit", type: "text" },
-      { field: "keterangan", label: "Keterangan", type: "text" },
-    ],
-    [akunOptions]
-  );
-
-  React.useEffect(() => {
-    const fetchAkun = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const companyId = localStorage.getItem("companyID");
-
-        if (!token || !companyId) return;
-
-        const data = await fetchAkunPerkiraanDetail(
-          { companyId }, // pastikan AkunPerkiraan hanya butuh ini
-          token
-        );
-
-        console.log("contoh ", data);
-        const akunList = data.map((akun: any) => ({
-          value: akun.id.toString(),
-          label: `${akun.kode_akun} - ${akun.nama_akun}`,
-        }));
-
-        setAkunOptions(akunList);
-      } catch (err) {
-        console.error("Gagal fetch akun:", err);
-      }
-    };
-
-    fetchAkun();
-  }, []);
-  const handleRowChange = (
-    index: number,
-    field: keyof RowData,
-    value: string
-  ) => {
+  const handleRowChange = (index: number, field: string, value: string) => {
     const updatedRows = [...rows];
-    updatedRows[index][field] = value;
+    updatedRows[index][field as keyof RowData] = value;
     setRows(updatedRows);
   };
 
   const handleAddRow = () => {
     setRows([
       ...rows,
-      {
-        no: "",
-        rekening: "",
-        bukti: "",
-        debit: "",
-        kredit: "",
-        keterangan: "",
-      },
+      { no: "", lawanTransaksi: "", bukti: "", debit: "", kredit: "", keterangan: "" },
     ]);
+  };
+
+  const handleDeleteRow = (index: number) => {
+    const updatedRows = [...rows];
+    updatedRows.splice(index, 1);
+    setRows(updatedRows);
   };
 
   React.useEffect(() => {
@@ -129,11 +61,22 @@ export default function DataBaru() {
     setTotalKredit(kredit);
   }, [rows]);
 
-  const handleDeleteRow = (index: number) => {
-    const updatedRows = [...rows];
-    updatedRows.splice(index, 1);
-    setRows(updatedRows);
-  };
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const companyId = localStorage.getItem("companyID");
+        if (!token || !companyId) return;
+
+        const data = await fetchLawanTransaksi(token, companyId);
+        setLawanTransaksiList(data);
+      } catch (error) {
+        console.error("Error fetching lawan transaksi:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   // Fungsi untuk mengubah file menjadi base64
   const toBase64 = (file: File): Promise<string> => {
@@ -145,7 +88,7 @@ export default function DataBaru() {
     });
   };
 
-  const onSubmit = (status: "active" | "submit") => async () => {
+  const onSubmit = async () => {
     if (totalDebit !== totalKredit) {
       alert("Total debit dan kredit harus seimbang.");
       return;
@@ -161,16 +104,16 @@ export default function DataBaru() {
       }
 
       if (companyId && token) {
-        const data: JurnalUmum = {
-          faktur: kodeAkunValue,
+        const data = {
+          faktur: fakturValue,
           tgl: tanggalValue,
-          totalDebit: totalDebit,
-          totalKredit: totalKredit,
-          companyId: companyId,
-          deskripsi: deskripsiValue, // Sertakan deskripsi
-          file: fileBase64, // Sertakan file base64,
+          totalDebit,
+          totalKredit,
+          companyId,
+          deskripsi: deskripsiValue,
+          file: fileBase64,
           jurnalDetail: rows.map((row, index) => ({
-            akunPerkiraanDetailId: Number(row.rekening),
+            lawanTransaksi: row.lawanTransaksi,
             bukti: row.bukti,
             debit: parseFloat(row.debit) || 0,
             kredit: parseFloat(row.kredit) || 0,
@@ -179,8 +122,8 @@ export default function DataBaru() {
           })),
         };
 
-        const result = await createJurnalUmum(data, token);
-        alert(`Jurnal berhasil disimpan: ${result}`);
+        const result = await createJurnalSmartax(data, token);
+        alert(`Jurnal Smartax berhasil disimpan: ${result}`);
       }
     } catch (error: any) {
       alert(`Gagal menyimpan jurnal: ${error.message}`);
@@ -203,19 +146,19 @@ export default function DataBaru() {
         <div className={styles.filterContainer}>
           <div className={styles.rowContainer}>
             <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Nomor Faktur</Typography>
-              <FieldText
-                label="Nomor Faktur"
-                value={kodeAkunValue}
-                onChange={(e) => setKodeAkunValue(e.target.value)}
+              <Typography className={styles.labelText}>Tanggal</Typography>
+              <DatePickerField
+                value={tanggalValue}
+                onChange={(e) => setTanggalValue(e.target.value as string)}
                 sx={{ width: "100%" }}
               />
             </div>
             <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Tanggal</Typography>
-              <DatePickerField
-                value={tanggalValue}
-                onChange={(e) => setTanggalValue(e.target.value)}
+              <Typography className={styles.labelText}>Nomor Faktur</Typography>
+              <FieldText
+                label="Nomor Faktur"
+                value={fakturValue}
+                onChange={(e) => setFakturValue(e.target.value)}
                 sx={{ width: "100%" }}
               />
             </div>
@@ -238,7 +181,7 @@ export default function DataBaru() {
               <input
                 type="file"
                 onChange={handleFileChange}
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" // Atur jenis file yang diterima
+                accept=".pdf,.doc,.docx,.xls,.xlsx"
                 style={{ width: "100%" }}
               />
             </div>
@@ -248,22 +191,22 @@ export default function DataBaru() {
         <div className={styles.titleField}>
           <Typography className={styles.titleText}>Data Jurnal</Typography>
         </div>
-        <TableInsertManual
+        <TableInsertSmartTax
           rows={rows}
+          lawanTransaksiList={lawanTransaksiList}
           onChange={handleRowChange}
           addRow={handleAddRow}
           deleteRow={handleDeleteRow}
-          columns={columns}
         />
 
-        <div className={styles.container}>
+        <div className={styles.filterContainer}>
           <div className={styles.rowContainer}>
             <div className={styles.inputField}>
               <Typography className={styles.labelText}>Total Debit</Typography>
               <FieldText
                 label="0"
                 value={totalDebit.toString()}
-                onChange={(e) => setKodeAkunValue(e.target.value)}
+                onChange={() => {}}
                 sx={{ width: "100%" }}
                 disabled={true}
               />
@@ -273,7 +216,7 @@ export default function DataBaru() {
               <FieldText
                 label="0"
                 value={totalKredit.toString()}
-                onChange={(e) => setKodeAkunValue(e.target.value)}
+                onChange={() => {}}
                 sx={{ width: "100%" }}
                 disabled={true}
               />
@@ -287,15 +230,15 @@ export default function DataBaru() {
           size="large"
           variant="confirm"
           label="Save"
-          onClick={onSubmit("active")}
+          onClick={onSubmit}
         />
         <Button
           size="large"
           variant="info"
           label="Save As Draft"
-          onClick={onSubmit("submit")}
+          onClick={onSubmit}
         />
       </div>
     </div>
   );
-}
+} 
