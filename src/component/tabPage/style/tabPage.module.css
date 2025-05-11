@@ -1,9 +1,13 @@
 .tabBackround {
     background-color: #f1f1f1;
-    margin-right: 1%;
-    border-radius: 10px 10px 0px 0px;
+    margin-right: 0.5%;
+    border-radius: 6px 6px 0px 0px;
     transition: background-color 0.3s, color 0.3s;
-    box-shadow: inset 0px 2px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.1);
+    min-height: 36px !important;
+    padding: 6px 16px !important;
+    font-size: 0.875rem !important;
+    text-transform: none !important;
 }
 
 .tabBackround:not(.active):hover {
@@ -17,22 +21,38 @@
 }
 
 .boxBackground {
-    border-radius: 0px 0px 10px 10px;
-        border: 1px solid #ddd;
-        box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.1);
-        max-height: calc(100vh - 100px);
-            /* height: calc(100vh - 150px); */
-            /* Tambahkan tinggi tetap agar scroll bisa bekerja */
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+    border-radius: 0px 0px 8px 8px;
+    border: 1px solid #ddd;
+    box-shadow: inset 0px 0px 2px rgba(0, 0, 0, 0.1);
+    max-height: calc(100vh - 120px);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
+
 .boxPanel {
     padding: 10px;
 }
+
 .tabPanel {
     flex: 1;
     overflow-y: auto;
     height: 100%;
-    padding: 10px;
+    padding: 8px;
+}
+
+/* Add styles for the tabs container */
+.tabsContainer {
+    min-height: 36px !important;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Style for the close button */
+.closeButton {
+    padding: 2px !important;
+    margin-left: 4px !important;
+}
+
+.closeButton svg {
+    font-size: 16px !important;
 }

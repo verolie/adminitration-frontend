@@ -5,9 +5,12 @@ import SelectedTextField from "@/component/textField/selectedText";
 import FieldText from "@/component/textField/fieldText";
 import Button from "@/component/button/button";
 import AreaText from "@/component/textField/areaText";
-import { createAkunPerkiraan } from "../../function/createAkunPerkiraan";
+import { editAkunPerkiraan } from "../../function/editAkunPerkiraan";
 import { fetchAkunPerkiraan as fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraan";
 import { fetchAkunPerkiraanInduk } from "../../function/fetchAkunPerkiraanInduk";
+import { fetchAkunPerkiraanSub } from "../../function/fetchAkunPerkiraanSub";
+import { useAlert } from "@/context/AlertContext";
+import { formatNumber, unformatNumber, isNumericInput } from "@/utils/formatNumber";
 
 const accountType = [
   { id: 1, name: "Asset" },
@@ -39,24 +42,61 @@ export default function EditAkunPerkiraan({
 }: EditJurnalUmumProps) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState("");
-
-  const [selectedAcctType, setSelectedAcctType] = React.useState<number | "">(
-    ""
-  );
+  const { showAlert } = useAlert();
+  const [selectedAcctType, setSelectedAcctType] = React.useState<number | "">("");
   const [kodePerkiraanValue, setKodePerkiraanValue] = React.useState("");
   const [namaValue, setNamaValue] = React.useState("");
   const [saldoValue, setSaldoValue] = React.useState("");
   const [tanggalAwalValue, setTanggalAwalValue] = React.useState("");
   const [catatanValue, setCatatanValue] = React.useState("");
-  const [levelAkun, setLevelAkun] = React.useState("");
+  const [levelAkun, setLevelAkun] = React.useState<"induk" | "sub" | "detail" | "">("");
   const [selectedIndukAkun, setSelectedIndukAkun] = React.useState("");
-  const [indukAkunList, setIndukAkunList] = React.useState([]);
+  const [selectedSubAkun, setSelectedSubAkun] = React.useState("");
+  const [indukAkunList, setIndukAkunList] = React.useState<{ value: string; label: string }[]>([]);
+  const [subAkunList, setSubAkunList] = React.useState<{ value: string; label: string }[]>([]);
 
   React.useEffect(() => {
-    if(levelAkun =="induk"){
+    if (levelAkun === "induk") {
       setSelectedIndukAkun("");
     }
+    fetchData();
   }, [levelAkun]);
+
+  const fetchData = async () => {
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyID");
+    if (!companyId || !token) return;
+
+    if (levelAkun === "sub") {
+      try {
+        const result = await fetchAkunPerkiraanInduk({ companyId }, token);
+        setIndukAkunList(
+          result.map((item: any) => ({
+            value: item.id,
+            label: `${item.kode_akun} - ${item.nama_akun}`,
+          }))
+        );
+      } catch (error) {
+        console.error("Gagal ambil akun induk", error);
+        showAlert("Gagal mengambil data akun induk", "error");
+      }
+    }
+
+    if (levelAkun === "detail") {
+      try {
+        const result = await fetchAkunPerkiraanSub({ companyId }, token);
+        setSubAkunList(
+          result.map((item: any) => ({
+            value: item.id,
+            label: `${item.kode_akun} - ${item.nama_akun}`,
+          }))
+        );
+      } catch (error) {
+        console.error("Gagal ambil akun sub", error);
+        showAlert("Gagal mengambil data akun sub", "error");
+      }
+    }
+  };
 
   React.useEffect(() => {
     const fetchDetailAndSetup = async () => {
@@ -70,95 +110,70 @@ export default function EditAkunPerkiraan({
       try {
         const filter: FilterInput = {
           id: {
-            value: parseInt(id, 10), // Mengubah id menjadi integer dengan basis 10
+            value: parseInt(id, 10),
+            operator: "equals",
+          },
+          jenis_akun: {
+            value: level,
             operator: "equals",
           },
         };
 
-        const akunList = await fetchAkunPerkiraan(
-          { companyId },
-          token,
-          filter
-        );
+        const akunList = await fetchAkunPerkiraan({ companyId }, token, filter);
 
-        const filteredAkunList = akunList.filter(
-          (akun: any) => akun.jenis_akun === level
-        );
-
+        const filteredAkunList = akunList.filter((akun: any) => akun.jenis_akun === level);
         const akun = filteredAkunList?.[0];
-        
 
         if (akun) {
-          if (level === "sub" || level === "detail") {
-            const filteredAkunIndulList = akunList.filter(
-              (akun: any) => akun.jenis_akun === "induk"
-            );
-            const akunInduk = filteredAkunIndulList?.[0];
-            const selectedAcctTypeId = accountType.find((type) => {
-              const [code] = type.name.split(" -"); 
-              return code === akunInduk.tipe_akun;
-            })?.id;
+          if (level === "sub") {
+            const filteredAkunIndukList = akunList.filter((akun: any) => akun.jenis_akun === "induk");
+            const akunInduk = filteredAkunIndukList?.[0];
 
-            setSelectedIndukAkun(
-              selectedAcctTypeId !== undefined
-                ? selectedAcctTypeId.toString()
-                : ""
-            );
+            setSelectedIndukAkun(akunInduk !== undefined ? akunInduk.id : "");
           }
-          const selectedAcctTypeId =
-            accountType.find((type) => type.name === akun.tipe_akun)?.id || "";
-            
-          setLevelAkun(level);
+
+          if (level === "detail") {
+            const filteredAkunSubList = akunList.filter((akun: any) => akun.jenis_akun === "sub");
+            const akunSub = filteredAkunSubList?.[0];
+
+            setSelectedIndukAkun(akunSub !== undefined ? akunSub.id : "");
+          }
+
+          const selectedAcctTypeId = accountType.find((type) => type.name === akun.tipe_akun)?.id || "";
+          console.log(selectedAcctTypeId);
+          
+          setLevelAkun(level as "induk" | "sub" | "detail");
           setKodePerkiraanValue(akun.kode_akun || "");
           setNamaValue(akun.nama_akun || "");
-          setSaldoValue(akun.saldo?.toString() || "");
+          setSaldoValue(formatNumber(akun.saldo?.toString() || "0"));
           setTanggalAwalValue(akun.tanggal_awal || "");
           setCatatanValue(akun.keterangan || "");
           setSelectedAcctType(selectedAcctTypeId || "");
-          // Fetch akun induk dan sub jika perlu
-          await fetchData(level, token, companyId);
         } else {
           setError("Data akun tidak ditemukan");
+          showAlert("Data akun tidak ditemukan", "error");
         }
       } catch (err: any) {
         console.error("Gagal fetch detail akun:", err.message);
         setError("Gagal memuat data akun");
+        showAlert("Gagal memuat data akun", "error");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchDetailAndSetup();
-  }, []); // Add level to dependencies so it updates when level changes
-
-  const fetchData = async (level: string, token: string, companyId: string) => {
-    if (level === "sub" || level === "detail") {
-      try {
-        const result = await fetchAkunPerkiraanInduk({ companyId }, token);
-        setIndukAkunList(
-          result.map((item: any) => ({
-            value: item.id,
-            label: `${item.kode_akun} - ${item.nama_akun}`,
-          }))
-        );
-      } catch (error) {
-        console.error("Gagal ambil akun induk", error);
-      }
-    }
-  };
+  }, [id, level]);
 
   const handleNamaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNamaValue(event.target.value);
   };
 
-  const handleSaldoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSaldoValue(event.target.value);
-  };
-
-  const handleTanggalAwalChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setTanggalAwalValue(event.target.value);
+  const handleSaldoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/,/g, '');
+    if (!isNumericInput(rawValue)) return;
+    const formatted = formatNumber(rawValue);
+    setSaldoValue(formatted);
   };
 
   const handleCatatanChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,169 +185,176 @@ export default function EditAkunPerkiraan({
     const companyId = localStorage.getItem("companyID");
 
     if (!token || !companyId || !levelAkun) {
-      console.error("Token, Company ID, atau level akun tidak tersedia");
+      showAlert("Token, Company ID, atau level akun tidak tersedia", "error");
       return;
     }
 
     try {
       let payload: any = {
-        companyId,
+        companyId: companyId,
+        id: id,
         kodeAkun: kodePerkiraanValue,
         namaAkun: namaValue,
         keterangan: catatanValue,
+        tipeAkunId: selectedAcctType,
       };
 
-      // if (level === "sub") {
-      //   payload = {
-      //     ...payload,
-      //     akunPerkiraanIndukId: selectedIndukAkun,
-      //   };
-      // }
+      if (levelAkun === "sub") {
+        if (saldoValue.endsWith('.') || isNaN(parseFloat(saldoValue))) {
+          showAlert("Saldo harus berupa angka", "error");
+          return;
+        }
+        payload = {
+          ...payload,
+          akunPerkiraanIndukId: selectedIndukAkun,
+          saldo: unformatNumber(saldoValue),
+          tanggalAwal: tanggalAwalValue,
+          status,
+        };
+      }
 
-      // if (level === "detail") {
-      //   payload = {
-      //     ...payload,
-      //     akunPerkiraanIndukId: selectedIndukAkun,
-      //     akunPerkiraanSubId: selectedSubAkun,
-      //     tipeAkunId: selectedAcctType,
-      //     saldoAwal: saldoValue,
-      //     tanggalAwal: tanggalAwalValue,
-      //     status,
-      //   };
-      // }
+      if (levelAkun === "detail") {
+        if (saldoValue.endsWith('.') || isNaN(parseFloat(saldoValue))) {
+          showAlert("Saldo harus berupa angka", "error");
+          return;
+        }
+        payload = {
+          ...payload,
+          akunPerkiraanSubId: selectedIndukAkun,
+          saldo: unformatNumber(saldoValue),
+          tanggalAwal: tanggalAwalValue,
+          status,
+        };
+      }
 
-      const message = await createAkunPerkiraan(payload, level, token);
-      alert(`Berhasil: ${message}`);
+      const message = await editAkunPerkiraan(payload, levelAkun, token);
+      showAlert("Data berhasil disimpan", "success");
+      onClose();
     } catch (error: any) {
-      alert(`Gagal membuat akun: ${error.message}`);
+      showAlert(`Gagal membuat akun: ${error.message}`, "error");
     }
   };
 
   return (
-    <>
-      {
+    <div className={styles.container}>
+      <div className={styles.scrollContent}>
+        <div className={styles.titleField}>
+          <Typography className={styles.titleText}>Akun Perkiraan</Typography>
+        </div>
         <div className={styles.container}>
-          <div className={styles.scrollContent}>
-            <div className={styles.titleField}>
-              <Typography className={styles.titleText}>
-                Akun Perkiraan
+          <div className={styles.inputField}>
+            <Typography className={styles.labelText}>Opsi Akun</Typography>
+            <SelectedTextField
+              label="Opsi Akun"
+              value={levelAkun}
+              onChange={(e) => setLevelAkun(e.target.value as "induk" | "sub" | "detail")}
+              options={[
+                { value: "induk", label: "Induk" },
+                { value: "sub", label: "Sub" },
+                { value: "detail", label: "Detail" },
+              ]}
+              readOnly={true}
+            />
+          </div>
+          {(levelAkun === "sub" || levelAkun === "detail") && (
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>
+                {levelAkun === "sub" ? "Induk Akun" : "Sub Akun"}
               </Typography>
+              <SelectedTextField
+                label={levelAkun === "sub" ? "Induk Akun" : "Sub Akun"}
+                value={selectedIndukAkun}
+                onChange={(e) => setSelectedIndukAkun(e.target.value)}
+                options={levelAkun === "sub" ? indukAkunList : subAkunList}
+              />
             </div>
-            <div className={styles.container}>
-              <div className={styles.inputField}>
-                <Typography className={styles.labelText}>Opsi Akun</Typography>
-                <SelectedTextField
-                  label="Opsi Akun"
-                  value={levelAkun}
-                  onChange={(e) =>
-                    setLevelAkun(e.target.value as "induk" | "sub" | "detail")
-                  }
-                  options={[
-                    { value: "induk", label: "Induk" },
-                    { value: "sub", label: "Sub" },
-                    { value: "detail", label: "Detail" },
-                  ]}
-                />
-              </div>
-              {(levelAkun === "sub" || levelAkun === "detail") && (
-                <div className={styles.inputField}>
-                  <Typography className={styles.labelText}>
-                    Induk Akun
-                  </Typography>
-                  <SelectedTextField
-                    label="Induk Akun"
-                    value={selectedIndukAkun}
-                    onChange={(e) => setSelectedIndukAkun(e.target.value)}
-                    options={indukAkunList}
-                  />
-                </div>
-              )}
+          )}
+        </div>
+        <div className={styles.titleField}>
+          <Typography className={styles.titleText}>Informasi Umum</Typography>
+        </div>
+        <div className={styles.container}>
+          {(levelAkun === "induk") && (
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>Tipe Akun</Typography>
+              <SelectedTextField
+                label="Tipe Akun"
+                value={selectedAcctType}
+                onChange={(e) => setSelectedAcctType(Number(e.target.value))}
+                options={accountType.map((type) => ({
+                  value: type.id,
+                  label: type.name,
+                }))}
+              />
             </div>
-            <div className={styles.titleField}>
-              <Typography className={styles.titleText}>
-                Informasi Umum
-              </Typography>
-            </div>
-            <div className={styles.container}>
-              <div className={styles.inputField}>
-                <Typography className={styles.labelText}>Tipe Akun</Typography>
-                <SelectedTextField
-                  label="Tipe Akun"
-                  value={selectedAcctType}
-                  onChange={(e) => setSelectedAcctType(Number(e.target.value))}
-                  options={accountType.map((type) => ({
-                    value: type.id,
-                    label: type.name,
-                  }))}
-                />
-              </div>
-              <div className={styles.inputField}>
-                <Typography className={styles.labelText}>
-                  Kode Perkiraan
-                </Typography>
-                <FieldText
-                  label="Kode Perkiraan"
-                  value={kodePerkiraanValue}
-                  disabled
-                ></FieldText>
-              </div>
-              <div className={styles.inputField}>
-                <Typography className={styles.labelText}>Nama</Typography>
-                <FieldText
-                  label="Nama"
-                  value={namaValue}
-                  onChange={handleNamaChange}
-                ></FieldText>
-                <Typography className={styles.infoText}>
-                  Contoh: BCA a/c XXX-XXX, dll
-                </Typography>
-              </div>
-            </div>
+          )}
+          <div className={styles.inputField}>
+            <Typography className={styles.labelText}>Kode Perkiraan</Typography>
+            <FieldText
+              label="Kode Perkiraan"
+              value={kodePerkiraanValue}
+              disabled
+            />
+          </div>
+          <div className={styles.inputField}>
+            <Typography className={styles.labelText}>Nama</Typography>
+            <FieldText
+              label="Nama"
+              value={namaValue}
+              onChange={handleNamaChange}
+            />
+            <Typography className={styles.infoText}>
+              Contoh: BCA a/c XXX-XXX, dll
+            </Typography>
+          </div>
+        </div>
+
+        {(levelAkun === "detail") && (
+          <>
             <div className={styles.titleField}>
               <Typography className={styles.titleText}>Saldo</Typography>
             </div>
             <div className={styles.container}>
               <div className={styles.inputField}>
-                <Typography className={styles.labelText}>
-                  Saldo Perkiraan
-                </Typography>
+                <Typography className={styles.labelText}>Saldo Perkiraan</Typography>
                 <FieldText
                   label="Saldo"
                   value={saldoValue}
                   onChange={handleSaldoChange}
-                ></FieldText>
+                />
               </div>
             </div>
-            <div className={styles.titleField}>
-              <Typography className={styles.titleText}>Lain Lain</Typography>
-            </div>
-            <div className={styles.container}>
-              <div className={styles.inputField}>
-                <Typography className={styles.labelText}>Catatan</Typography>
-                <AreaText
-                  label="Catatan"
-                  value={catatanValue}
-                  onChange={handleCatatanChange}
-                ></AreaText>
-              </div>
-            </div>
-          </div>
-          <div className={styles.buttonLabel}>
-            <Button
-              size="large"
-              variant="confirm"
-              label="Save"
-              onClick={onSubmit("active")}
-            />
-            <Button
-              size="large"
-              variant="info"
-              label="Save As Draft"
-              onClick={onSubmit("submit")}
+          </>
+        )}
+
+        <div className={styles.titleField}>
+          <Typography className={styles.titleText}>Lain Lain</Typography>
+        </div>
+        <div className={styles.container}>
+          <div className={styles.inputField}>
+            <Typography className={styles.labelText}>Catatan</Typography>
+            <AreaText
+              label="Catatan"
+              value={catatanValue}
+              onChange={handleCatatanChange}
             />
           </div>
         </div>
-      }
-    </>
+      </div>
+      <div className={styles.buttonLabel}>
+        <Button
+          size="large"
+          variant="confirm"
+          label="Save"
+          onClick={onSubmit("active")}
+        />
+        <Button
+          size="large"
+          variant="info"
+          label="Save As Draft"
+          onClick={onSubmit("submit")}
+        />
+      </div>
+    </div>
   );
 }

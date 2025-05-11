@@ -6,7 +6,12 @@ interface FieldText {
   label: string;
   value: string;
   sx?: object;
-  disabled?: boolean; // Tambahkan ini
+  disabled?: boolean;
+  type?: string;
+  inputProps?: {
+    inputMode?: "search" | "text" | "email" | "tel" | "url" | "none" | "numeric" | "decimal";
+    pattern?: string;
+  };
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
@@ -14,7 +19,7 @@ const CustomTextField: React.FC<FieldText> = ({
   label,
   value,
   sx = {},
-  disabled = false, // default false
+  disabled = false,
   onChange,
 }) => {
   return (
@@ -23,7 +28,7 @@ const CustomTextField: React.FC<FieldText> = ({
       value={value}
       onChange={onChange}
       size="small"
-      disabled={disabled} // Tambahkan ke sini
+      disabled={disabled}
       className={styles.customTextField}
       sx={{ width: "40%", ...sx }}
     />

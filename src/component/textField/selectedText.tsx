@@ -9,6 +9,7 @@ interface SelectedTextFieldProps {
   value: string | number;
   sx?: object;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  readOnly?: boolean;
 }
 
 const SelectedTextField: React.FC<SelectedTextFieldProps> = ({
@@ -17,6 +18,7 @@ const SelectedTextField: React.FC<SelectedTextFieldProps> = ({
   value,
   sx,
   onChange,
+  readOnly = false,
 }) => {
   const defaultSx = { width: "40%" };
   const mergedSx = { ...defaultSx, ...sx };
@@ -31,6 +33,7 @@ const SelectedTextField: React.FC<SelectedTextFieldProps> = ({
       className={styles.selectedText}
       sx={mergedSx}
       InputLabelProps={{ shrink: false }}
+      InputProps={{ readOnly: readOnly }}
     >
       {options.map((option) => (
         <MenuItem key={option.value} value={option.value}>

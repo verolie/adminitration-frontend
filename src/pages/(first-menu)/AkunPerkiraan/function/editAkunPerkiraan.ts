@@ -6,37 +6,39 @@ import {
 } from "../model/AkunPerkiraanModel";
 
 // Fungsi utama yang digunakan di luar
-export const createAkunPerkiraan = async (
+export const editAkunPerkiraan = async (
   data: AkunPerkiraanInduk | AkunPerkiraanSub | AkunPerkiraanDetail,
   model: string,
   token: string
 ): Promise<string> => {
   switch (model) {
     case "induk":
-      return await createDataInduk(data as AkunPerkiraanInduk, token);
+      return await editDataInduk(data as AkunPerkiraanInduk, token);
     case "sub":
-      return await createDataSub(data as AkunPerkiraanSub, token);
+      console.log(data);
+      return await editDataSub(data as AkunPerkiraanSub, token);
     case "detail":
-      return await createDataDetail(data as AkunPerkiraanDetail, token);
+      return await editDataDetail(data as AkunPerkiraanDetail, token);
     default:
       throw new Error("Model akun tidak valid");
   }
 };
 
-// Fungsi create untuk model 'induk'
-const createDataInduk = async (
+// Fungsi edit untuk model 'induk'
+const editDataInduk = async (
   data: AkunPerkiraanInduk,
   token: string
 ): Promise<string> => {
   try {
     const requestData = {
+      id: data.id,
       kode_akun: data.kodeAkun,
       nama_akun: data.namaAkun,
       keterangan: data.keterangan,
       tipe_akun_id: data.tipeAkunId,
     };
 
-    const response = await axios.post(
+    const response = await axios.put(
       `http://127.0.0.1:5000/akun-perkiraan/induk/${data.companyId}`,
       requestData,
       {
@@ -51,30 +53,31 @@ const createDataInduk = async (
     console.log("Response data:", responseData.data);
 
     if (!responseData.success) {
-      throw new Error(responseData.message || "Gagal create akun induk");
+      throw new Error(responseData.message || "Gagal edit akun induk");
     }
 
     return responseData.message;
   } catch (error: any) {
     console.error("Error Response:", error.response?.data?.errors?.[0] || error.message);
-    throw new Error(error.response?.data?.errors?.[0] || "Gagal create akun induk");
+    throw new Error(error.response?.data?.errors?.[0] || "Gagal edit akun induk");
   }
 };
 
-// Fungsi create untuk model 'sub'
-const createDataSub = async (
+// Fungsi edit untuk model 'sub'
+const editDataSub = async (
   data: AkunPerkiraanSub,
   token: string
 ): Promise<string> => {
   try {
     const requestData = {
+      id: data.id,
       kode_akun: data.kodeAkun,
       nama_akun: data.namaAkun,
       keterangan: data.keterangan,
       akun_perkiraan_induk_id: data.akunPerkiraanIndukId
     };
 
-    const response = await axios.post(
+    const response = await axios.put(
       `http://127.0.0.1:5000/akun-perkiraan/sub/${data.companyId}`,
       requestData,
       {
@@ -89,24 +92,25 @@ const createDataSub = async (
     console.log("Response data:", responseData.data);
 
     if (!responseData.success) {
-      throw new Error(responseData.message || "Gagal create akun sub");
+      throw new Error(responseData.message || "Gagal edit akun sub");
     }
 
     return responseData.message;
   } catch (error: any) {
     console.error("Error Response:", error.response?.data?.errors?.[0] || error.message);
-    throw new Error(error.response?.data?.errors?.[0] || "Gagal create akun sub");
+    throw new Error(error.response?.data?.errors?.[0] || "Gagal edit akun sub");
   }
 };
 
-// Fungsi create untuk model 'detail'
-const createDataDetail = async (
+// Fungsi edit untuk model 'detail'
+const editDataDetail = async (
   data: AkunPerkiraanDetail,
   token: string
 ): Promise<string> => {
   try {
     console.log("Data:", data);
     const requestData = {
+      id: data.id,
       kode_akun: data.kodeAkun,
       nama_akun: data.namaAkun,
       keterangan: data.keterangan,
@@ -114,7 +118,7 @@ const createDataDetail = async (
       saldo: data.saldo
     };
 
-    const response = await axios.post(
+    const response = await axios.put(
       `http://127.0.0.1:5000/akun-perkiraan/detail/${data.companyId}`,
       requestData,
       {
@@ -129,12 +133,12 @@ const createDataDetail = async (
     console.log("Response data:", responseData.data);
 
     if (!responseData.success) {
-      throw new Error(responseData.message || "Gagal create akun detail");
+      throw new Error(responseData.message || "Gagal edit akun detail");
     }
 
     return responseData.message;
   } catch (error: any) {
     console.error("Error Response:", error.response?.data?.errors?.[0] || error.message);
-    throw new Error(error.response?.data?.errors?.[0] || "Gagal create akun detail");
+    throw new Error(error.response?.data?.errors?.[0] || "Gagal edit akun detail");
   }
-};
+}; 
