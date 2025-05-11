@@ -49,3 +49,16 @@
   margin-top: 10px;
 }
 
+.nonExpandableItem {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.nonExpandableHeader {
+  padding: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+

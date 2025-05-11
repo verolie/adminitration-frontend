@@ -36,15 +36,28 @@ const AccordionTableMasterTax: React.FC<AccordionTableMasterTaxProps> = ({ data 
           ? `${masterTax.akunPerkiraanDetails[0].kode_akun ?? 'null'} - ${masterTax.akunPerkiraanDetails[0].nama_akun ?? 'null'}`
           : 'null';
 
-        return (
+        const hasDetails = masterTax.ObjekPajakDetails.length > 0;
+
+        return hasDetails ? (
           <AccordionItem 
             key={masterTax.id} 
             title={`${masterTax.kodeObjek} - ${masterTax.namaObjek}`} 
             akunPerkiraan={akunPerkiraan}
-            initiallyOpen={masterTax.ObjekPajakDetails.length > 0} // Automatically open if there are details
+            initiallyOpen={true}
           >
             {renderGroupedDetails(masterTax.ObjekPajakDetails)}
           </AccordionItem>
+        ) : (
+          <div key={masterTax.id} className={styles.nonExpandableItem}>
+            <div className={styles.nonExpandableHeader}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                <span>{`${masterTax.kodeObjek} - ${masterTax.namaObjek}`}</span>
+                {akunPerkiraan !== 'null' && (
+                  <span>{`Akun Hutang: ${akunPerkiraan}`}</span>
+                )}
+              </div>
+            </div>
+          </div>
         );
       })}
     </div>

@@ -8,17 +8,22 @@ import Button from "@/component/button/button";
 import { Add, Refresh } from "@mui/icons-material";
 import { useRouter } from "next/navigation"; // Import useRouter
 import AccordionTableMasterTax from "@/pages/(first-menu)/MasterTax/function/accordionTableMasterTax"; // Adjust the import path as needed
-import { AkunPerkiraanDetail } from "@/pages/(first-menu)/AkunPerkiraan/model/AkunPerkiraanModel";
+import { AkunPerkiraanDetail as ImportedAkunPerkiraanDetail } from "@/pages/(first-menu)/AkunPerkiraan/model/AkunPerkiraanModel";
+
+interface AkunPerkiraanDetail {
+  kode_akun: string;
+  nama_akun: string;
+}
 
 interface InfoSubObjek {
-  id: string;
+  id: number;
   kodeObjek: string;
   namaObjek: string;
   deskripsiObjek: string;
   persentase: number;
   ObjekPajakDetails: ObjekPajakDetail[];
   akunPerkiraanDetails: AkunPerkiraanDetail[];
-  kodeObjekPersentase?: string; // Tambahkan properti ini
+  kodeObjekPersentase?: string;
 }
 
 interface ObjekPajakDetail {
@@ -81,14 +86,17 @@ const InfoMasterTax = () => {
         console.log(item.akunPerkiraanDetails);
 
         return {
-          id: item.id.toString(),
+          id: parseInt(item.id),
           kodeObjek: item.kodeObjek,
           namaObjek: item.namaObjek,
           deskripsiObjek: item.deskripsiObjek,
           persentase: latestPersentase,
-          ObjekPajakDetails: details, // Ensure this is included
+          ObjekPajakDetails: details,
           kodeObjekPersentase: item.namaObjek ? `${item.kodeObjek}` : "-",
-          akunPerkiraanDetails: item.akunPerkiraanDetails,
+          akunPerkiraanDetails: item.akunPerkiraanDetails?.map((akun: ImportedAkunPerkiraanDetail) => ({
+            kode_akun: akun.kode_akun || '',
+            nama_akun: akun.nama_akun || ''
+          })) || [],
           isBadanUsaha: item.isBadanUsaha,
         };
       });
