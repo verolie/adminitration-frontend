@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Create Next App</title>
+        <title>Program Akuntansi</title>
       </Head>
       <AppBar />
       <Container sx={{ minWidth: "unset" }} className={styles.containerBody}>

@@ -42,12 +42,36 @@
     background: #00569f;
     padding: 1.25rem;
     color: white;
+    position: relative;
 }
 
 .titleContainer h1 {
     font-size: 1.25rem;
     font-weight: 600;
     margin: 0;
+}
+
+.logoutButton {
+    position: absolute;
+    right: 1.25rem;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.logoutButton:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.logoutButton svg {
+    font-size: 1.5rem;
 }
 
 .inputContainer {

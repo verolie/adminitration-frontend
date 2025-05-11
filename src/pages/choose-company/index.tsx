@@ -8,6 +8,7 @@ import { useAppContext } from "@/context/context";
 import { fetchCompany } from "../(first-menu)/Company/function/fetchCompany";
 import { CompanyModel } from "../(first-menu)/Company/model/companyModel";
 import AddIcon from '@mui/icons-material/Add';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 function ChooseCompany() {
   const router = useRouter();
@@ -28,6 +29,14 @@ function ChooseCompany() {
     } catch (error: any) {
       showAlert(error.message || "Failed to load companies");
     }
+  };
+
+  const handleLogout = () => {
+    // Clear all auth-related data
+    localStorage.removeItem("token");
+    localStorage.removeItem("companyID");
+    // Redirect to login page
+    router.push("/login");
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -67,6 +76,13 @@ function ChooseCompany() {
         <div className={styles.card}>
           <Box className={styles.titleContainer}>
             <h1>Choose Company</h1>
+            <button 
+              className={styles.logoutButton}
+              onClick={handleLogout}
+              title="Logout"
+            >
+              <LogoutIcon />
+            </button>
           </Box>
 
           <Box
