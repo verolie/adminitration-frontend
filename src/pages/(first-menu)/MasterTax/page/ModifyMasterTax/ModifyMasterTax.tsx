@@ -3,6 +3,7 @@ import styles from "./styles.module.css";
 import { Typography } from "@mui/material";
 import Button from "@/component/button/button";
 import AutocompleteTextField, { OptionType } from "@/component/textField/autoCompleteText";
+import { useAlert } from "@/context/AlertContext";
 import { fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraan"; // Import the fetch function
 import { fetchObjekPajakData } from "../../function/fetchObjekPajakDataMember"; // Import the fetch function for Master Tax
 import { saveMasterTax } from "../../function/saveMasterTax"; // Import the save function
@@ -16,6 +17,7 @@ export default function ModifyMasterTax({ onClose }: ModifyMasterTaxProps) {
   const [selectedMasterTax, setSelectedMasterTax] = React.useState<OptionType | undefined>(undefined);
   const [akunPerkiraanOptions, setAkunPerkiraanOptions] = React.useState<OptionType[]>([]);
   const [masterTaxOptions, setMasterTaxOptions] = React.useState<OptionType[]>([]);
+  const { showAlert } = useAlert();
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -57,8 +59,10 @@ export default function ModifyMasterTax({ onClose }: ModifyMasterTaxProps) {
         parseInt(selectedMasterTax.value), // Assuming value is a string
         token
       );
+      showAlert("Data saved successfully:", "success");
       console.log("Master Tax saved successfully:", result);
     } catch (error) {
+      showAlert("Error saving Master Tax:", "error");
       console.error("Error saving Master Tax:", error);
     }
   };
@@ -78,7 +82,7 @@ export default function ModifyMasterTax({ onClose }: ModifyMasterTaxProps) {
                 label="Master Tax"
                 options={masterTaxOptions}
                 value={selectedMasterTax}
-                onChange={(option: OptionType | null) => setSelectedMasterTax(option || undefined)}
+                onChange={(option: OptionType | undefined) => setSelectedMasterTax(option || undefined)}
                 size="large"
               />
             </div>
@@ -88,7 +92,7 @@ export default function ModifyMasterTax({ onClose }: ModifyMasterTaxProps) {
                 label="Akun Perkiraan"
                 options={akunPerkiraanOptions}
                 value={selectedAkunPerkiraan}
-                onChange={(option: OptionType | null) => setSelectedAkunPerkiraan(option || undefined)}
+                onChange={(option: OptionType | undefined) => setSelectedAkunPerkiraan(option || undefined)}
                 size="large"
               />
             </div>

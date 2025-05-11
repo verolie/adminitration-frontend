@@ -13,13 +13,14 @@ import styles from "./styles.module.css";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useAppContext } from "@/context/context";
 import { AccountCircle } from "@mui/icons-material";
-import { AlertBox } from "@/component/alertBox/alertBox";
+import { useAlert } from "@/context/AlertContext";
 import { User } from "@/utils/model/userModel";
 import { loginProcess } from "./function/loginProcess";
 // import { fetchUserRole } from "./login/functions/frontend/fetchUserRole";
 
 function Login() {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [password, setPassword] = useState<string>();
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -28,42 +29,30 @@ function Login() {
     passwordMessage: "",
   });
   const [email, setEmail] = useState<string>();
-  const [alertMessage, setAlertMessage] = useState<{
-    message: string;
-    type: "success" | "error" | "info";
-  } | null>(null);
 
   const handleClickShowPassword = () => {
     setShowPassword((prev) => !prev);
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsLoading(true);
 
     if (!validate()) {
       setIsLoading(false);
       return;
     }
+
     try {
-      const data: User = { email, password };
-      const response = await loginProcess(data);
-      console.log("Register Success:", response);
-
-      setAlertMessage({
-        message: "Login successful!",
-        type: "success",
-      });
-
-      setTimeout(() => {
-        router.push("/choose-company");
-      }, 2000); // Biar user bisa lihat alert sebelum diarahkan ke login
+      const userData: User = { email, password };
+      const response = await loginProcess(userData);
+      showAlert("Login successful!", "success");
+      router.push("/choose-company");
     } catch (error: any) {
-      console.error("Register Error:", error.message);
-      handleErrorbackend(error.message);
+      showAlert(error.message || "An error occurred during login", "error");
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const validate = () => {
@@ -92,11 +81,6 @@ function Login() {
   const onChangePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(event.target.value);
     setErrorMessage({ emailMessage: "", passwordMessage: "" });
-  };
-
-  const handleErrorbackend = (message: string) => {
-    console.log("Error dari backend:", message);
-    setAlertMessage({ message, type: "error" });
   };
 
   return (
@@ -167,14 +151,6 @@ function Login() {
           </div>
         </div>
       </Box>
-
-      {alertMessage && (
-        <AlertBox
-          message={alertMessage.message}
-          type={alertMessage.type}
-          onClose={() => setAlertMessage(null)}
-        />
-      )}
     </>
   );
 }
