@@ -21,8 +21,8 @@ interface TabPageProps {
 
 interface TabPanelProps {
   children?: React.ReactNode;
-  index: number;
   value: number;
+  index: number;
 }
 
 function CustomTabPanel(props: TabPanelProps) {
@@ -37,7 +37,7 @@ function CustomTabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 1 }} className={styles.tabPanel}>
+        <Box className={styles.tabPanel}>
           {children}
         </Box>
       )}
@@ -64,7 +64,7 @@ export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }} className={styles.tabsContainer}>
         <Tabs
           value={page === "sub" ? value : activeTabIndex}
           onChange={handleChange}
@@ -72,9 +72,14 @@ export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
           scrollButtons="auto"
           aria-label="dynamic tabs"
           sx={{
+            minHeight: "36px",
             "& .MuiTabs-indicator": {
               height: "0px !important",
               borderBottom: "none !important",
+            },
+            "& .MuiTabs-scrollButtons": {
+              minHeight: "36px",
+              minWidth: "32px",
             },
           }}
         >
@@ -85,7 +90,7 @@ export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
               }`}
               key={index}
               label={
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                   {tab.label}
                   {tab.closable && (
                     <IconButton
@@ -94,9 +99,9 @@ export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
                         e.stopPropagation();
                         handleClose(index);
                       }}
-                      sx={{ ml: 1 }}
+                      className={styles.closeButton}
                     >
-                      <CloseIcon fontSize="small" />
+                      <CloseIcon />
                     </IconButton>
                   )}
                 </Box>
@@ -107,7 +112,11 @@ export default function TabPage({ tabs, page, onRemoveTab }: TabPageProps) {
       </Box>
       <Box className={styles.boxBackground}>
         {tabs.map((tab, index) => (
-          <CustomTabPanel key={index} value={page === "sub" ? value : activeTabIndex} index={index}>
+          <CustomTabPanel 
+            key={index} 
+            value={page === "sub" ? value : activeTabIndex} 
+            index={index}
+          >
             {tab.content}
           </CustomTabPanel>
         ))}

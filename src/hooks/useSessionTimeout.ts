@@ -2,13 +2,16 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import { logoutProcess } from "@/utils/logoutProcess";
+import { useAlert } from "@/context/AlertContext";
+
+
 
 const SESSION_TIMEOUT = 15 * 60 * 1000;
 const CHECK_INTERVAL = 10 * 1000;
 
 export const useSessionTimeout = () => {
   const router = useRouter();
-
+  const { showAlert } = useAlert();
   useEffect(() => {
     checkSession();
     resetSessionTimer();
@@ -31,7 +34,14 @@ export const useSessionTimeout = () => {
       const token = localStorage.getItem("token");
 
       if (!sessionId || !token) {
+        showAlert("Session expired", "error");
         logoutProcess();
+      }
+
+      const companyId = localStorage.getItem("companyID");
+      if (!companyId) {
+        showAlert("Please choose company", "error");
+        router.push("/choose-company");
       }
     };
 

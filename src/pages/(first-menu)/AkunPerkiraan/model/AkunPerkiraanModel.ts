@@ -18,11 +18,12 @@ export interface AkunPerkiraanSub {
 
 export interface AkunPerkiraanDetail {
   id?: string;
-  kode_akun?: string;
+  kodeAkun?: string;
   companyId?: string;
-  nama_akun?: string;
+  namaAkun?: string;
   keterangan?: string;
   akunPerkiraanSubId?: number;
+  saldo?: number;
 }
 
 

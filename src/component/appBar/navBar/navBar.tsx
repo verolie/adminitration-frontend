@@ -5,7 +5,7 @@ import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import PasswordIcon from "@mui/icons-material/Password";
+import BusinessIcon from '@mui/icons-material/Business';
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Fade from "@mui/material/Fade";
@@ -25,6 +25,7 @@ const NavBar: React.FC<ResponsiveNavBarProps> = ({
 }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const router = useRouter();
 
   const handleClickUser = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -37,6 +38,10 @@ const NavBar: React.FC<ResponsiveNavBarProps> = ({
   const handleLogout = () => {
     logoutProcess(); // Jalankan proses logout
     handleClose(); // Tutup menu
+  };
+
+  const handleChangeCompany = () => {
+    router.push("/choose-company");
   };
 
   return (
@@ -63,9 +68,9 @@ const NavBar: React.FC<ResponsiveNavBarProps> = ({
         TransitionComponent={Fade}
         disableScrollLock={true}
       >
-        <MenuItem onClick={onClickChangePass} className={styles.customMenuItem}>
-          <p>Change Password</p>
-          <PasswordIcon className={styles.logoutIcon} />
+        <MenuItem onClick={handleChangeCompany} className={styles.customMenuItem}>
+          <p>Change Company</p>
+          <BusinessIcon className={styles.logoutIcon} />
         </MenuItem>
         <MenuItem onClick={handleLogout} className={styles.customMenuItem}>
           <p>Log Out</p>

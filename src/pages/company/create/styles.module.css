@@ -38,7 +38,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 1.5rem;
+    gap: 1rem;
     background: #00569f;
     padding: 1.25rem;
     color: white;
@@ -51,9 +51,9 @@
     margin: 0;
 }
 
-.logoutButton {
+.backButton {
     position: absolute;
-    right: 1.25rem;
+    left: 1.25rem;
     background: none;
     border: none;
     color: white;
@@ -66,11 +66,11 @@
     transition: background-color 0.2s ease;
 }
 
-.logoutButton:hover {
+.backButton:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.logoutButton svg {
+.backButton svg {
     font-size: 1.5rem;
 }
 
@@ -93,96 +93,34 @@
     color: #4B5563;
 }
 
-.fieldInput :global(.MuiAutocomplete-root) {
-    background-color: #f3f4f6;
-    border-radius: 6px;
-}
-
-.fieldInput :global(.MuiOutlinedInput-root) {
-    background-color: #f3f4f6;
-    border-radius: 6px;
-}
-
-.fieldInput :global(.MuiOutlinedInput-root:hover) {
-    background-color: #f9fafb;
-}
-
-.fieldInput :global(.MuiOutlinedInput-root.Mui-focused) {
-    background-color: #f9fafb;
-}
-
-.fieldInput :global(.MuiOutlinedInput-notchedOutline) {
-    border-color: #e5e7eb;
-}
-
-.fieldInput :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) {
-    border-color: #00569f;
-}
-
-.fieldInput :global(.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline) {
-    border-color: #00569f;
-}
-
-.fieldInput h4 {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #4B5563;
-    margin: 0 0 0.5rem 0;
-}
-
-.fieldInput :global(.MuiButton-root) {
-    text-transform: none;
-    border-color: #e5e7eb;
-    color: #4B5563;
-    font-size: 0.875rem;
-    padding: 0.375rem 0.75rem;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-}
-
-.fieldInput :global(.MuiButton-root:hover) {
-    border-color: #00569f;
-    background-color: rgba(0, 86, 159, 0.04);
-    color: #00569f;
-}
-
-.companyListSection {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.companyListHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.companyListHeader h4 {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #4B5563;
-    margin: 0;
-}
-
-.createButton {
-    text-transform: none !important;
-    border-color: #00569f !important;
-    color: #00569f !important;
-    font-size: 0.75rem !important;
-    padding: 0.25rem 0.75rem !important;
+.inputField {
+    background-color: #f3f4f6 !important;
     border-radius: 6px !important;
-    transition: all 0.2s ease !important;
 }
 
-.createButton:hover {
-    background-color: rgba(0, 86, 159, 0.04) !important;
-    border-color: #004a8a !important;
-    color: #004a8a !important;
+.inputField :global(.MuiOutlinedInput-root) {
+    background-color: #f3f4f6 !important;
+    border-radius: 6px !important;
 }
 
-.createButton :global(.MuiButton-startIcon) {
-    margin-right: 4px;
+.inputField :global(.MuiOutlinedInput-root:hover) {
+    background-color: #f9fafb !important;
+}
+
+.inputField :global(.MuiOutlinedInput-root.Mui-focused) {
+    background-color: #f9fafb !important;
+}
+
+.inputField :global(.MuiOutlinedInput-notchedOutline) {
+    border-color: #e5e7eb !important;
+}
+
+.inputField :global(.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline) {
+    border-color: #00569f !important;
+}
+
+.inputField :global(.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline) {
+    border-color: #00569f !important;
 }
 
 .buttonSubmit {
@@ -211,4 +149,4 @@
 .buttonSubmit button:disabled {
     opacity: 0.7;
     cursor: not-allowed;
-}
+} 
