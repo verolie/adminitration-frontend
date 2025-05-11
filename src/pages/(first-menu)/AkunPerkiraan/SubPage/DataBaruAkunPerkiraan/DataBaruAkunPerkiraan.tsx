@@ -2,7 +2,7 @@ import * as React from "react";
 import styles from "./styles.module.css";
 import { Typography } from "@mui/material";
 import SelectedTextField from "@/component/textField/selectedText";
-import FieldText from "@/component/textField/fieldText";
+import AutocompleteTextField, { OptionType } from "@/component/textField/autoCompleteText";
 import Button from "@/component/button/button";
 import DatePickerField from "@/component/textField/dateAreaText";
 import AreaText from "@/component/textField/areaText";
@@ -210,19 +210,23 @@ export default function CreateAkunPerkiraan() {
                 <Typography className={styles.labelText}>
                   Kode Perkiraan
                 </Typography>
-                <FieldText
+                <AutocompleteTextField
                   label="Kode Perkiraan"
                   value={kodePerkiraanValue}
-                  onChange={handleAkunPerkiraanChange}
-                ></FieldText>
+                  options={indukAkunList}
+                  onChange={(e) => setKodePerkiraanValue(e.label)}
+                  size="free"
+                />
               </div>
               <div className={styles.inputField}>
                 <Typography className={styles.labelText}>Nama</Typography>
-                <FieldText
+                <AutocompleteTextField
                   label="Nama"
                   value={namaValue}
-                  onChange={handleNamaChange}
-                ></FieldText>
+                  options={indukAkunList}
+                  onChange={(e: OptionType | null) => setNamaValue(e ? e.label : "")}
+                  size="free"
+                />
                 <Typography className={styles.infoText}>
                   Contoh: BCA a/c XXX-XXX, dll
                 </Typography>
@@ -236,11 +240,13 @@ export default function CreateAkunPerkiraan() {
                 <Typography className={styles.labelText}>
                   Saldo Perkiraan
                 </Typography>
-                <FieldText
+                <AutocompleteTextField
                   label="Saldo"
                   value={saldoValue}
-                  onChange={handleSaldoChange}
-                ></FieldText>
+                  options={indukAkunList}
+                  onChange={(e: OptionType | null) => setSaldoValue(e ? e.label : "")}
+                  size="free"
+                />
               </div>
             </div>
             <div className={styles.titleField}>

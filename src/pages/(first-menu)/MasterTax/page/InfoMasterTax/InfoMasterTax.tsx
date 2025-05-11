@@ -7,6 +7,8 @@ import { fetchObjekPajakData } from "../../function/fetchObjekPajakDataMember";
 import Button from "@/component/button/button";
 import { Add, Refresh } from "@mui/icons-material";
 import { useRouter } from "next/navigation"; // Import useRouter
+import AccordionTableMasterTax from "@/pages/(first-menu)/MasterTax/function/accordionTableMasterTax"; // Adjust the import path as needed
+import { AkunPerkiraanDetail } from "@/pages/(first-menu)/AkunPerkiraan/model/AkunPerkiraanModel";
 
 interface InfoSubObjek {
   id: string;
@@ -15,6 +17,7 @@ interface InfoSubObjek {
   deskripsiObjek: string;
   persentase: number;
   ObjekPajakDetails: ObjekPajakDetail[];
+  akunPerkiraanDetails: AkunPerkiraanDetail[];
   kodeObjekPersentase?: string; // Tambahkan properti ini
 }
 
@@ -63,26 +66,30 @@ const InfoMasterTax = () => {
         { page: 1, limit: 100, companyId: companyID },
         token
       );
+      console.log("response ", response);
 
       const transformedData: InfoSubObjek[] = response.map((item: any) => {
-        const details = item.ObjekPajakDetails;
-        console.log("item contoh ", item);
-        // Ambil persentase dari tanggal terbaru, jika ada
+        const details = item.ObjekPajakDetails || []; // Ensure this is an array
         let latestPersentase = 0;
-        if (details && details.length > 0) {
+        if (details.length > 0) {
           const sortedDetails = [...details].sort(
             (a, b) => new Date(b.tgl).getTime() - new Date(a.tgl).getTime()
           );
           latestPersentase = sortedDetails[0].persentase;
         }
 
+        console.log(item.akunPerkiraanDetails);
+
         return {
           id: item.id.toString(),
           kodeObjek: item.kodeObjek,
           namaObjek: item.namaObjek,
           deskripsiObjek: item.deskripsiObjek,
-          persentase: latestPersentase + "%",
-          kodeObjekPersentase: item.namaObjek ? `${item.kode_objek}` : "-",
+          persentase: latestPersentase,
+          ObjekPajakDetails: details, // Ensure this is included
+          kodeObjekPersentase: item.namaObjek ? `${item.kodeObjek}` : "-",
+          akunPerkiraanDetails: item.akunPerkiraanDetails,
+          isBadanUsaha: item.isBadanUsaha,
         };
       });
 
@@ -94,37 +101,23 @@ const InfoMasterTax = () => {
     }
   };
 
-  const handleEdit = (item: InfoSubObjek) => {
-    console.log("Edit item:", item);
-  };
-
-  const handleDelete = (item: InfoSubObjek) => {
-    setData((prev) => prev.filter((d) => d.id !== item.id));
-  };
-
-  const handleTambahData = () => {
-    router.push("/master-data/master-tax/add"); // Arahkan ke halaman tambah data
-  };
-
   return (
-    <div>
+    <div className={styles.container}>
       <div className={styles.editFilterTable}>
-          <Button
-            size="small"
-            variant="info"
-            icon={<Refresh sx={{ color: "white" }} />}
-            onClick={() => fetchData()}
-          />
+        <Button
+          size="small"
+          variant="info"
+          icon={<Refresh sx={{ color: "white" }} />}
+          onClick={() => fetchData()}
+        />
       </div>
-      <TableOccur
-        columns={columns}
-        data={data}
-        onDelete={handleDelete}
-        onEdit={handleEdit}
-        observerRef={observerRef}
-        isLoading={isLoading}
-        // hideActions
-      />
+      {isLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <div className={styles.scrollableContainer}>
+          <AccordionTableMasterTax data={data} />
+        </div>
+      )}
     </div>
   );
 };

@@ -21,3 +21,107 @@
 .buttonGroup button {
     width: 50%;
 }
+
+.inputField {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    flex: 1 1 45%;
+    /* fleksibel dan tetap responsif */
+    max-width: 50%;
+    min-width: 200px;
+    /* biar ga terlalu kecil di layar kecil */
+}
+
+.labelText {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    color: #000;
+}
+
+.infoText {
+    font-family: 'Roboto', sans-serif;
+    font-size: 12px;
+    color: #757A7E;
+    margin-top: 4px;
+}
+
+.selectedText,
+.customTextField {
+    width: 100%;
+    font-family: 'Roboto', sans-serif;
+}
+
+.buttonLabel {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 250px); /* Adjust height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+
+.scrollableContainer {
+    max-height: calc(100vh - 200px); /* Adjust height as needed */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid #ddd; /* Optional: Add a border */
+    border-radius: 5px; /* Optional: Add rounded corners */
+    padding: 8px; /* Optional: Add some padding */
+    box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for depth */
+}
+
+.titleField {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #000; /* Underline with black */
+    padding-bottom: 4px; /* Add some space between text and line */
+}
+
+.titleText {
+    font-family: 'Roboto', sans-serif;
+    font-size: 18px;
+    font-weight: bold; /* Thicker font */
+    color: #000;
+}
+
+.filterContainer {
+    margin: 10px 10px;
+}
+
+.scrollContent {
+    max-height: calc(100vh - 100px);
+    /* Sesuaikan tinggi filter/header */
+    overflow-y: auto;
+    border-radius: 0px 0px 10px 10px;
+    border: 1px solid #ddd;
+    box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.1);
+    padding: 8px;
+}
+
+.scrollContent::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollContent::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+
+.rowContainer {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    /* Optional, biar responsif */
+}

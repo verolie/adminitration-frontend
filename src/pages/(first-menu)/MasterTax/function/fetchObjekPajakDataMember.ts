@@ -44,7 +44,7 @@ const fetchObjekPajakBackend = async (
 ) => {
   try {
     const response = await axios.get(
-      `http://127.0.0.1:5000/objek-pajak`, // Endpointnya diubah
+      `http://127.0.0.1:5000/objek-pajak/company/${data.companyId}`, // Endpointnya diubah
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -72,6 +72,8 @@ const fetchObjekPajakBackend = async (
       persentase: 0, 
       ObjekPajakDetails: item.ObjekPajakDetails,
       akunObjekPajakIsBadanUsaha: false, 
+      akunPerkiraanDetails: item.akun_perkiraan_hutang_details,
+      isBadanUsaha: item.is_badan_usaha,
     }));
 
     return mappedData;
