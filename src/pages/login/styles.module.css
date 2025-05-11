@@ -1,16 +1,5 @@
 .container {
   position: fixed;
-  background-size: contain;
-  top: 0px;
-  left: 0px;
-  width: 100vw;
-  height: 100vw;
-  display: flex;
-  justify-content: center;
-}
-
-.loginContainer {
-  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
@@ -18,19 +7,41 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(112, 112, 112, 0.8);
+  background: #cad0d5;
+}
+
+.loginContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, 
+    rgba(100, 116, 139, 0.15) 0%, 
+    rgba(71, 85, 105, 0.15) 100%
+  );
+}
+
+.loginContainer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  pointer-events: none;
 }
 
 .card {
-  background-color: white;
-  width: 45rem;
+  background-color: #fafafa; /* Back to original softer background */
+  width: 35rem;
   height: fit-content;
   display: flex;
   flex-direction: column;
-  border-radius: 10px;
-  box-shadow: 10px 12px 13px 0px rgba(0, 0, 0, 0.26);
-  margin: auto;
-  /* Memastikan card selalu berada di tengah */
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
 }
 
 .titleContainer {
@@ -38,106 +49,167 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 2.5rem;
-  background-color: #d9d9d9;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  gap: 1.5rem;
+  background: #00569f;
+  padding: 1.25rem;
+  color: white;
+}
+
+.titleContainer h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.titleContainer svg {
+  font-size: 2rem !important;
+  color: white;
 }
 
 .inputContainer {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 2rem 8rem;
-  gap: 2rem;
-  color: #707070;
-  font-size: 14px;
-  font-weight: bold;
+  padding: 2rem 4rem;
+  gap: 1.25rem;
 }
 
 .fieldInput {
   display: flex;
   flex-direction: column;
+  gap: 0.375rem;
 }
 
-.fieldInput > input {
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  padding-left: 1rem;
-}
-
-.fieldInput > input:focus {
-  outline: none !important;
+.fieldInput label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4B5563;
 }
 
 .inputField {
-  height: 50px;
-  border-radius: 5px;
-  box-shadow: 0 3px rgba(0, 0, 0, 0.25);
+  height: 38px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0 0.875rem;
+  font-size: 0.875rem;
+  background-color: #f3f4f6; /* Darker background for input */
+  transition: all 0.2s ease;
+}
+
+.inputField:focus {
+  border-color: #00569f;
+  background-color: #f9fafb; /* Lighter when focused */
+  box-shadow: 0 0 0 2px rgba(0, 86, 159, 0.1);
+  outline: none;
 }
 
 .passField {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  border: 1px solid rgba(0, 0, 0, 0.25);
-  padding: 0 1rem;
-  box-shadow: 0 3px rgba(0, 0, 0, 0.25);
-  border-radius: 5px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: #f3f4f6; /* Darker background for password field */
+  transition: all 0.2s ease;
 }
 
-.passField > input {
-  width: 100%;
-  height: 50px;
+.passField:focus-within {
+  border-color: #00569f;
+  background-color: #f9fafb; /* Lighter when focused */
+  box-shadow: 0 0 0 2px rgba(0, 86, 159, 0.1);
+}
+
+.passField input {
+  flex: 1;
+  height: 38px;
   border: none;
+  padding: 0 0.875rem;
+  font-size: 0.875rem;
+  background: transparent;
+  color: #1f2937; /* Darker text for better contrast */
 }
 
-.passField > input:focus {
+.passField input:focus {
   outline: none;
 }
 
-.passField > svg {
-  position: relative;
-  width: 25px;
-  height: 25px;
+.passField svg {
+  padding: 0.5rem;
+  color: #64748B;
   cursor: pointer;
+  transition: color 0.2s ease;
+  width: 18px;
+  height: 18px;
+}
+
+.passField svg:hover {
+  color: #00569f;
 }
 
 .forgetPassword {
+  text-align: right;
+  font-size: 0.875rem;
+  color: #00569f;
   text-decoration: none;
-  color: #707070;
+  transition: color 0.2s ease;
+  font-weight: 500;
+  margin-top: -0.25rem;
+}
+
+.forgetPassword:hover {
+  color: #004a8a; /* Slightly darker shade for hover */
+  text-decoration: underline;
 }
 
 .buttonSubmit {
-  padding: 1rem 3rem;
+  padding: 0.75rem 2rem;
 }
 
-.buttonSubmit > button {
-  height: 50px;
-  color: #fff;
+.buttonSubmit button {
+  height: 38px;
   width: 100%;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   background-color: #00569f;
+  color: white;
+  font-weight: 500;
+  font-size: 0.875rem;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.buttonSubmit button:hover:not(:disabled) {
+  background-color: #004a8a; /* Slightly darker shade for hover */
+  transform: translateY(-1px);
+}
+
+.buttonSubmit button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .errorMessageTextColor {
-  color: red;
+  color: #DC2626;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
 }
 
 .register {
   display: block;
   text-align: center;
-  margin-top: 12px;
-  color: #707070;
-  font-weight: bold;
+  margin-top: 0.75rem;
+  color: #4B5563;
+  font-size: 0.875rem;
+  font-weight: 500;
   text-decoration: none;
 }
 
 .register span {
-  text-decoration: underline;
+  color: #00569f;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .register:hover span {
-  color: #003d7a;
+  color: #004a8a; /* Slightly darker shade for hover */
+  text-decoration: underline;
 }

@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Box, Autocomplete, TextField, Button } from "@mui/material";
+import { Box, Autocomplete, TextField, Button, Divider } from "@mui/material";
 import styles from "./styles.module.css";
 import { useAppContext } from "@/context/context";
 import { fetchCompany } from "../(first-menu)/Company/function/fetchCompany";
 import { CompanyModel } from "../(first-menu)/Company/model/companyModel";
+import AddIcon from '@mui/icons-material/Add';
 
 function ChooseCompany() {
   const router = useRouter();
@@ -91,9 +92,20 @@ function ChooseCompany() {
               />
             </div>
 
-            <div>
-              <h4>List Company</h4>
-              <Box display="flex" flexWrap="wrap" gap={1} mt={1}>
+            <div className={styles.companyListSection}>
+              <div className={styles.companyListHeader}>
+                <h4>List Company</h4>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  className={styles.createButton}
+                  onClick={() => router.push('/company/create')}
+                >
+                  Create New Company
+                </Button>
+              </div>
+              <Box display="flex" flexWrap="wrap" gap={1}>
                 {companyList.map((comp) => (
                   <Button
                     key={comp.id}
