@@ -403,19 +403,19 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
                                 }}>
                                   <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
                                     <div style={{ flex: 1 }}>
-                                      <div style={{ fontSize: "12px", color: "#666", marginBottom: 4 }}>Total harga setelah pajak</div>
+                                      <div style={{ fontSize: "12px", color: "#666", marginBottom: 4 }}>Pajak yang harus dibayar</div>
                                       <FieldText
-                                        label="Total harga setelah pajak"
-                                        value={formatRupiah(pajakValue)}
+                                        label="Pajak yang harus dibayar"
+                                        value={formatRupiah(totalSetelahPajak)}
                                         disabled
                                         sx={{ width: "100%" }}
                                       />
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                      <div style={{ fontSize: "12px", color: "#666", marginBottom: 4 }}>Pajak yang harus dibayar</div>
+                                      <div style={{ fontSize: "12px", color: "#666", marginBottom: 4 }}>Sisa DPP setelah pajak</div>
                                       <FieldText
-                                        label="Pajak yang harus dibayar"
-                                        value={formatRupiah(totalSetelahPajak)}
+                                        label="Sisa DPP setelah pajak"
+                                        value={formatRupiah(pajakValue)}
                                         disabled
                                         sx={{ width: "100%" }}
                                       />
