@@ -44,6 +44,7 @@ export interface InfoSubObjek {
   kodeAkun: string;
   namaAkun: string;
   keterangan?: string;
+  akunLawan?: string;
   detail?: ObjekDetail[];
 }
 

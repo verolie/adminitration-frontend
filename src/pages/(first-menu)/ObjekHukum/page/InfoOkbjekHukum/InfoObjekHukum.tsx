@@ -15,6 +15,7 @@ const InfoObjekHukum = () => {
     { key: "kodeAkun", label: "Kode Akun" },
     { key: "namaAkun", label: "Nama Akun" },
     { key: "keterangan", label: "keterangan" },
+    { key: "akunLawan", label: "Akun Lawan" },
   ];
 
   const token = localStorage.getItem("token");
@@ -36,6 +37,7 @@ const InfoObjekHukum = () => {
         { page: 1, limit: 20, companyId: companyID },
         token
       );
+      console.log(response);
       setData(response);
     } catch (err) {
       console.error("Gagal fetch objek pajak:", err);

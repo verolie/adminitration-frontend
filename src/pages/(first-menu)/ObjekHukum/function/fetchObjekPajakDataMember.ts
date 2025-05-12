@@ -71,6 +71,7 @@ const fetchObjekObjekBackend = async (
       kodeAkun: item.kode_akun,
       namaAkun: item.nama_akun,
       keterangan: item.keterangan,
+      akunLawan: item.akun_lawan_pajak.kode_akun + " - " + item.akun_lawan_pajak.nama_akun,
       detail:
         item.objek_pajak_details?.map((detail: any) => ({
           id: detail.id,
