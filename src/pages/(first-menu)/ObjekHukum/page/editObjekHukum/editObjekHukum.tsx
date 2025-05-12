@@ -186,10 +186,15 @@ const EditObjekHukum = () => {
       return;
     }
 
-    if (badanUsahaList.length === 0 && nonBadanUsahaList.length === 0) {
-      alert(
-        "Minimal satu tag untuk Badan Usaha atau Non Badan Usaha diperlukan."
-      );
+    // Validasi minimal 1 objek pajak untuk badan usaha
+    if (badanUsahaList.length === 0) {
+      alert("Badan Usaha harus memiliki minimal 1 objek pajak.");
+      return;
+    }
+
+    // Validasi minimal 1 objek pajak untuk non badan usaha
+    if (nonBadanUsahaList.length === 0) {
+      alert("Non Badan Usaha harus memiliki minimal 1 objek pajak.");
       return;
     }
 
@@ -197,7 +202,7 @@ const EditObjekHukum = () => {
 
     if (badanUsahaList.length > 0) {
       mappings.push({
-        objek_pajak_detail_ids: badanUsahaList.map((item) =>
+        objek_pajak_ids: badanUsahaList.map((item) =>
           parseInt(item.value)
         ),
         is_badan_usaha: true,
@@ -206,7 +211,7 @@ const EditObjekHukum = () => {
 
     if (nonBadanUsahaList.length > 0) {
       mappings.push({
-        objek_pajak_detail_ids: nonBadanUsahaList.map((item) =>
+        objek_pajak_ids: nonBadanUsahaList.map((item) =>
           parseInt(item.value)
         ),
         is_badan_usaha: false,
@@ -222,6 +227,9 @@ const EditObjekHukum = () => {
       const result = await editAkunObjekPajak(companyId, payload, token);
       console.log("Berhasil update:", result);
       alert("Berhasil update data akun objek pajak.");
+      // Refresh data setelah update
+      fetchObjekPajakDetailData();
+      fetchAkunPerkiraanList();
     } catch (err: any) {
       console.error("Gagal update:", err.message);
       alert("Terjadi kesalahan saat mengedit data.");

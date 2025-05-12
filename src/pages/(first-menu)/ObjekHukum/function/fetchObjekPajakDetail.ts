@@ -7,7 +7,7 @@ export const fetchObjekPajakDetail = async (data: ObjekHukumData, token: string)
 
 const fetchObjekPajakBackend = async (data: ObjekHukumData, token: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/objek-pajak/detail`, {
+    const response = await axios.get(`http://127.0.0.1:5000/objek-pajak`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

@@ -4,9 +4,13 @@
 import TabPage from "@/component/tabPage/tabPage";
 import React, { useRef, useState } from "react";
 import InfoObjekHukum from "./page/InfoOkbjekHukum/InfoObjekHukum";
+import EditObjekHukum from "./page/editObjekHukum/editObjekHukum";
 
-const MasterTax = () => {
-  const tabs = [{ label: "Info", content: <InfoObjekHukum /> }];
+const ObjekPajak = () => {
+  const tabs = [
+    { label: "Info", content: <InfoObjekHukum /> },
+    { label: "Edit Objek Hukum", content: <EditObjekHukum /> },
+  ];
   return (
     <>
       <TabPage tabs={tabs} page="sub" />
@@ -14,4 +18,4 @@ const MasterTax = () => {
   );
 };
 
-export default MasterTax;
+export default ObjekPajak;

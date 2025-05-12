@@ -1,7 +1,7 @@
 import axios from "axios";
 
 interface Mapping {
-  objek_pajak_detail_ids: number[];
+  objek_pajak_ids: number[];
   is_badan_usaha: boolean;
 }
 
