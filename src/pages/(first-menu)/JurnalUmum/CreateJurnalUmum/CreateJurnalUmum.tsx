@@ -154,11 +154,6 @@ export default function DataBaru() {
     try {
       const token = localStorage.getItem("token");
       const companyId = localStorage.getItem("companyID");
-      let fileBase64 = "";
-
-      if (fileUpload) {
-        fileBase64 = await toBase64(fileUpload);
-      }
 
       if (companyId && token) {
         const data: JurnalUmum = {
@@ -167,8 +162,14 @@ export default function DataBaru() {
           totalDebit: totalDebit,
           totalKredit: totalKredit,
           companyId: companyId,
-          deskripsi: deskripsiValue, // Sertakan deskripsi
-          file: fileBase64, // Sertakan file base64,
+          deskripsi: deskripsiValue,
+          file: fileUpload || undefined,
+          is_smart_tax: false,
+          lawan_transaksi_id: "",
+          objek_pajak_id: "",
+          jumlah_pajak: 0,
+          persentase_pajak: 0,
+          dpp: 0,
           jurnalDetail: rows.map((row, index) => ({
             akunPerkiraanDetailId: Number(row.rekening),
             bukti: row.bukti,
@@ -190,6 +191,13 @@ export default function DataBaru() {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Validate file type
+      const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!validTypes.includes(file.type)) {
+        alert('File harus berupa PDF, JPEG, PNG, atau Word');
+        event.target.value = '';
+        return;
+      }
       setFileUpload(file);
     }
   };

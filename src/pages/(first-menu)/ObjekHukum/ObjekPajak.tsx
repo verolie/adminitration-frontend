@@ -9,7 +9,7 @@ import EditObjekHukum from "./page/editObjekHukum/editObjekHukum";
 const ObjekPajak = () => {
   const tabs = [
     { label: "Info", content: <InfoObjekHukum /> },
-    { label: "Edit Objek Hukum", content: <EditObjekHukum /> },
+    { label: "Edit Objek Pajak", content: <EditObjekHukum /> },
   ];
   return (
     <>
