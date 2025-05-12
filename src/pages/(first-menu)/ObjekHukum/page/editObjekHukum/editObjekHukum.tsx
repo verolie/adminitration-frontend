@@ -12,6 +12,8 @@ import Tag from "@/component/tag/tag";
 import { fetchObjekPajakDetail } from "../../function/fetchObjekPajakDetail";
 import { editAkunObjekPajak } from "../../function/fetchObjekPajakDataEdit";
 import { fetchObjekPajakDataMember } from "../../function/fetchObjekPajakDataMember";
+import { fetchAkunPerkiraanDetail } from "../../function/fetchAkunPerkiraanDetail";
+import FieldText from "@/component/textField/fieldText";
 
 const EditObjekHukum = () => {
   const [loading, setLoading] = useState(true);
@@ -27,10 +29,13 @@ const EditObjekHukum = () => {
   >(undefined);
   const [selectedNonBadanUsahaOption, setSelectedNonBadanUsahaOption] =
     useState<OptionType | undefined>(undefined);
+  const [selectedAkunDetailOption, setSelectedAkunDetailOption] =
+    useState<OptionType | undefined>(undefined);
   const [objekPajakOptions, setObjekPajakOptions] = useState<OptionType[]>([]);
 
   const [badanUsahaList, setBadanUsahaList] = useState<OptionType[]>([]);
   const [nonBadanUsahaList, setNonBadanUsahaList] = useState<OptionType[]>([]);
+  const [akunDetailList, setAkunDetailList] = useState<OptionType[]>([]);
 
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -47,7 +52,21 @@ const EditObjekHukum = () => {
       const fetchData = async () => {
         setBadanUsahaList([]);
         setNonBadanUsahaList([]);
+        setAkunDetailList([]);
         if (!token || !companyId) return;
+
+        try{
+          const result = await fetchAkunPerkiraanDetail(
+            { companyId: companyId},
+            token
+          );
+          setAkunDetailList(result.data.map((item: any) => ({
+            label: `${item.kode_akun} - ${item.nama_akun}`,
+            value: item.id,
+          })));
+        } catch (err) {
+          console.error("Error fetching akun detail:", err);
+        }
 
         try {
           const result = await fetchObjekPajakDataMember(
@@ -181,6 +200,11 @@ const EditObjekHukum = () => {
       return;
     }
 
+    if (!selectedAkunDetailOption) {
+      alert("Silakan pilih Akun Perkiraan Detail terlebih dahulu.");
+      return;
+    }
+
     if (!selectedAkunPerkiraan) {
       alert("Silakan pilih Akun Perkiraan terlebih dahulu.");
       return;
@@ -258,6 +282,21 @@ const EditObjekHukum = () => {
 
       <div className={styles.scrollContent}>
         <div>
+        <div className={styles.SubPanel}>
+            <p className={styles.labelText}>Akun Lawan</p>
+            <div className={styles.panel}>
+              <SelectedTextField
+                label="Akun Lawan"
+                options={akunDetailList}
+                value={selectedAkunDetailOption?.value || ''}
+                onChange={(e) => {
+                  const selected = akunDetailList.find(option => option.value === e.target.value);
+                  setSelectedAkunDetailOption(selected);
+                }}
+                sx={{ width: "100%" }}
+              />
+            </div>
+          </div>
           <div className={styles.SubPanel}>
             <p className={styles.labelText}>Badan Usaha</p>
             <div className={styles.panel}>
@@ -267,10 +306,10 @@ const EditObjekHukum = () => {
                 value={selectedBadanUsahaOption}
                 onChange={setSelectedBadanUsahaOption}
                 size="large"
-              />
+              />                            
               <Button
                 size="small"
-                variant="confirm"
+                variant="confirm"                                                                                                               
                 icon={<Add sx={{ color: "white" }} />}
                 onClick={handleTambahDataBadanUsaha}
               />
