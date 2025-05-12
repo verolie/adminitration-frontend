@@ -6,7 +6,13 @@ export interface JurnalUmum {
   totalDebit?: number;
   totalKredit?: number;
   deskripsi?: string; // Tambahkan deskripsi di sini
-  file?: string; // Tambahkan file di sini
+  file?: string | File; // Tambahkan file di sini
+  lawan_transaksi_id?: string;
+  objek_pajak_id?: string;
+  jumlah_pajak?: number;
+  persentase_pajak?: number;
+  dpp?: number;
+  is_smart_tax?: boolean;
   jurnalDetail?: JurnalDetail[];
   page?: number;
   limit?: number;
