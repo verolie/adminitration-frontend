@@ -77,6 +77,11 @@ export const menuList: MenuList[] = [
     ),
     submenu: [
       {
+        label: "Akun Perkiraan",
+        path: <AkunPerkiraan />,
+        roles: ["Akun Perkiraan"],
+      },
+      {
         label: "Jurnal Umum",
         path: <JurnalUmum />,
         roles: ["Jurnal Umum"],
@@ -85,11 +90,6 @@ export const menuList: MenuList[] = [
         label: "Jurnal Smartax",
         path: <JurnalSmartax />,
         roles: ["Jurnal Smartax"],
-      },
-      {
-        label: "Akun Perkiraan",
-        path: <AkunPerkiraan />,
-        roles: ["Akun Perkiraan"],
       },
     ],
     roles: ["Sub-Division"],
