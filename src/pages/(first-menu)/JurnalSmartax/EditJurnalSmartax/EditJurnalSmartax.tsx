@@ -18,14 +18,14 @@ type RowData = {
   no: string;
   lawanTransaksi: string;
   bukti: string;
-  debit: string;
+  Jumlah: string;
   kredit: string;
   keterangan: string;
 };
 
 export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProps) {
   const [rows, setRows] = React.useState<RowData[]>([
-    { no: "", lawanTransaksi: "", bukti: "", debit: "", kredit: "", keterangan: "" },
+    { no: "", lawanTransaksi: "", bukti: "", Jumlah: "", kredit: "", keterangan: "" },
   ]);
   const [totalDebit, setTotalDebit] = React.useState(0);
   const [totalKredit, setTotalKredit] = React.useState(0);
@@ -44,7 +44,7 @@ export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProp
   const handleAddRow = () => {
     setRows([
       ...rows,
-      { no: "", lawanTransaksi: "", bukti: "", debit: "", kredit: "", keterangan: "" },
+      { no: "", lawanTransaksi: "", bukti: "", Jumlah: "", kredit: "", keterangan: "" },
     ]);
   };
 
@@ -55,15 +55,15 @@ export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProp
   };
 
   React.useEffect(() => {
-    let debit = 0;
+    let jumlah = 0;
     let kredit = 0;
 
     rows.forEach((row) => {
-      debit += parseFloat(row.debit) || 0;
+      jumlah += parseFloat(row.Jumlah) || 0;
       kredit += parseFloat(row.kredit) || 0;
     });
 
-    setTotalDebit(debit);
+    setTotalDebit(jumlah);
     setTotalKredit(kredit);
   }, [rows]);
 
@@ -87,7 +87,7 @@ export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProp
             no: "",
             lawanTransaksi: detail.lawan_transaksi,
             bukti: detail.bukti,
-            debit: detail.debit.toString(),
+            Jumlah: detail.debit.toString(),
             kredit: detail.kredit.toString(),
             keterangan: detail.keterangan,
           }))
@@ -138,7 +138,7 @@ export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProp
           jurnalDetail: rows.map((row, index) => ({
             lawanTransaksi: row.lawanTransaksi,
             bukti: row.bukti,
-            debit: parseFloat(row.debit) || 0,
+            debit: parseFloat(row.Jumlah) || 0,
             kredit: parseFloat(row.kredit) || 0,
             urut: index + 1,
             keterangan: row.keterangan,
