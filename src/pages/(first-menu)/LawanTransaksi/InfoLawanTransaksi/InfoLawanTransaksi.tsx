@@ -21,7 +21,6 @@ const columns: Column<LawanTransaksiWithAction>[] = [
   { key: "is_badan_usaha", label: "Badan Usaha" },
   { key: "created_at", label: "Created At" },
   { key: "updated_at", label: "Updated At" },
-  { key: "action", label: "Action" },
 ];
 interface InfoLawanTransaksiProps {
   companyId: string;
@@ -89,11 +88,11 @@ const InfoLawanTransaksi: React.FC<InfoLawanTransaksiProps> = ({ companyId: lawa
         <div />
         <div className={styles.buttonGroup}>
         <Button
-  size="small"
-  variant="confirm"
-  icon={<Add sx={{ color: "white" }} />}
-  onClick={onCreate}
-/>
+          size="small"
+          variant="confirm"
+          icon={<Add sx={{ color: "white" }} />}
+          onClick={onCreate}
+        />
           <Button
             size="small"
             variant="info"
@@ -106,12 +105,12 @@ const InfoLawanTransaksi: React.FC<InfoLawanTransaksiProps> = ({ companyId: lawa
       {/* Table */}
       <div className={styles.tableContainer}>
       <Table<LawanTransaksiWithAction>
-     columns={columns}
-     data={data}
-     onDelete={handleDelete}
-     onEdit={handleEdit}
-     isLoading={loading}
-   />
+        columns={columns}
+        data={data}
+        onDelete={handleDelete}
+        onEdit={handleEdit}
+        isLoading={loading}
+      />
         {!hasMore && (
           <div style={{ textAlign: "center", margin: 16, color: "#888" }}>
             Tidak ada data lagi
