@@ -32,7 +32,7 @@ const loginUser = async (data: User) => {
     setCookies(responseData);
     setLocalStorage(responseData);
 
-    return responseData.message;
+    return responseData;
   } catch (error: any) {
     console.error("Error Response:", error.response?.data?.message);
     throw new Error(error.response?.data?.message || "Registration failed");

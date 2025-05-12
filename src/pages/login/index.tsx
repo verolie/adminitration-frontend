@@ -59,7 +59,12 @@ function Login() {
       const userData: User = { email, password, isEmployee };
       const response = await loginProcess(userData);
       showAlert("Login successful!", "success");
-      router.push("/choose-company");
+      if (!isEmployee) {
+        router.push("/choose-company");
+      } else {
+        localStorage.setItem("companyID", response.data.company_id);
+        router.push("/");
+      }
     } catch (error: any) {
       showAlert(error.message || "An error occurred during login", "error");
     } finally {
