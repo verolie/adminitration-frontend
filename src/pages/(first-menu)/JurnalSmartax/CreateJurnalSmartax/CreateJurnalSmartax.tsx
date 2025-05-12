@@ -7,23 +7,24 @@ import FieldText from "../../../../component/textField/fieldText";
 import TableInsertSmartTax from "../function/TableInsertSmartTax";
 import { createJurnalSmartax } from "../function/createJurnalSmartax";
 import { fetchLawanTransaksi } from "../function/fetchLawanTransaksi";
+import { AkunPerkiraan } from "../../AkunPerkiraan/model/AkunPerkiraanModel";
 
 type RowData = {
   no: string;
   lawanTransaksi: string;
   bukti: string;
-  debit: string;
+  Jumlah: string;
   kredit: string;
   keterangan: string;
 };
 
 export default function CreateJurnalSmartax() {
   const [rows, setRows] = React.useState<RowData[]>([
-    { no: "", lawanTransaksi: "", bukti: "", debit: "", kredit: "", keterangan: "" },
+    { no: "", lawanTransaksi: "", bukti: "", Jumlah: "", kredit: "", keterangan: "" },
   ]);
   const [totalDebit, setTotalDebit] = React.useState(0);
   const [totalKredit, setTotalKredit] = React.useState(0);
-  const [tanggalValue, setTanggalValue] = React.useState("");
+  const [tanggalValue, setTanggalValue] = React.useState(() => new Date().toISOString().slice(0, 10));
   const [fakturValue, setFakturValue] = React.useState("");
   const [deskripsiValue, setDeskripsiValue] = React.useState("");
   const [fileUpload, setFileUpload] = React.useState<File | null>(null);
@@ -38,7 +39,7 @@ export default function CreateJurnalSmartax() {
   const handleAddRow = () => {
     setRows([
       ...rows,
-      { no: "", lawanTransaksi: "", bukti: "", debit: "", kredit: "", keterangan: "" },
+      { no: "", lawanTransaksi: "", bukti: "", Jumlah: "", kredit: "", keterangan: "" },
     ]);
   };
 
@@ -49,15 +50,15 @@ export default function CreateJurnalSmartax() {
   };
 
   React.useEffect(() => {
-    let debit = 0;
+    let jumlah = 0;
     let kredit = 0;
 
     rows.forEach((row) => {
-      debit += parseFloat(row.debit) || 0;
+      jumlah += parseFloat(row.Jumlah) || 0;
       kredit += parseFloat(row.kredit) || 0;
     });
 
-    setTotalDebit(debit);
+    setTotalDebit(jumlah);
     setTotalKredit(kredit);
   }, [rows]);
 
@@ -115,7 +116,7 @@ export default function CreateJurnalSmartax() {
           jurnalDetail: rows.map((row, index) => ({
             lawanTransaksi: row.lawanTransaksi,
             bukti: row.bukti,
-            debit: parseFloat(row.debit) || 0,
+            debit: parseFloat(row.Jumlah) || 0,
             kredit: parseFloat(row.kredit) || 0,
             urut: index + 1,
             keterangan: row.keterangan,
@@ -198,31 +199,6 @@ export default function CreateJurnalSmartax() {
           addRow={handleAddRow}
           deleteRow={handleDeleteRow}
         />
-
-        <div className={styles.filterContainer}>
-          <div className={styles.rowContainer}>
-            <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Total Debit</Typography>
-              <FieldText
-                label="0"
-                value={totalDebit.toString()}
-                onChange={() => {}}
-                sx={{ width: "100%" }}
-                disabled={true}
-              />
-            </div>
-            <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Total Kredit</Typography>
-              <FieldText
-                label="0"
-                value={totalKredit.toString()}
-                onChange={() => {}}
-                sx={{ width: "100%" }}
-                disabled={true}
-              />
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className={styles.buttonLabel}>

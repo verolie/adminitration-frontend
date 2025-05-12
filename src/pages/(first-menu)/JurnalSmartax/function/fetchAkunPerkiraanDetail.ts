@@ -38,11 +38,13 @@ const fetchAkunPerkiraanBackend = async (
 
     const responseData = response.data.data;
 
-    console.log(responseData);
+    console.log(response.data.data);
 
     if (responseData.success === false) {
       throw new Error(responseData);
     }
+
+    console.log("responseData.data", responseData.data);
 
     return responseData.data;
   } catch (error: any) {

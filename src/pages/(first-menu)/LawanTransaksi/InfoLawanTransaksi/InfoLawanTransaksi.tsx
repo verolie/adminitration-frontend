@@ -9,13 +9,19 @@ import CreateLawanTransaksi from "../CreateLawanTransaksi/CreateLawanTransaksi";
 import EditLawanTransaksi from "../EditLawanTransaksi/EditLawanTransaksi";
 import styles from "./styles.module.css";
 
-const columns: Column<LawanTransaksiModel>[] = [
+// Extend the LawanTransaksiModel to include action
+interface LawanTransaksiWithAction extends LawanTransaksiModel {
+  action?: string;
+}
+
+const columns: Column<LawanTransaksiWithAction>[] = [
   { key: "nama", label: "Nama" },
   { key: "npwp", label: "NPWP" },
   { key: "alamat", label: "Alamat" },
   { key: "is_badan_usaha", label: "Badan Usaha" },
   { key: "created_at", label: "Created At" },
   { key: "updated_at", label: "Updated At" },
+  { key: "action", label: "Action" },
 ];
 interface InfoLawanTransaksiProps {
   companyId: string;
@@ -73,7 +79,7 @@ const InfoLawanTransaksi: React.FC<InfoLawanTransaksiProps> = ({ companyId: lawa
 
   // Handle edit
   const handleEdit = (item: Record<string, any>) => {
-    if (onEdit) onEdit(item.id);
+    if (onEdit) onEdit(String(item.id));
   };
 
   return (
@@ -99,7 +105,7 @@ const InfoLawanTransaksi: React.FC<InfoLawanTransaksiProps> = ({ companyId: lawa
 
       {/* Table */}
       <div className={styles.tableContainer}>
-      <Table
+      <Table<LawanTransaksiWithAction>
      columns={columns}
      data={data}
      onDelete={handleDelete}
