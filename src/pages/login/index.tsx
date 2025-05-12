@@ -24,6 +24,7 @@ function Login() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [password, setPassword] = useState<string>();
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [isEmployee, setIsEmployee] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState({
     emailMessage: "",
     passwordMessage: "",
@@ -32,6 +33,17 @@ function Login() {
 
   const handleClickShowPassword = () => {
     setShowPassword((prev) => !prev);
+  };
+
+  const toggleRole = () => {
+    setIsEmployee((prev) => !prev);
+    // Clear form when switching roles
+    setEmail("");
+    setPassword("");
+    setErrorMessage({
+      emailMessage: "",
+      passwordMessage: "",
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +56,7 @@ function Login() {
     }
 
     try {
-      const userData: User = { email, password };
+      const userData: User = { email, password, isEmployee };
       const response = await loginProcess(userData);
       showAlert("Login successful!", "success");
       router.push("/choose-company");
@@ -66,7 +78,14 @@ function Login() {
         emailMessage: !email ? "Email is required" : "",
         passwordMessage: !password ? "Password is required" : "",
       });
+      return false;
+    }
 
+    if (isEmployee && !email.includes('@')) {
+      setErrorMessage({
+        emailMessage: "Employee email must be in format username@company_unique_id",
+        passwordMessage: "",
+      });
       return false;
     }
 
@@ -89,9 +108,10 @@ function Login() {
         <div className={styles.loginContainer}>
           <div className={styles.card}>
             <Box className={styles.titleContainer}>
-              {/* <Image alt="Logo" src={LogoImage} width={90} height={70} /> */}
               <AccountCircle style={{ fontSize: "60px" }} />
-              <h1>Company Name</h1>
+              <div className={styles.titleContent}>
+                <h1>Company Name</h1>
+              </div>
             </Box>
             <Box
               component="form"
@@ -100,7 +120,7 @@ function Login() {
               noValidate
             >
               <div className={styles.fieldInput}>
-                <label>Email</label>
+                <label>{isEmployee ? 'Username' : 'Email'}</label>
                 <input
                   type="text"
                   id="email"
@@ -108,8 +128,8 @@ function Login() {
                   className={styles.inputField}
                   onChange={onChangeEmail}
                   value={email || ""}
+                  placeholder={isEmployee ? "username@company_unique_id" : "Enter your email"}
                 />
-
                 {errorMessage.emailMessage && (
                   <span className={styles.errorMessageTextColor}>
                     {errorMessage.emailMessage}
@@ -125,6 +145,7 @@ function Login() {
                     name="password"
                     value={password || ""}
                     onChange={onChangePassword}
+                    placeholder="Enter your password"
                   />
                   <svg onClick={handleClickShowPassword}>
                     {showPassword ? <Visibility /> : <VisibilityOff />}
@@ -136,12 +157,21 @@ function Login() {
                   </span>
                 )}
               </div>
-              <Link href="#" className={styles.forgetPassword}>
-                Forgot Password ?
-              </Link>
+              <div className={styles.linkContainer}>
+                <button 
+                  type="button"
+                  onClick={toggleRole}
+                  className={styles.switchRoleLink}
+                >
+                  Switch to {isEmployee ? 'Owner' : 'Employee'}
+                </button>
+                <Link href="#" className={styles.forgetPassword}>
+                  Forgot Password ?
+                </Link>
+              </div>
               <div className={styles.buttonSubmit}>
                 <button type="submit" disabled={isLoading}>
-                  {isLoading ? "Loading" : "Login"}
+                  {isLoading ? "Loading" : `Login as ${isEmployee ? 'Employee' : 'Owner'}`}
                 </button>
                 <Link href="/register" className={styles.register}>
                   Don't have an account? <span>Sign Up</span>

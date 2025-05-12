@@ -5,6 +5,17 @@
     margin-bottom: 16px;
 }
 
+.fieldContainer,
+.passwordContainer {
+    position: relative;
+    width: 100%;
+}
+
+.fieldContainer > div,
+.passwordContainer > div {
+    width: 100%;
+}
+
 .labelText {
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
@@ -43,15 +54,69 @@
     width: 100%;
     margin-bottom: 16px;
     border-bottom: 1px solid #000;
-    /* Garis bawah dengan warna hitam */
     padding-bottom: 4px;
-    /* Beri sedikit jarak antara teks dan garis */
 }
 
 .titleText {
     font-family: 'Roboto', sans-serif;
     font-size: 18px;
     font-weight: bold;
-    /* Font lebih tebal */
     color: #000;
+}
+
+/* Ensure consistent sizing for all FieldText inputs */
+.fieldContainer :global(.MuiInputBase-root),
+.passwordContainer :global(.MuiInputBase-root) {
+    height: 38px;
+}
+
+.fieldContainer :global(.MuiOutlinedInput-root),
+.passwordContainer :global(.MuiOutlinedInput-root) {
+    width: 100%;
+}
+
+.passwordField {
+    position: relative;
+    width: 40%;
+}
+
+.passwordField > div {
+    width: 100%;
+}
+
+.eyeButton {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #64748B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.eyeButton:hover {
+    color: #00569f;
+}
+
+.eyeButton svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Remove old unused styles */
+.fieldTextContainer,
+.iconContainer,
+.passField,
+.passField:focus-within,
+.passField input,
+.passField input:focus,
+.passField svg,
+.passField svg:hover {
+    display: none;
 }

@@ -13,6 +13,7 @@ const loginUser = async (data: User) => {
     const requestData = {
       email: data.email,
       password: data.password,
+      is_employee: data.isEmployee
     };
 
     const response = await axios.post(

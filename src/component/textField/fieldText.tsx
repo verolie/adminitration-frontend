@@ -20,6 +20,7 @@ const CustomTextField: React.FC<FieldText> = ({
   value,
   sx = {},
   disabled = false,
+  type = "text",
   onChange,
 }) => {
   return (
@@ -28,6 +29,7 @@ const CustomTextField: React.FC<FieldText> = ({
       value={value}
       onChange={onChange}
       size="small"
+      type={type}
       disabled={disabled}
       className={styles.customTextField}
       sx={{ width: "40%", ...sx }}

@@ -1,22 +1,14 @@
 import axios from "axios";
-import { User } from "@/utils/model/userModel";
 
-export const createUser = async (data: User, token: string) => {
-  return await createData(data, token);
+export const fetchOneCompany = async (token: string | null, companyId: string | null) => {
+  return await fetchOneCompanyBackend(token, companyId);
 };
 
-const createData = async (data: User, token: string) => {
+const fetchOneCompanyBackend = async ( token: string | null, companyId: string | null) => {
   try {
-    const requestData = {
-      username: data.username,
-      email: data.email,
-      password: data.password,
-      company_id: localStorage.getItem("companyID")
-    };
 
-    const response = await axios.post(
-      `http://127.0.0.1:5000/users/employees`,
-      requestData,
+    const response = await axios.get(
+      `http://127.0.0.1:5000/companies/${companyId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -33,7 +25,7 @@ const createData = async (data: User, token: string) => {
       throw new Error(responseData);
     }
 
-    return responseData.message;
+    return responseData.data;
   } catch (error: any) {
     console.error("Error Response:", error.response?.data?.errors[0]);
     throw new Error(error.response?.data?.errors[0] || "Company failed");
