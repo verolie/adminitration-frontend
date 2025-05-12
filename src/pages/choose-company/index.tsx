@@ -2,23 +2,53 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Box, Autocomplete, TextField, Button, Divider } from "@mui/material";
+import { Box, Autocomplete, TextField, Button, Divider, CircularProgress } from "@mui/material";
 import styles from "./styles.module.css";
 import { useAppContext } from "@/context/context";
 import { fetchCompany } from "../(first-menu)/Company/function/fetchCompany";
 import { CompanyModel } from "../(first-menu)/Company/model/companyModel";
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { getUserData } from "@/utils/function/getUserData";
+import { useAlert } from "@/context/AlertContext";
 
 function ChooseCompany() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(true);
   const [company, setCompany] = useState<string | null>(null);
   const [companyList, setCompanyList] = useState<CompanyModel[]>([]);
-  const { updateSettings, showAlert } = useAppContext();
+  const { updateSettings } = useAppContext();
+  const { showAlert } = useAlert();
 
   useEffect(() => {
-    getCompanies();
+    const checkUserAccess = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
+      try {
+        const userData = await getUserData(token);
+        
+        // If user is an employee, they shouldn't access this page
+        if (userData.data.is_employee) {
+          showAlert("Employees cannot access this page", "error");
+          router.push("/");
+          return;
+        }
+        
+        // If all checks pass, fetch companies
+        await getCompanies();
+        setIsVerifying(false);
+      } catch (error: any) {
+        showAlert(error.message || "Failed to verify user access", "error");
+        router.push("/login");
+      }
+    };
+
+    checkUserAccess();
   }, [showAlert]);
 
   const getCompanies = async () => {
@@ -27,7 +57,7 @@ function ChooseCompany() {
       const result: CompanyModel[] = await fetchCompany({}, token);
       setCompanyList(result);
     } catch (error: any) {
-      showAlert(error.message || "Failed to load companies");
+      showAlert(error.message || "Failed to load companies", "error");
     }
   };
 
@@ -42,11 +72,11 @@ function ChooseCompany() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!company) {
-      showAlert("Please select a company");
+      showAlert("Please select a company", "error");
       return;
     }
 
-    // Cari ID dari nama yang dipilih
+    // Find ID from selected name
     const selected = companyList.find((c) => c.nama === company);
     if (selected?.id) {
       localStorage.setItem("companyID", selected.id);
@@ -56,6 +86,7 @@ function ChooseCompany() {
     updateSettings({ darkTheme: false, selectedCompany: company });
 
     setTimeout(() => {
+      showAlert("Company selected successfully", "success");
       router.push("/");
       setIsLoading(false);
     }, 500);
@@ -69,6 +100,19 @@ function ChooseCompany() {
       localStorage.setItem("companyID", selected.id);
     }
   };
+
+  if (isVerifying) {
+    return (
+      <Box 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center" 
+        minHeight="100vh"
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box className={styles.container}>
