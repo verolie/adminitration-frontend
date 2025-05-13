@@ -76,20 +76,15 @@
 }
 .titleField {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 16px;
     border-bottom: 1px solid #000;
-    /* Garis bawah dengan warna hitam */
     padding-bottom: 4px;
-    /* Beri sedikit jarak antara teks dan garis */
 }
 
 .titleText {
-    font-family: 'Roboto', sans-serif;
-    font-size: 18px;
-    font-weight: bold;
-    /* Font lebih tebal */
+    font-size: 18px !important;
+    font-weight: bold !important;
     color: #000;
 }

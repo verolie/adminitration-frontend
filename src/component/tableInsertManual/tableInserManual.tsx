@@ -23,6 +23,7 @@ interface TableInsertManualProps<T extends object> {
   addRow: () => void;
   deleteRow: (index: number) => void;
   columns: Column<T>[];
+  showAddButton?: boolean;
 }
 
 const TableInsertManual = <T extends object>({
@@ -31,6 +32,7 @@ const TableInsertManual = <T extends object>({
   addRow,
   deleteRow,
   columns,
+  showAddButton = true,
 }: TableInsertManualProps<T>) => {
   return (
     <div className={styles.tableContainer}>
@@ -112,9 +114,11 @@ const TableInsertManual = <T extends object>({
           ))}
         </tbody>
       </table>
-      <button onClick={addRow} className={styles.addButton}>
-        Add Row
-      </button>
+      {showAddButton && (
+        <button onClick={addRow} className={styles.addButton}>
+          Add Row
+        </button>
+      )}
     </div>
   );
 };
