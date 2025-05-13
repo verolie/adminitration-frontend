@@ -47,7 +47,7 @@ const NavBar: React.FC<ResponsiveNavBarProps> = ({
   return (
     <Container className={styles.gridContainer} maxWidth={false} disableGutters>
       <div className={styles.appLogo}>
-        <img src="/images/icon/logo.PNG" alt="App Logo" className={styles.logoImage} />
+        <img src="/images/icon/logo-long.PNG" alt="App Logo" className={styles.logoImage} />
       </div>
 
       <div className={styles.gridUser} onClick={handleClickUser}>

@@ -9,6 +9,7 @@ const createCompanyBackend = async (data: CompanyModel, token: string) => {
   try {
     const requestData = {
       nama: data.nama,
+      unique_id: data.unique_id,
     };
 
     const response = await axios.post(
@@ -24,15 +25,15 @@ const createCompanyBackend = async (data: CompanyModel, token: string) => {
 
     const responseData = response.data;
 
-    console.log(responseData.data);
+    console.log(responseData);
 
     if (responseData.success === false) {
-      throw new Error(responseData);
+      throw new Error(responseData.message);
     }
 
-    return responseData.message;
+    return responseData;
   } catch (error: any) {
-    console.error("Error Response:", error.response?.data?.errors[0]);
-    throw new Error(error.response?.data?.errors[0] || "Company failed");
+    console.log(error);
+    throw new Error(error.response?.data?.errors[0] || error.message || "Company failed");
   }
 }; 

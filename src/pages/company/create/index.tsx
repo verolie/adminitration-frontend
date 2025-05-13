@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Box, TextField, CircularProgress } from "@mui/material";
+import { Box, TextField, CircularProgress, Typography } from "@mui/material";
 import styles from "./styles.module.css";
 import { useAlert } from "@/context/AlertContext";
 import { createCompany } from "./function/createCompany";
@@ -16,6 +16,14 @@ function CreateCompany() {
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(true);
   const [companyName, setCompanyName] = useState("");
+  const [uniqueId, setUniqueId] = useState("");
+
+  const validateUniqueId = (value: string): boolean => {
+    if (value.includes(' ') || value.includes('@')) {
+      return false;
+    }
+    return true;
+  };
 
   useEffect(() => {
     const checkUserAccess = async () => {
@@ -52,6 +60,16 @@ function CreateCompany() {
       return;
     }
 
+    if (!uniqueId.trim()) {
+      showAlert("Please enter ID Perusahaan", "error");
+      return;
+    }
+
+    if (!validateUniqueId(uniqueId)) {
+      showAlert("ID Perusahaan tidak boleh mengandung spasi atau karakter @", "error");
+      return;
+    }
+
     setIsLoading(true);
     const token = localStorage.getItem("token");
 
@@ -63,12 +81,17 @@ function CreateCompany() {
 
     try {
       const payload: CompanyModel = {
-        nama: companyName.trim()
+        nama: companyName.trim(),
+        unique_id: uniqueId.trim()
       };
 
-      await createCompany(payload, token);
-      showAlert("Company created successfully!", "success");
-      router.push("/choose-company");
+      const result = await createCompany(payload, token);
+      if (result.success) {
+        showAlert("Company created successfully!", "success");
+        router.push("/choose-company");
+      } else {
+        showAlert(result.message || "Failed to create company", "error");
+      }
     } catch (error: any) {
       showAlert(error.message || "Failed to create company", "error");
     } finally {
@@ -119,6 +142,29 @@ function CreateCompany() {
                 className={styles.inputField}
                 disabled={isLoading}
               />
+            </div>
+
+            <div className={styles.fieldInput}>
+              <label>ID Perusahaan</label>
+              <TextField
+                fullWidth
+                placeholder="Enter company ID"
+                value={uniqueId}
+                onChange={(e) => setUniqueId(e.target.value)}
+                className={styles.inputField}
+                disabled={isLoading}
+              />
+              <Typography 
+                className={styles.helperText}
+                style={{ 
+                  fontSize: '12px', 
+                  color: '#666', 
+                  marginTop: '4px',
+                  fontStyle: 'italic'
+                }}
+              >
+                ID Perusahaan bersifat unik dan akan digunakan untuk login karyawan. Tidak boleh mengandung spasi dan karakter @
+              </Typography>
             </div>
 
             <div className={styles.buttonSubmit}>

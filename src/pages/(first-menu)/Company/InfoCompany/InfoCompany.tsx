@@ -5,19 +5,34 @@ import FieldText from "@/component/textField/fieldText";
 import Button from "@/component/button/button";
 import { fetchOneCompany } from "../function/fetchOneCompany";
 import { createCompany } from "../function/createCompany";
-import { AlertBox } from "@/component/alertBox/alertBox";
+import { useAlert } from "@/context/AlertContext";
 import { editCompany } from "../function/editCompany";
 import { CompanyModel } from "../model/companyModel";
 
 export default function InfoCompany() {
   const [namaValue, setNamaValue] = React.useState("");
-  const [alertMessage, setAlertMessage] = React.useState<{
-    message: string;
-    type: "success" | "error" | "info";
-  } | null>(null);
+  const [uniqueIdValue, setUniqueIdValue] = React.useState("");
+  const { showAlert } = useAlert();
 
   const handleNamaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNamaValue(event.target.value);
+  };
+
+  const handleUniqueIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    setUniqueIdValue(value);
+  };
+
+  const validateUniqueId = (value: string): boolean => {
+    if (value === "") {
+      showAlert("ID Perusahaan cannot be empty", "error");
+      return false;
+    }
+    if (value.includes(' ') || value.includes('@')) {
+      showAlert("ID Perusahaan cannot contain spaces or @ characters", "error");
+      return false;
+    }
+    return true;
   };
 
   const fetchData = async () => {
@@ -30,8 +45,9 @@ export default function InfoCompany() {
     }
 
     try {
-      const result = await fetchOneCompany({}, token, companyId); // kalau perlu filter, bisa kirim object
+      const result = await fetchOneCompany({}, token, companyId);
       setNamaValue(result.nama);
+      setUniqueIdValue(result.unique_id || '');
     } catch (err) {
       console.error("Gagal fetch company:", err);
     }
@@ -46,41 +62,36 @@ export default function InfoCompany() {
     const companyId = localStorage.getItem("companyID");
 
     if (!token) {
-      setAlertMessage({
-        message: "Token not found. Please log in again.",
-        type: "error",
-      });
+      showAlert("Token not found. Please log in again.", "error");
       return;
     }
 
     if (!companyId) {
-      setAlertMessage({
-        message: "Company ID not found.",
-        type: "error",
-      });
+      showAlert("Company ID not found.", "error");
+      return;
+    }
+
+    if (!validateUniqueId(uniqueIdValue)) {
       return;
     }
 
     const payload: CompanyModel = {
       id: companyId,
       nama: namaValue,
+      unique_id: uniqueIdValue,
     };
 
     try {
       const result = await editCompany(payload, token);
-      console.log("Edit Success:", result);
-
-      setAlertMessage({
-        message: "Company successfully updated!",
-        type: "success",
-      });
-
+      
+      if (result.success) {
+        showAlert("Company successfully updated!", "success");
+      } else {
+        showAlert(result.message || "Failed to update company.", "error");
+      }
       // onClose(); // uncomment kalau mau langsung tutup tab
     } catch (error: any) {
-      setAlertMessage({
-        message: error.message || "Failed to update company.",
-        type: "error",
-      });
+      showAlert(error.message || "Failed to update company.", "error");
     }
   };
 
@@ -100,6 +111,25 @@ export default function InfoCompany() {
                 onChange={handleNamaChange}
               ></FieldText>
             </div>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>ID Perusahaan</Typography>
+              <FieldText
+                label="ID Perusahaan"
+                value={uniqueIdValue}
+                onChange={handleUniqueIdChange}
+              ></FieldText>
+              <Typography 
+                className={styles.helperText}
+                style={{ 
+                  fontSize: '12px', 
+                  color: '#666', 
+                  marginTop: '4px',
+                  fontStyle: 'italic'
+                }}
+              >
+                ID Perusahaan bersifat unik dan akan digunakan untuk login karyawan. Tidak boleh mengandung spasi dan karakter @
+              </Typography>
+            </div>
           </div>
           <div className={styles.buttonLabel}>
             <Button
@@ -111,13 +141,6 @@ export default function InfoCompany() {
           </div>
         </div>
       </div>
-      {alertMessage && (
-        <AlertBox
-          message={alertMessage.message}
-          type={alertMessage.type}
-          onClose={() => setAlertMessage(null)}
-        />
-      )}
     </>
   );
 }
