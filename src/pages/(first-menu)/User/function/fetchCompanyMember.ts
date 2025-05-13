@@ -1,19 +1,20 @@
 import axios from "axios";
-import { User } from "../model/userModel";
 
-export const fetchUser = async (data: User, token: string) => {
-  return await fetchUserBackend(data, token);
+export const fetchCompanyMember = async (token: string, companyId: string | null) => {
+  return await fetchCompanyMemberBackend(token, companyId);
 };
 
-const fetchUserBackend = async (data: User, token: string) => {
+const fetchCompanyMemberBackend = async (token: string, companyId: string | null) => {
   try {
-
     const response = await axios.get(
-      `http://127.0.0.1:5000/users`,
+      `http://127.0.0.1:5000/companies/get-members`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
+        },
+        params: {
+          company_id: companyId
         }
       }
     );

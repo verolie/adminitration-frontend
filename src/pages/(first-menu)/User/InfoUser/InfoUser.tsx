@@ -5,6 +5,7 @@ import Table from "@/component/table/table";
 import Button from "@/component/button/button";
 import PopupModal from "@/component/popupModal/popUpModal";
 import { PopUpUserContent } from "./popUpUser/popUpUserContent";
+import { fetchCompanyMember } from "../function/fetchCompanyMember";
 
 interface Column<T> {
   key: keyof T;
@@ -15,32 +16,13 @@ interface Column<T> {
 interface DataRow {
   username: string;
   email: string;
-  company: string;
   modified_by: string;
   modified_time: string;
 }
 
-const data: DataRow[] = [
-  {
-    username: "johndoe",
-    email: "johndoe@example.com",
-    company: "Company A",
-    modified_by: "admin",
-    modified_time: "2024-04-02 14:30:00",
-  },
-  {
-    username: "janedoe",
-    email: "janedoe@example.com",
-    company: "Company B",
-    modified_by: "admin",
-    modified_time: "2024-04-03 10:15:00",
-  },
-];
-
 const columns: Column<DataRow>[] = [
   { key: "username", label: "Username" },
   { key: "email", label: "Email" },
-  { key: "company", label: "Company" },
   { key: "modified_by", label: "Modified By" },
   { key: "modified_time", label: "Modified Time", align: "right" },
 ];
@@ -49,7 +31,26 @@ export default function InfoUser() {
   const [selectedData, setSelectedData] = React.useState<DataRow | null>(null);
   const [modalMode, setModalMode] = React.useState<"view" | "edit">("view");
   const [isModalOpen, setIsModalOpen] = React.useState(false);
-  const [tableData, setTableData] = React.useState<DataRow[]>(data);
+  const [tableData, setTableData] = React.useState<DataRow[]>([]);
+
+  React.useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyID");
+
+    try {
+      if (token && companyId) {
+        const result = await fetchCompanyMember(token, companyId);
+        setTableData(result);
+      }
+    } catch (err) {
+      console.error("Failed to fetch jurnal umum:", err);
+    }
+  };
 
   const handleDelete = (item: DataRow) => {
     setTableData((prevData) =>
