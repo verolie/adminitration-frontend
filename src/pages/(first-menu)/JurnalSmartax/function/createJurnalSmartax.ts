@@ -7,8 +7,9 @@ interface JurnalSmartaxData {
   companyId: string;
   deskripsi: string;
   file: string;
+  lawanTransaksi: string;
   jurnalDetail: {
-    lawanTransaksi: string;
+    akunPerkiraan: string;
     bukti: string;
     debit: number;
     kredit: number;
@@ -26,8 +27,9 @@ export const createJurnalSmartax = async (data: JurnalSmartaxData, token: string
       total_kredit: data.totalKredit,
       deskripsi: data.deskripsi,
       file: data.file,
+      lawan_transaksi: data.lawanTransaksi,
       jurnal_detail: data.jurnalDetail.map((detail) => ({
-        lawan_transaksi: detail.lawanTransaksi,
+        akun_perkiraan: detail.akunPerkiraan,
         bukti: detail.bukti,
         debit: detail.debit,
         kredit: detail.kredit,
