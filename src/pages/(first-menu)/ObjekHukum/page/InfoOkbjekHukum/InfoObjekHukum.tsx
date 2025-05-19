@@ -15,7 +15,6 @@ const InfoObjekHukum = () => {
     { key: "kodeAkun", label: "Kode Akun" },
     { key: "namaAkun", label: "Nama Akun" },
     { key: "keterangan", label: "keterangan" },
-    { key: "akunLawan", label: "Akun Lawan" },
   ];
 
   const token = localStorage.getItem("token");

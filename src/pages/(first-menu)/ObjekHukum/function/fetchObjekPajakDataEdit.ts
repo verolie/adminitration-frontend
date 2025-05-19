@@ -8,7 +8,6 @@ interface Mapping {
 interface AkunObjekPajakEditRequest {
   akun_perkiraan_detail_id: number;
   mappings: Mapping[];
-  akun_lawan_id: number;
 }
 
 export const editAkunObjekPajak = async (

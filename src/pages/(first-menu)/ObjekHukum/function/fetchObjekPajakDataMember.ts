@@ -71,7 +71,6 @@ const fetchObjekObjekBackend = async (
       kodeAkun: item.kode_akun,
       namaAkun: item.nama_akun,
       keterangan: item.keterangan,
-      akunLawan: item.akun_lawan_pajak.kode_akun + " - " + item.akun_lawan_pajak.nama_akun,
       detail:
         item.objek_pajak_details?.map((detail: any) => ({
           id: detail.id,
@@ -85,7 +84,7 @@ const fetchObjekObjekBackend = async (
 
     return mappedData;
   } catch (error: any) {
-    console.error("Error Response:", error.response?.data?.errors?.[0]);
+    console.error(error);
     throw new Error(
       error.response?.data?.errors?.[0] || "Fetch objek pajak gagal"
     );

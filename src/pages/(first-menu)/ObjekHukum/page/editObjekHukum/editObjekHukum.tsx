@@ -38,8 +38,6 @@ const EditObjekHukum = () => {
   >(undefined);
   const [selectedNonBadanUsahaOption, setSelectedNonBadanUsahaOption] =
     useState<OptionType | undefined>(undefined);
-  const [selectedAkunDetailOption, setSelectedAkunDetailOption] = useState<OptionType[]>([]);
-  const [akunDetailList, setAkunDetailList] = useState<OptionType | undefined>(undefined);
   const [objekPajakOptions, setObjekPajakOptions] = useState<OptionType[]>([]);
 
   const [badanUsahaList, setBadanUsahaList] = useState<OptionType[]>([]);
@@ -61,7 +59,6 @@ const EditObjekHukum = () => {
       const fetchData = async () => {
         setBadanUsahaList([]);
         setNonBadanUsahaList([]);
-        setAkunDetailList(undefined);
         if (!token || !companyId) return;
 
         try {
@@ -76,17 +73,6 @@ const EditObjekHukum = () => {
             token,
             filter
           );
-          if (result.data && result.data.length > 0) {
-            const akunLawanId = result.data[0]?.id_akun_lawan_pajak;
-
-            // Find the matching option from selectedAkunDetailOption
-            const matchingOption = selectedAkunDetailOption.find(
-              (option: OptionType) => option.value === akunLawanId
-            );
-            if (matchingOption) {
-              setAkunDetailList(matchingOption);
-            }
-          }
         } catch (err) {
           console.error("Error fetching akun detail:", err);
         }
@@ -139,26 +125,13 @@ const EditObjekHukum = () => {
 
       fetchData();
     }
-  }, [selectedAkunPerkiraan, token, companyId, selectedAkunDetailOption]);
+  }, [selectedAkunPerkiraan, token, companyId]);
 
   const fetchAkunPerkiraanDetailData = async () => {
     if (!token || !companyId) {
       console.warn("Token atau companyID tidak ditemukan.");
       setLoading(false);
       return;
-    }
-
-    try {
-      const result = await fetchAkunPerkiraanDetail(
-        { companyId: companyId},
-        token
-      );
-      setSelectedAkunDetailOption(result.data.map((item: any) => ({
-        label: `${item.kode_akun} - ${item.nama_akun}`,
-        value: item.id,
-      })));
-    } catch (err) {
-      console.error("Error fetching akun detail:", err);
     }
   }
 
@@ -249,11 +222,6 @@ const EditObjekHukum = () => {
       return;
     }
 
-    if (!akunDetailList) {
-      alert("Silakan pilih Akun Perkiraan Detail terlebih dahulu.");
-      return;
-    }
-
     // Validasi minimal 1 objek pajak untuk badan usaha
     if (badanUsahaList.length === 0) {
       alert("Badan Usaha harus memiliki minimal 1 objek pajak.");
@@ -289,7 +257,6 @@ const EditObjekHukum = () => {
     const payload = {
       akun_perkiraan_detail_id: parseInt(selectedAkunPerkiraan.value),
       mappings,
-      akun_lawan_id: parseInt(akunDetailList.value),
     };
 
     try {
@@ -327,21 +294,6 @@ const EditObjekHukum = () => {
 
       <div className={styles.scrollContent}>
         <div>
-        <div className={styles.SubPanel}>
-            <p className={styles.labelText}>Akun Lawan</p>
-            <div className={styles.panel}>
-              <SelectedTextField
-                label="Akun Lawan"
-                options={selectedAkunDetailOption || []}
-                value={akunDetailList?.value || ''}
-                onChange={(e) => {
-                  const selected = (selectedAkunDetailOption || []).find((option: OptionType) => option.value === e.target.value);
-                  setAkunDetailList(selected || undefined);
-                }}
-                sx={{ width: "100%" }}
-              />
-            </div>
-          </div>
           <div className={styles.SubPanel}>
             <p className={styles.labelText}>Badan Usaha</p>
             <div className={styles.panel}>
