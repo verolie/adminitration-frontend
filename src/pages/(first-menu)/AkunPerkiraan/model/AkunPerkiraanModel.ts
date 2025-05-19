@@ -36,5 +36,5 @@ export interface AkunPerkiraan {
   nama_akun?: string;
   keterangan?: string;
   tipeAkun?: string;
-
+  jenis_akun?: string;
 }

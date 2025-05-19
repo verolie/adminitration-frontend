@@ -29,6 +29,7 @@ interface DataRow {
   nama: string;
   tipeAkun: string;
   saldo: string;
+  jenisAkun: string;
 }
 
 interface Column<T> {
@@ -44,13 +45,17 @@ const columns: Column<DataRow>[] = [
   { key: "saldo", label: "Saldo", align: "right" },
 ];
 
-function formatKodePerkiraan(kode: string, allData: DataRow[]): string {
-  const level = kode.split(".").length - 1;
+function formatKodePerkiraan(kode: string, allData: DataRow[], jenisAkun: string): string {
   const target = allData.find((item) => item.kodePerkiraan === kode);
 
   if (!target) return kode;
-
-  const indent = "  ".repeat(level);
+  let indentNum = 0
+  if(jenisAkun === "sub") {
+    indentNum = 1
+  } else if(jenisAkun === "detail") {
+    indentNum = 2
+  }
+  const indent = "  ".repeat(indentNum);
   return `${indent}${target.kodePerkiraan}`;
 }
 
@@ -131,11 +136,12 @@ export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
         nama: item.nama_akun,
         tipeAkun: item.tipe_akun,
         saldo: item.saldo,
+        jenisAkun: item.jenis_akun,
       }));
 
       const formatted = mappedData.map((row) => ({
         ...row,
-        kodePerkiraan: formatKodePerkiraan(row.kodePerkiraan, mappedData),
+        kodePerkiraan: formatKodePerkiraan(row.kodePerkiraan, mappedData, row.jenisAkun),
       }));
 
       setTableData(formatted);
