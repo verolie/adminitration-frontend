@@ -1,50 +1,31 @@
 import axios from "axios";
+import type { JurnalSmartaxFormData } from '../model/jurnalSmartaxModel';
 
-interface JurnalSmartaxData {
-  tgl: string;
-  totalDebit: number;
-  totalKredit: number;
-  companyId: string;
-  deskripsi: string;
-  file: string;
-  lawanTransaksi: string;
-  jurnalDetail: {
-    akunPerkiraan: string;
-    bukti: string;
-    debit: number;
-    kredit: number;
-    urut: number;
-    keterangan: string;
-  }[];
-}
-
-export const createJurnalSmartax = async (data: JurnalSmartaxData, token: string) => {
+export const createJurnalSmartax = async (data: JurnalSmartaxFormData, token: string) => {
   try {
-    const requestData = {
-      company_id: data.companyId,
-      tgl: data.tgl,
-      total_debit: data.totalDebit,
-      total_kredit: data.totalKredit,
-      deskripsi: data.deskripsi,
-      file: data.file,
-      lawan_transaksi: data.lawanTransaksi,
-      jurnal_detail: data.jurnalDetail.map((detail) => ({
-        akun_perkiraan: detail.akunPerkiraan,
-        bukti: detail.bukti,
-        debit: detail.debit,
-        kredit: detail.kredit,
-        urut: detail.urut,
-        keterangan: detail.keterangan,
-      })),
-    };
+    const formData = new FormData();
+    formData.append('faktur', data.faktur);
+    formData.append('tgl', data.tgl);
+    formData.append('total_debit', data.total_debit);
+    formData.append('total_kredit', data.total_kredit);
+    formData.append('lawan_transaksi_id', data.lawan_transaksi_id);
+    formData.append('objek_pajak_id', data.objek_pajak_id);
+    formData.append('jumlah_pajak', data.jumlah_pajak ?? '');
+    formData.append('persentase_pajak', data.persentase_pajak ?? '');
+    formData.append('dpp', data.dpp ?? '');
+    formData.append('is_smart_tax', 'true');
+    formData.append('jurnal_detail', data.jurnal_detail);
+    if (data.file) {
+      formData.append('file', data.file);
+    }
 
     const response = await axios.post(
-      "http://127.0.0.1:5000/jurnal",
-      requestData,
+      `http://127.0.0.1:5000/jurnal/${data.company_id}`,
+      formData,
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'multipart/form-data',
         },
       }
     );
@@ -52,12 +33,12 @@ export const createJurnalSmartax = async (data: JurnalSmartaxData, token: string
     const responseData = response.data;
 
     if (responseData.success === false) {
-      throw new Error(responseData.message || "Create jurnal smartax gagal");
+      throw new Error(responseData.message || 'Create jurnal smartax gagal');
     }
 
     return responseData.message;
   } catch (error: any) {
-    console.error("Error Response:", error.response?.data?.errors?.[0] || error.message);
-    throw new Error(error.response?.data?.errors?.[0] || "Create jurnal smartax gagal");
+    console.error('Error Response:', error.response?.data?.errors?.[0] || error.message);
+    throw new Error(error.response?.data?.errors?.[0] || 'Create jurnal smartax gagal');
   }
 }; 

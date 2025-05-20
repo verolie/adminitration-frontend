@@ -57,6 +57,11 @@ type FilterValue = {
 
 type FilterInput = Record<string, FilterValue>;
 
+function parseInputNumber(str: string): number {
+  if (!str) return 0;
+  return parseFloat(str.replace(/\./g, '').replace(',', '.'));
+}
+
 export default function CreateJurnalSmartax() {
   const [viewMode, setViewMode] = React.useState<'smart-tax' | 'jurnal'>('smart-tax');
   const [isConfirmLoading, setIsConfirmLoading] = React.useState(false);
@@ -244,37 +249,31 @@ export default function CreateJurnalSmartax() {
     try {
       const token = localStorage.getItem("token");
       const companyId = localStorage.getItem("companyID");
-      let fileBase64 = "";
-
-      if (fileUpload) {
-        fileBase64 = await toBase64(fileUpload);
-      }
-
-      if (companyId && token) {
+      // fileUpload sudah File, tidak perlu base64
+      if (token) {
         const data = {
           faktur: fakturValue,
           tgl: tanggalValue,
-          totalDebit,
-          totalKredit,
-          companyId,
-          deskripsi: deskripsiValue,
-          file: fileBase64,
-          lawanTransaksi: selectedLawanTransaksi,
-          jurnalDetail: viewMode === 'jurnal' ? getJurnalViewData().map((row, index) => ({
-            akunPerkiraan: row.akunPerkiraan,
-            bukti: row.bukti,
-            debit: parseFloat(row.Jumlah) || 0,
-            kredit: parseFloat(row.kredit) || 0,
-            urut: index + 1,
-            keterangan: row.keterangan,
-          })) : rows.map((row, index) => ({
-            akunPerkiraan: selectedAkunPerkiraan[index] || "",
-            bukti: row.bukti,
-            debit: parseFloat(row.Jumlah) || 0,
-            kredit: parseFloat(row.kredit) || 0,
-            urut: index + 1,
-            keterangan: row.keterangan,
-          })),
+          total_debit: totalDebit.toString(),
+          total_kredit: totalKredit.toString(),
+          lawan_transaksi_id: selectedLawanTransaksi,
+          objek_pajak_id: selectedPajak?.pajakId || '',
+          jumlah_pajak: totalPajak ? totalPajak.toString() : 'null',
+          persentase_pajak: selectedPajak?.persentase?.toString() || 'null',
+          dpp: dppValues[0] || 'null',
+          is_smart_tax: true,
+          jurnal_detail: JSON.stringify(
+            (viewMode === 'jurnal' ? getJurnalViewData() : rows).map((row, index) => ({
+              akun_perkiraan_detail_id: row.akunPerkiraan,
+              bukti: row.bukti,
+              debit: parseInputNumber(row.Jumlah) || 0,
+              kredit: parseInputNumber(row.kredit) || 0,
+              urut: index + 1,
+              keterangan: row.keterangan,
+            }))
+          ),
+          file: fileUpload || undefined,
+          company_id: companyId || ""
         };
 
         const result = await createJurnalSmartax(data, token);
@@ -406,11 +405,13 @@ export default function CreateJurnalSmartax() {
   const dummyAddRow = () => {};
   const dummyDeleteRow = () => {};
 
-  // Add the formatRupiah function from TableInsertSmartTax
+  // Update formatRupiah to always show two decimals and correct separators
   const formatRupiah = (value: number | string) => {
-    const number = typeof value === "string" ? parseFloat(value) : value;
-    if (isNaN(number)) return "Rp 0";
-    return number.toLocaleString("id-ID");
+    const number = typeof value === "string"
+      ? parseFloat(value.replace(/\./g, '').replace(',', '.'))
+      : value;
+    if (isNaN(number)) return "0";
+    return number.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   const getJurnalViewData = () => {
@@ -589,7 +590,11 @@ export default function CreateJurnalSmartax() {
           ) : (
             <>
               <TableInsertManual
-                rows={getJurnalViewData()}
+                rows={getJurnalViewData().map(row => ({
+                  ...row,
+                  Jumlah: formatRupiah(row.Jumlah),
+                  kredit: formatRupiah(row.kredit),
+                }))}
                 columns={columns}
                 onChange={dummyChange}
                 addRow={dummyAddRow}

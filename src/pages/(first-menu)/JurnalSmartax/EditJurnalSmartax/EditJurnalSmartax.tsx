@@ -1,13 +1,16 @@
 import * as React from "react";
 import styles from "./styles.module.css";
-import { Typography } from "@mui/material";
+import { Typography, FormControl, Select, MenuItem, CircularProgress } from "@mui/material";
 import Button from "../../../../component/button/button";
 import DatePickerField from "../../../../component/textField/dateAreaText";
 import FieldText from "../../../../component/textField/fieldText";
 import TableInsertSmartTax from "../function/TableInsertSmartTax";
-import { editJurnalSmartax } from "../function/editJurnalSmartax";
-import { fetchJurnalSmartaxDetail } from "../function/fetchJurnalSmartaxDetail";
+import TableInsertManual from "../../../../component/tableInsertManual/tableInserManual";
+import { editJurnalSmartax } from "../function/editJurnalSmartax";   
 import { fetchLawanTransaksi } from "../function/fetchLawanTransaksi";
+import { fetchSmartTaxID } from "../function/fetchSmartTaxID";
+import { fetchAkunPerkiraanAll } from "../function/fetchAkunPerkiraanAll";
+import { useAlert } from "../../../../context/AlertContext";
 
 interface EditJurnalSmartaxProps {
   id: string;
@@ -16,6 +19,7 @@ interface EditJurnalSmartaxProps {
 
 type RowData = {
   no: string;
+  akunPerkiraan: string;
   lawanTransaksi: string;
   bukti: string;
   Jumlah: string;
@@ -24,8 +28,9 @@ type RowData = {
 };
 
 export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProps) {
+  const [viewMode, setViewMode] = React.useState<'smart-tax' | 'jurnal'>('jurnal');
   const [rows, setRows] = React.useState<RowData[]>([
-    { no: "", lawanTransaksi: "", bukti: "", Jumlah: "", kredit: "", keterangan: "" },
+    { no: "", akunPerkiraan: "", lawanTransaksi: "", bukti: "", Jumlah: "", kredit: "", keterangan: "" },
   ]);
   const [totalDebit, setTotalDebit] = React.useState(0);
   const [totalKredit, setTotalKredit] = React.useState(0);
@@ -34,6 +39,18 @@ export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProp
   const [deskripsiValue, setDeskripsiValue] = React.useState("");
   const [fileUpload, setFileUpload] = React.useState<File | null>(null);
   const [lawanTransaksiList, setLawanTransaksiList] = React.useState<any[]>([]);
+  const [selectedLawanTransaksi, setSelectedLawanTransaksi] = React.useState("");
+  const [selectedAkunPerkiraan, setSelectedAkunPerkiraan] = React.useState<{ [key: number]: string }>({});
+  const [dppValues, setDppValues] = React.useState<{ [key: number]: string }>({});
+  const [pajakRows, setPajakRows] = React.useState<{ [key: number]: any[] }>({});
+  const [selectedPajak, setSelectedPajak] = React.useState<{ pajakId: string; nama: string; persentase: number; } | null>(null);
+  const [totalPajak, setTotalPajak] = React.useState(0);
+  const [totalSetelahPajak, setTotalSetelahPajak] = React.useState(0);
+  const [totalJumlah, setTotalJumlah] = React.useState(0);
+  const [allAkunPerkiraanOptions, setAllAkunPerkiraanOptions] = React.useState<any[]>([]);
+  const [isLoadingRekening, setIsLoadingRekening] = React.useState(false);
+
+  const { showAlert } = useAlert();
 
   const handleRowChange = (index: number, field: string, value: string) => {
     const updatedRows = [...rows];
@@ -44,7 +61,7 @@ export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProp
   const handleAddRow = () => {
     setRows([
       ...rows,
-      { no: "", lawanTransaksi: "", bukti: "", Jumlah: "", kredit: "", keterangan: "" },
+      { no: "", akunPerkiraan: "", lawanTransaksi: "", bukti: "", Jumlah: "", kredit: "", keterangan: "" },
     ]);
   };
 
@@ -67,6 +84,28 @@ export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProp
     setTotalKredit(kredit);
   }, [rows]);
 
+  // Fetch all Akun Perkiraan for jurnal view
+  React.useEffect(() => {
+    const fetchAllAkunPerkiraan = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const companyId = localStorage.getItem("companyID");
+        if (!token || !companyId) return;
+
+        const data = await fetchAkunPerkiraanAll({ companyId }, token);
+        setAllAkunPerkiraanOptions(data.map((item: any) => ({
+          id: item.id,
+          nama: `${item.kode_akun} - ${item.nama_akun}`
+        })));
+      } catch (error) {
+        console.error("Error fetching all akun perkiraan:", error);
+        showAlert("Failed to fetch akun perkiraan", "error");
+      }
+    };
+
+    fetchAllAkunPerkiraan();
+  }, [showAlert]);
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -75,23 +114,63 @@ export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProp
         if (!token || !companyId) return;
 
         const [jurnalData, lawanTransaksiData] = await Promise.all([
-          fetchJurnalSmartaxDetail(id, token),
+          fetchSmartTaxID(companyId, id, token),
           fetchLawanTransaksi(token, companyId)
         ]);
 
         setTanggalValue(jurnalData.tgl);
         setFakturValue(jurnalData.faktur);
-        setDeskripsiValue(jurnalData.deskripsi);
+        setDeskripsiValue(jurnalData.deskripsi || "");
+        setSelectedLawanTransaksi(jurnalData.id_lawan_transaksi?.toString() || "");
+        setTotalDebit(jurnalData.total_debit);
+        setTotalKredit(jurnalData.total_kredit);
+        setTotalPajak(jurnalData.jumlah_pajak || 0);
+        setTotalJumlah(jurnalData.total_debit);
+        setTotalSetelahPajak(jurnalData.total_debit - (jurnalData.jumlah_pajak || 0));
+
+        // Set rows from JurnalDetails
         setRows(
-          jurnalData.jurnal_detail.map((detail: any) => ({
+          jurnalData.JurnalDetails.map((detail: any) => ({
             no: "",
-            lawanTransaksi: detail.lawan_transaksi,
-            bukti: detail.bukti,
-            Jumlah: detail.debit.toString(),
-            kredit: detail.kredit.toString(),
-            keterangan: detail.keterangan,
+            akunPerkiraan: detail.id_akun_perkiraan_detail?.toString() || "",
+            lawanTransaksi: detail.id_akun_perkiraan_detail?.toString() || "",
+            bukti: detail.bukti || "",
+            Jumlah: detail.debit?.toString() || "0",
+            kredit: detail.kredit?.toString() || "0",
+            keterangan: detail.keterangan || "",
           }))
         );
+
+        // Set selected akun perkiraan
+        const akunPerkiraanMap: { [key: number]: string } = {};
+        jurnalData.JurnalDetails.forEach((detail: any, index: number) => {
+          if (detail.id_akun_perkiraan_detail) {
+            akunPerkiraanMap[index] = detail.id_akun_perkiraan_detail.toString();
+          }
+        });
+        setSelectedAkunPerkiraan(akunPerkiraanMap);
+
+        // Set DPP values if available
+        if (jurnalData.dpp) {
+          setDppValues({ 0: jurnalData.dpp.toString() });
+        }
+
+        // Set pajak rows if available
+        if (jurnalData.id_objek_pajak && jurnalData.persentase_pajak) {
+          setPajakRows({
+            0: [{
+              pajakId: jurnalData.id_objek_pajak.toString(),
+              dpp: jurnalData.dpp?.toString() || jurnalData.total_debit.toString(),
+              persentase: jurnalData.persentase_pajak.toString()
+            }]
+          });
+          setSelectedPajak({
+            pajakId: jurnalData.id_objek_pajak.toString(),
+            nama: "", // You might want to fetch the name from somewhere
+            persentase: jurnalData.persentase_pajak
+          });
+        }
+
         setLawanTransaksiList(lawanTransaksiData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -161,6 +240,52 @@ export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProp
     }
   };
 
+  const handleViewModeSwitch = () => {
+    setViewMode(viewMode === 'jurnal' ? 'smart-tax' : 'jurnal');
+  };
+
+  const columns = React.useMemo(
+    () => [
+      {
+        field: "akunPerkiraan" as const,
+        label: "Rekening",
+        type: "select" as const,
+        options: allAkunPerkiraanOptions.map(item => ({
+          value: item.id,
+          label: item.nama
+        }))
+      },
+      { field: "bukti" as const, label: "Bukti", type: "text" as const },
+      { field: "Jumlah" as const, label: "Debit", type: "text" as const },
+      { field: "kredit" as const, label: "Kredit", type: "text" as const },
+      { field: "keterangan" as const, label: "Keterangan", type: "text" as const },
+    ],
+    [allAkunPerkiraanOptions]
+  );
+
+  // Dummy functions for disabled state
+  const dummyChange = () => {};
+  const dummyAddRow = () => {};
+  const dummyDeleteRow = () => {};
+
+  const formatRupiah = (value: number | string) => {
+    const number = typeof value === "string" ? parseFloat(value) : value;
+    if (isNaN(number)) return "Rp 0";
+    return `Rp ${number.toLocaleString("id-ID", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
+  };
+
+  const formatNumber = (value: number | string) => {
+    const number = typeof value === "string" ? parseFloat(value) : value;
+    if (isNaN(number)) return "0";
+    return number.toLocaleString("id-ID", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.scrollContent}>
@@ -212,41 +337,130 @@ export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProp
           </div>
         </div>
 
-        <div className={styles.titleField}>
-          <Typography className={styles.titleText}>Data Jurnal</Typography>
-        </div>
-        <TableInsertSmartTax
-          rows={rows}
-          lawanTransaksiList={lawanTransaksiList}
-          onChange={handleRowChange}
-          addRow={handleAddRow}
-          deleteRow={handleDeleteRow}
-        />
-
-        <div className={styles.filterContainer}>
-          <div className={styles.rowContainer}>
-            <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Total Debit</Typography>
-              <FieldText
-                label="0"
-                value={totalDebit.toString()}
-                onChange={() => {}}
-                sx={{ width: "100%" }}
-                disabled={true}
-              />
-            </div>
-            <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Total Kredit</Typography>
-              <FieldText
-                label="0"
-                value={totalKredit.toString()}
-                onChange={() => {}}
-                sx={{ width: "100%" }}
-                disabled={true}
-              />
+        {viewMode === 'jurnal' && (
+          <div className={styles.filterContainer}>
+            <div className={styles.rowContainer}>
+              <div className={styles.inputField}>
+                <Typography className={styles.labelText}>Lawan Transaksi</Typography>
+                <FormControl fullWidth size="small">
+                  <Select
+                    value={selectedLawanTransaksi}
+                    disabled={true}
+                    displayEmpty
+                  >
+                    <MenuItem value="" disabled>
+                      Pilih Lawan Transaksi
+                    </MenuItem>
+                    {lawanTransaksiList.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.nama}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div className={styles.inputField}>
+                <Typography className={styles.labelText}>Pajak</Typography>
+                <FormControl fullWidth size="small">
+                  <Select
+                    value={selectedPajak?.pajakId || ""}
+                    disabled={true}
+                    displayEmpty
+                  >
+                    <MenuItem value="" disabled>
+                      Pilih Pajak
+                    </MenuItem>
+                    {selectedPajak && (
+                      <MenuItem value={selectedPajak.pajakId}>
+                        {selectedPajak.nama} ({selectedPajak.persentase}%)
+                      </MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
+              </div>
             </div>
           </div>
+        )}
+
+        <div className={styles.titleField}>
+          <Typography className={styles.titleText}>Data Jurnal</Typography>
+          {viewMode === 'jurnal' && (
+            <Button
+              size="large"
+              variant="info"
+              label="Edit Jurnal"
+              onClick={handleViewModeSwitch}
+            />
+          )}
         </div>
+
+        {isLoadingRekening ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
+            <CircularProgress />
+          </div>
+        ) : (
+          viewMode === 'smart-tax' ? (
+            <TableInsertSmartTax
+              rows={rows}
+              lawanTransaksiList={lawanTransaksiList}
+              selectedLawanTransaksi={selectedLawanTransaksi}
+              onLawanTransaksiChange={setSelectedLawanTransaksi}
+              onChange={handleRowChange}
+              addRow={handleAddRow}
+              deleteRow={handleDeleteRow}
+              onPajakChange={setSelectedPajak}
+              onConfirm={onSubmit}
+              selectedAkunPerkiraan={selectedAkunPerkiraan}
+              onAkunPerkiraanChange={(rowIndex, akunId) => setSelectedAkunPerkiraan(prev => ({ ...prev, [rowIndex]: akunId }))}
+              dppValues={dppValues}
+              onDppChange={(rowIndex, value) => setDppValues(prev => ({ ...prev, [rowIndex]: value }))}
+              pajakRows={pajakRows}
+              onPajakRowsChange={setPajakRows}
+              selectedPajak={selectedPajak}
+              totalPajak={totalPajak}
+              totalSetelahPajak={totalSetelahPajak}
+              totalJumlah={totalJumlah}
+              onTotalChange={(pajak, setelahPajak, jumlah) => {
+                setTotalPajak(pajak);
+                setTotalSetelahPajak(setelahPajak);
+                setTotalJumlah(jumlah);
+              }}
+            />
+          ) : (
+            <>
+              <TableInsertManual
+                rows={rows}
+                columns={columns}
+                onChange={dummyChange}
+                addRow={dummyAddRow}
+                deleteRow={dummyDeleteRow}
+                showAddButton={false}
+              />
+              <div className={styles.filterContainer}>
+                <div className={styles.rowContainer}>
+                  <div className={styles.inputField}>
+                    <Typography className={styles.labelText}>Total Debit</Typography>
+                    <FieldText
+                      label="0"
+                      value={formatNumber(totalDebit)}
+                      sx={{ width: "100%" }}
+                      disabled={true}
+                    />
+                  </div>
+                  <div className={styles.inputField}>
+                    <Typography className={styles.labelText}>Total Kredit</Typography>
+                    <FieldText
+                      label="0"
+                      value={formatNumber(totalKredit)}
+                      sx={{ width: "100%" }}
+                      disabled={true}
+                    />
+                  </div>
+                </div>
+              </div>
+            </>
+          )
+        )}
       </div>
 
       <div className={styles.buttonLabel}>
