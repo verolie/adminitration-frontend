@@ -156,7 +156,6 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
 
   //page tab
   const addTab = (label: string) => {
-    console.log("test ini label ", label);
 
     let foundTab = menuList.find((menu) => menu.label === label);
 

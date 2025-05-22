@@ -14,6 +14,7 @@ import { fetchAkunPerkiraanAll } from "../function/fetchAkunPerkiraanAll";
 import { AkunPerkiraan } from "../../AkunPerkiraan/model/AkunPerkiraanModel";
 import { useAlert } from "../../../../context/AlertContext";
 import { fetchAkunHutangPajak } from "../function/fetchAkunHutangPajak";
+import { fetchLawanTransaksiById } from "../function/fetchLawanTransaksiById ";
 
 type RowData = {
   no: string;
@@ -362,14 +363,8 @@ export default function CreateJurnalSmartax() {
       const akunHutang = await fetchAkunHutangPajak(selectedPajak?.pajakId || "", companyId, token)
       setAkunHutang(akunHutang.akun_perkiraan_hutang_details[0].id);
 
-      const filterAkunBeban: FilterInput = {
-        id: {
-          value: selectedAkunPerkiraan[0],
-          operator: "equals"
-        }
-      }
-      const akunLawanBeban = await fetchAkunPerkiraanDetail({ companyId }, token, filterAkunBeban)
-      setAkunLawanBeban(akunLawanBeban[0].akun_lawan_pajak.id);
+      const akunLawanBeban = await fetchLawanTransaksiById(companyId, parseInt(selectedLawanTransaksi))
+      setAkunLawanBeban(akunLawanBeban.akun_hutang.id);
       
       // After fetching akunpajakdata successfully
       handleViewModeSwitch();

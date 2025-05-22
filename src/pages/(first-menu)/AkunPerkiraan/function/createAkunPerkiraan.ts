@@ -48,7 +48,6 @@ const createDataInduk = async (
     );
 
     const responseData = response.data;
-    console.log("Response data:", responseData.data);
 
     if (!responseData.success) {
       throw new Error(responseData.message || "Gagal create akun induk");

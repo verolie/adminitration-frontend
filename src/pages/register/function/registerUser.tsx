@@ -20,8 +20,6 @@ const createUserBackend = async (user: User) => {
 
     const responseData = response.data;
 
-    console.log(responseData);
-
     if (responseData.success === false) {
       throw new Error(responseData.message);
     }
