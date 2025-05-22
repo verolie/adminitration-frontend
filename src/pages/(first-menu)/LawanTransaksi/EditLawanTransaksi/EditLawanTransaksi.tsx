@@ -6,6 +6,8 @@ import FieldText from "@/component/textField/fieldText";
 import Button from "@/component/button/button";
 import { LawanTransaksiModel } from "../lawanTransaksiModel";
 import { fetchLawanTransaksiById } from "../fetchLawanTransaksiById ";
+import SelectedTextField from "@/component/textField/selectedText";
+import { fetchAkunPerkiraanDetail } from "../function/fetchAkunPerkiraanDetail";
 
 interface Props {
   lawanTransaksiId: string;
@@ -26,8 +28,11 @@ export default function EditLawanTransaksi({
   const [nitku, setNitku] = useState("");
   const [alamat, setAlamat] = useState("");
   const [isBadanUsaha, setIsBadanUsaha] = useState(false);
-  const [contactPerson, setContactPerson] = useState(""); // Tambah state untuk Contact Person
-  const [telpon, setTelpon] = useState(""); // Tambah state untuk Nomor Telepon
+  const [contactPerson, setContactPerson] = useState("");
+  const [telpon, setTelpon] = useState("");
+  const [akunPerkiraanId, setAkunPerkiraanId] = useState("");
+  const [akunOptions, setAkunOptions] = React.useState<{ value: string; label: string }[]>([]);
+  const [email, setEmail] = useState("");
 
   useEffect(() => {
     const companyId = localStorage.getItem("companyID") || "";
@@ -39,11 +44,33 @@ export default function EditLawanTransaksi({
         setNitku(data.nitku || "");
         setAlamat(data.alamat);
         setIsBadanUsaha(data.is_badan_usaha);
-        setContactPerson(data.contact_person || ""); // Set initial value, handle null/undefined
-        setTelpon(data.telpon || ""); // Set initial value, handle null/undefined
+        setContactPerson(data.contact_person || "");
+        setTelpon(data.telepon || "");
+        setAkunPerkiraanId(data.akun_hutang.id?.toString() || "");
+        setEmail(data.email || "");
       }
     });
   }, [id]);
+
+  useEffect(() => {
+    const fetchAkun = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const companyId = localStorage.getItem("companyID");
+        if (!token || !companyId) return;
+
+        const data = await fetchAkunPerkiraanDetail(
+          { companyId },
+          token
+        );
+        setAkunOptions(data);
+      } catch (err) {
+        console.error("Gagal fetch akun:", err);
+      }
+    };
+
+    fetchAkun();
+  }, []);
 
   const handleNamaChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setNama(e.target.value);
@@ -58,9 +85,13 @@ export default function EditLawanTransaksi({
   const handleIsBadanUsahaChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setIsBadanUsaha(e.target.checked);
   const handleContactPersonChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setContactPerson(e.target.value); // Handler untuk Contact Person
+    setContactPerson(e.target.value);
   const handleTelponChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setTelpon(e.target.value); // Handler untuk Nomor Telepon
+    setTelpon(e.target.value);
+  const handleAkunPerkiraanChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setAkunPerkiraanId(e.target.value);
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setEmail(e.target.value);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,8 +105,10 @@ export default function EditLawanTransaksi({
         nitku,
         alamat,
         is_badan_usaha: isBadanUsaha,
-        contact_person: contactPerson, // Sertakan Contact Person
-        telpon: telpon, // Sertakan Nomor Telepon
+        contact_person: contactPerson,
+        telepon: telpon,
+        akun_hutang_id: akunPerkiraanId,
+        email: email,
       };
       await updateLawanTransaksi(companyId, updatedData);
       if (onSuccess) onSuccess();
@@ -143,6 +176,23 @@ export default function EditLawanTransaksi({
                 label="Telepon"
                 value={telpon}
                 onChange={handleTelponChange}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Typography variant="subtitle2">Email</Typography>
+              <FieldText
+                label="Email"
+                value={email}
+                onChange={handleEmailChange}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <Typography variant="subtitle2">Akun Perkiraan</Typography>
+              <SelectedTextField
+                label="Akun Perkiraan"
+                value={akunPerkiraanId}
+                onChange={handleAkunPerkiraanChange}
+                options={akunOptions}
               />
             </div>
             <div style={{ display: "flex", alignItems: "center" }}>

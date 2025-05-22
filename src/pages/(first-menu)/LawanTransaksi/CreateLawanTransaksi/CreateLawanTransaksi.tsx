@@ -4,6 +4,9 @@ import { createLawanTransaksi } from "../lawanTransaksiApi";
 import styles from "./styles.module.css";
 import FieldText from "@/component/textField/fieldText";
 import Button from "@/component/button/button";
+import SelectedTextField from "@/component/textField/selectedText";
+import { fetchAkunPerkiraanDetail } from "../function/fetchAkunPerkiraanDetail";
+import { useAlert } from "@/context/AlertContext";
 
 interface Props {
   companyId: string;
@@ -17,8 +20,12 @@ export default function CreateLawanTransaksi({ companyId, onSuccess }: Props) {
   const [nitku, setNitku] = useState("");
   const [alamat, setAlamat] = useState("");
   const [isBadanUsaha, setIsBadanUsaha] = useState(false);
-  const [contactPerson, setContactPerson] = useState(""); // State untuk Contact Person
-  const [telpon, setTelpon] = useState(""); // State untuk Nomor Telepon
+  const [contactPerson, setContactPerson] = useState("");
+  const [telpon, setTelpon] = useState("");
+  const [akunPerkiraanId, setAkunPerkiraanId] = useState("");
+  const [akunOptions, setAkunOptions] = React.useState<{ value: string; label: string }[]>([]);
+  const [email, setEmail] = useState("");
+  const { showAlert } = useAlert();
 
   const handleNamaChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setNama(e.target.value);
@@ -33,34 +40,32 @@ export default function CreateLawanTransaksi({ companyId, onSuccess }: Props) {
   const handleIsBadanUsahaChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setIsBadanUsaha(e.target.checked);
   const handleContactPersonChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setContactPerson(e.target.value); // Handler untuk Contact Person
+    setContactPerson(e.target.value);
   const handleTelponChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setTelpon(e.target.value); // Handler untuk Nomor Telepon
+    setTelpon(e.target.value);
+  const handleAkunPerkiraanChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setAkunPerkiraanId(e.target.value);
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setEmail(e.target.value);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = {
-      nama,
-      npwp,
-      nik,
-      nitku,
-      alamat,
-      is_badan_usaha: isBadanUsaha,
-      contact_person: contactPerson, // Sertakan Contact Person
-      telpon: telpon, // Sertakan Nomor Telepon
+  React.useEffect(() => {
+    const fetchAkun = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const data = await fetchAkunPerkiraanDetail(
+          { companyId },
+          token
+        );
+        setAkunOptions(data);
+      } catch (err) {
+        console.error("Gagal fetch akun:", err);
+      }
     };
-    await createLawanTransaksi(companyId, formData);
-    onSuccess();
-    // Reset form fields
-    setNama("");
-    setNpwp("");
-    setNik("");
-    setNitku("");
-    setAlamat("");
-    setIsBadanUsaha(false);
-    setContactPerson(""); // Reset Contact Person
-    setTelpon(""); // Reset Nomor Telepon
-  };
+
+    fetchAkun();
+  }, [companyId]);
 
   const onSubmit = async (status: "active" | "draft") => {
     const formData = {
@@ -70,8 +75,10 @@ export default function CreateLawanTransaksi({ companyId, onSuccess }: Props) {
       nitku,
       alamat,
       is_badan_usaha: isBadanUsaha,
-      contact_person: contactPerson, // Sertakan Contact Person
-      telpon: telpon, // Sertakan Nomor Telepon
+      contact_person: contactPerson,
+      telepon: telpon,
+      akun_hutang_id: akunPerkiraanId,
+      email: email,
     };
     await createLawanTransaksi(companyId, { ...formData, status });
     onSuccess();
@@ -81,8 +88,11 @@ export default function CreateLawanTransaksi({ companyId, onSuccess }: Props) {
     setNitku("");
     setAlamat("");
     setIsBadanUsaha(false);
-    setContactPerson(""); // Reset Contact Person
-    setTelpon(""); // Reset Nomor Telepon
+    setContactPerson("");
+    setTelpon("");
+    setAkunPerkiraanId("");
+    setEmail("");
+    showAlert("Berhasil membuat lawan transaksi", "success");
   };
 
   return (
@@ -146,6 +156,27 @@ export default function CreateLawanTransaksi({ companyId, onSuccess }: Props) {
               label="Telepon"
               value={telpon}
               onChange={handleTelponChange}
+            />
+          </div>
+        </div>
+        <div className={styles.fieldContainer}>
+          <div className={styles.inputField}>
+            <Typography variant="subtitle2">Email</Typography>
+            <FieldText
+              label="Email"
+              value={email}
+              onChange={handleEmailChange}
+            />
+          </div>
+        </div>
+        <div className={styles.fieldContainer}>
+          <div className={styles.inputField}>
+            <Typography variant="subtitle2">Akun Perkiraan</Typography>
+            <SelectedTextField
+              label="Akun Perkiraan"
+              value={akunPerkiraanId}
+              onChange={handleAkunPerkiraanChange}
+              options={akunOptions}
             />
           </div>
         </div>
