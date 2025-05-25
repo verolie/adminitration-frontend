@@ -20,26 +20,38 @@ export default function CreateUser() {
   const [emailValue, setEmailValue] = React.useState("");
   const [passwordValue, setPasswordValue] = React.useState("");
   const [confirmPasswordValue, setConfirmPasswordValue] = React.useState("");
-  const [selectedCompany, setSelectedCompany] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const { showAlert } = useAlert();
 
-  React.useEffect(() => {
-    const fetchCompany = async () => {
-      const token = localStorage.getItem("token");
-      const companyId = localStorage.getItem("companyID");
-      const company = await fetchOneCompany(token, companyId);
-      setEmailValue("@" + company.unique_id);
-      setSelectedCompany(company.unique_id);
-    };
-
-    fetchCompany();
-  }, []);
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
   const onSubmit = (status: "active" | "draft") => async () => {
     const token = localStorage.getItem("token");
     try {
+      if (!usernameValue.trim()) {
+        showAlert("Username cannot be empty", "error");
+        return;
+      }
+
+      if (!emailValue.trim()) {
+        showAlert("Email cannot be empty", "error");
+        return;
+      }
+
+      if (!validateEmail(emailValue)) {
+        showAlert("Please enter a valid email address", "error");
+        return;
+      }
+
+      if (!passwordValue) {
+        showAlert("Password cannot be empty", "error");
+        return;
+      }
+
       if (passwordValue !== confirmPasswordValue) {
         showAlert("Password and Confirm Password do not match", "error");
         return;
@@ -50,7 +62,6 @@ export default function CreateUser() {
         email: emailValue,
         password: passwordValue,
         confirmPassword: confirmPasswordValue,
-        company: selectedCompany,
         status,
       };
 
@@ -64,7 +75,7 @@ export default function CreateUser() {
       
       // Reset states to default values
       setUsernameValue("");
-      setEmailValue("@" + selectedCompany); // Reset to default email format
+      setEmailValue("");
       setPasswordValue("");
       setConfirmPasswordValue("");
       setShowPassword(false);
@@ -95,10 +106,7 @@ export default function CreateUser() {
           <FieldText
             label="Username"
             value={usernameValue}
-            onChange={(e) => {
-              setUsernameValue(e.target.value)
-              setEmailValue(e.target.value + "@" + selectedCompany)
-            }}
+            onChange={(e) => setUsernameValue(e.target.value)}
           />
         </div>
         <div className={styles.inputField}>
@@ -106,7 +114,8 @@ export default function CreateUser() {
           <FieldText
             label="Email"
             value={emailValue}
-            disabled
+            onChange={(e) => setEmailValue(e.target.value)}
+            type="email"
           />
         </div>
         <div className={styles.inputField}>

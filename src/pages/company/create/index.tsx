@@ -16,13 +16,20 @@ function CreateCompany() {
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(true);
   const [companyName, setCompanyName] = useState("");
-  const [uniqueId, setUniqueId] = useState("");
+  const [npwp, setNpwp] = useState("");
+  const [nik, setNik] = useState("");
+  const [nitku, setNitku] = useState("");
+  const [telepon, setTelepon] = useState("");
+  const [email, setEmail] = useState("");
 
-  const validateUniqueId = (value: string): boolean => {
-    if (value.includes(' ') || value.includes('@')) {
-      return false;
-    }
-    return true;
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone: string): boolean => {
+    const phoneRegex = /^[0-9+\-\s()]*$/;
+    return phoneRegex.test(phone);
   };
 
   useEffect(() => {
@@ -60,13 +67,38 @@ function CreateCompany() {
       return;
     }
 
-    if (!uniqueId.trim()) {
-      showAlert("Please enter ID Perusahaan", "error");
+    if (!npwp.trim()) {
+      showAlert("Please enter NPWP", "error");
       return;
     }
 
-    if (!validateUniqueId(uniqueId)) {
-      showAlert("ID Perusahaan tidak boleh mengandung spasi atau karakter @", "error");
+    if (!nik.trim()) {
+      showAlert("Please enter NIK", "error");
+      return;
+    }
+
+    if (!nitku.trim()) {
+      showAlert("Please enter NITKU", "error");
+      return;
+    }
+
+    if (!telepon.trim()) {
+      showAlert("Please enter phone number", "error");
+      return;
+    }
+
+    if (!validatePhone(telepon)) {
+      showAlert("Please enter a valid phone number", "error");
+      return;
+    }
+
+    if (!email.trim()) {
+      showAlert("Please enter email", "error");
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      showAlert("Please enter a valid email address", "error");
       return;
     }
 
@@ -82,7 +114,11 @@ function CreateCompany() {
     try {
       const payload: CompanyModel = {
         nama: companyName.trim(),
-        unique_id: uniqueId.trim()
+        npwp: npwp,
+        nik: nik,
+        nitku: nitku,
+        telepon: telepon.trim(),
+        email: email.trim()
       };
 
       const result = await createCompany(payload, token);
@@ -145,26 +181,64 @@ function CreateCompany() {
             </div>
 
             <div className={styles.fieldInput}>
-              <label>ID Perusahaan</label>
+              <label>NPWP</label>
               <TextField
                 fullWidth
-                placeholder="Enter company ID"
-                value={uniqueId}
-                onChange={(e) => setUniqueId(e.target.value)}
+                placeholder="Enter NPWP"
+                value={npwp}
+                onChange={(e) => setNpwp(e.target.value)}
                 className={styles.inputField}
                 disabled={isLoading}
               />
-              <Typography 
-                className={styles.helperText}
-                style={{ 
-                  fontSize: '12px', 
-                  color: '#666', 
-                  marginTop: '4px',
-                  fontStyle: 'italic'
-                }}
-              >
-                ID Perusahaan bersifat unik dan akan digunakan untuk login karyawan. Tidak boleh mengandung spasi dan karakter @
-              </Typography>
+            </div>
+
+            <div className={styles.fieldInput}>
+              <label>NIK</label>
+              <TextField
+                fullWidth
+                placeholder="Enter NIK"
+                value={nik}
+                onChange={(e) => setNik(e.target.value)}
+                className={styles.inputField}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className={styles.fieldInput}>
+              <label>NITKU</label>
+              <TextField
+                fullWidth
+                placeholder="Enter NITKU"
+                value={nitku}
+                onChange={(e) => setNitku(e.target.value)}
+                className={styles.inputField}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className={styles.fieldInput}>
+              <label>Phone Number</label>
+              <TextField
+                fullWidth
+                placeholder="Enter phone number"
+                value={telepon}
+                onChange={(e) => setTelepon(e.target.value)}
+                className={styles.inputField}
+                disabled={isLoading}
+              />
+            </div>
+
+            <div className={styles.fieldInput}>
+              <label>Email</label>
+              <TextField
+                fullWidth
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={styles.inputField}
+                disabled={isLoading}
+                type="email"
+              />
             </div>
 
             <div className={styles.buttonSubmit}>

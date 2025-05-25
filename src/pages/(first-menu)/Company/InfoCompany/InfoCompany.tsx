@@ -11,25 +11,50 @@ import { CompanyModel } from "../model/companyModel";
 
 export default function InfoCompany() {
   const [namaValue, setNamaValue] = React.useState("");
-  const [uniqueIdValue, setUniqueIdValue] = React.useState("");
+  const [npwpValue, setNpwpValue] = React.useState("");
+  const [nikValue, setNikValue] = React.useState("");
+  const [nitkuValue, setNitkuValue] = React.useState("");
+  const [teleponValue, setTeleponValue] = React.useState("");
+  const [emailValue, setEmailValue] = React.useState("");
   const { showAlert } = useAlert();
 
   const handleNamaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNamaValue(event.target.value);
   };
 
-  const handleUniqueIdChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setUniqueIdValue(value);
+  const handleNpwpChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNpwpValue(event.target.value);
   };
 
-  const validateUniqueId = (value: string): boolean => {
-    if (value === "") {
-      showAlert("ID Perusahaan cannot be empty", "error");
+  const handleNikChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNikValue(event.target.value);
+  };
+
+  const handleNitkuChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNitkuValue(event.target.value);
+  };
+
+  const handleTeleponChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTeleponValue(event.target.value);
+  };
+
+  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEmailValue(event.target.value);
+  };
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showAlert("Please enter a valid email address", "error");
       return false;
     }
-    if (value.includes(' ') || value.includes('@')) {
-      showAlert("ID Perusahaan cannot contain spaces or @ characters", "error");
+    return true;
+  };
+
+  const validatePhone = (phone: string): boolean => {
+    const phoneRegex = /^[0-9+\-\s()]*$/;
+    if (!phoneRegex.test(phone)) {
+      showAlert("Please enter a valid phone number", "error");
       return false;
     }
     return true;
@@ -46,10 +71,14 @@ export default function InfoCompany() {
 
     try {
       const result = await fetchOneCompany({}, token, companyId);
-      setNamaValue(result.nama);
-      setUniqueIdValue(result.unique_id || '');
+      setNamaValue(result.nama || '');
+      setNpwpValue(result.npwp || '');
+      setNikValue(result.nik || '');
+      setNitkuValue(result.nitku || '');
+      setTeleponValue(result.telepon || '');
+      setEmailValue(result.email || '');
     } catch (err) {
-      console.error("Gagal fetch company:", err);
+      console.error("Failed to fetch company:", err);
     }
   };
 
@@ -71,14 +100,42 @@ export default function InfoCompany() {
       return;
     }
 
-    if (!validateUniqueId(uniqueIdValue)) {
+    if (!namaValue.trim()) {
+      showAlert("Company name cannot be empty", "error");
+      return;
+    }
+
+    if (!npwpValue.trim()) {
+      showAlert("NPWP cannot be empty", "error");
+      return;
+    }
+
+    if (!nikValue.trim()) {
+      showAlert("NIK cannot be empty", "error");
+      return;
+    }
+
+    if (!nitkuValue.trim()) {
+      showAlert("NITKU cannot be empty", "error");
+      return;
+    }
+
+    if (!validatePhone(teleponValue)) {
+      return;
+    }
+
+    if (!validateEmail(emailValue)) {
       return;
     }
 
     const payload: CompanyModel = {
       id: companyId,
-      nama: namaValue,
-      unique_id: uniqueIdValue,
+      nama: namaValue.trim(),
+      npwp: npwpValue,
+      nik: nikValue,
+      nitku: nitkuValue,
+      telepon: teleponValue.trim(),
+      email: emailValue.trim()
     };
 
     try {
@@ -89,7 +146,6 @@ export default function InfoCompany() {
       } else {
         showAlert(result.message || "Failed to update company.", "error");
       }
-      // onClose(); // uncomment kalau mau langsung tutup tab
     } catch (error: any) {
       showAlert(error.message || "Failed to update company.", "error");
     }
@@ -109,26 +165,48 @@ export default function InfoCompany() {
                 label="Nama"
                 value={namaValue}
                 onChange={handleNamaChange}
-              ></FieldText>
+              />
             </div>
             <div className={styles.inputField}>
-              <Typography className={styles.labelText}>ID Perusahaan</Typography>
+              <Typography className={styles.labelText}>NPWP</Typography>
               <FieldText
-                label="ID Perusahaan"
-                value={uniqueIdValue}
-                onChange={handleUniqueIdChange}
-              ></FieldText>
-              <Typography 
-                className={styles.helperText}
-                style={{ 
-                  fontSize: '12px', 
-                  color: '#666', 
-                  marginTop: '4px',
-                  fontStyle: 'italic'
-                }}
-              >
-                ID Perusahaan bersifat unik dan akan digunakan untuk login karyawan. Tidak boleh mengandung spasi dan karakter @
-              </Typography>
+                label="NPWP"
+                value={npwpValue}
+                onChange={handleNpwpChange}
+              />
+            </div>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>NIK</Typography>
+              <FieldText
+                label="NIK"
+                value={nikValue}
+                onChange={handleNikChange}
+              />
+            </div>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>NITKU</Typography>
+              <FieldText
+                label="NITKU"
+                value={nitkuValue}
+                onChange={handleNitkuChange}
+              />
+            </div>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>Phone Number</Typography>
+              <FieldText
+                label="Phone Number"
+                value={teleponValue}
+                onChange={handleTeleponChange}
+              />
+            </div>
+            <div className={styles.inputField}>
+              <Typography className={styles.labelText}>Email</Typography>
+              <FieldText
+                label="Email"
+                value={emailValue}
+                onChange={handleEmailChange}
+                type="email"
+              />
             </div>
           </div>
           <div className={styles.buttonLabel}>

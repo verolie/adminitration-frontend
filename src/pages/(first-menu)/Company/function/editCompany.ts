@@ -9,7 +9,11 @@ const editCompanyBackend = async (data: CompanyModel, token: string) => {
   try {
     const requestData = {
       nama: data.nama,
-      unique_id: data.unique_id,
+      npwp: data.npwp,
+      nik: data.nik,
+      nitku: data.nitku,
+      telepon: data.telepon,
+      email: data.email
     };
 
     const response = await axios.put(

@@ -1,7 +1,11 @@
 export interface CompanyModel {
   id?: string;
   nama?: string;
-  unique_id?: string;
+  npwp?: string;
+  nik?: string;
+  nitku?: string;
+  telepon?: string;
+  email?: string;
   updatedTime?: string;
   updatedBy?: string;
 }
