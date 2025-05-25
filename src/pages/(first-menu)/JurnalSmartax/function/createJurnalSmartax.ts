@@ -15,6 +15,7 @@ export const createJurnalSmartax = async (data: JurnalSmartaxFormData, token: st
     formData.append('dpp', data.dpp ?? '');
     formData.append('is_smart_tax', 'true');
     formData.append('jurnal_detail', data.jurnal_detail);
+    formData.append('deskripsi', data.deskripsi || '');
     if (data.file) {
       formData.append('file', data.file);
     }

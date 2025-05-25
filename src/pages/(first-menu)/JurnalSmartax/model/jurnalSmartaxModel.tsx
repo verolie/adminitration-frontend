@@ -12,4 +12,5 @@ export interface JurnalSmartaxFormData {
   jurnal_detail: string; // JSON.stringify dari array detail
   file?: File;
   company_id: string;
+  deskripsi?: string;
 }

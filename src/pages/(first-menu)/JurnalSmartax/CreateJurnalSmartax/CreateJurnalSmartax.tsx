@@ -263,6 +263,7 @@ export default function CreateJurnalSmartax() {
           persentase_pajak: selectedPajak?.persentase?.toString() || 'null',
           dpp: dppValues[0] || 'null',
           is_smart_tax: true,
+          deskripsi: deskripsiValue,
           jurnal_detail: JSON.stringify(
             (viewMode === 'jurnal' ? getJurnalViewData() : rows).map((row, index) => ({
               akun_perkiraan_detail_id: row.akunPerkiraan,

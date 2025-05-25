@@ -18,46 +18,35 @@ interface JurnalSmartaxData {
   }[];
 }
 
-export const editJurnalSmartax = async (data: JurnalSmartaxData, token: string) => {
+export const editJurnalSmartax = async (data: any, token: string) => {
   try {
-    const requestData = {
-      id: data.id,
-      company_id: data.companyId,
-      tgl: data.tgl,
-      total_debit: data.totalDebit,
-      total_kredit: data.totalKredit,
-      deskripsi: data.deskripsi,
-      file: data.file,
-      jurnal_detail: data.jurnalDetail.map((detail) => ({
-        lawan_transaksi: detail.lawanTransaksi,
-        bukti: detail.bukti,
-        debit: detail.debit,
-        kredit: detail.kredit,
-        urut: detail.urut,
-        keterangan: detail.keterangan,
-      })),
-    };
-
-    const response = await axios.put(
-      `http://127.0.0.1:5000/jurnal/${data.id}`,
-      requestData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    const responseData = response.data;
-
-    if (responseData.success === false) {
-      throw new Error(responseData.message || "Edit jurnal smartax gagal");
+    const formData = new FormData();
+    formData.append('id', data.id);
+    formData.append('faktur', data.faktur);
+    formData.append('tgl', data.tgl);
+    formData.append('total_debit', data.total_debit);
+    formData.append('total_kredit', data.total_kredit);
+    formData.append('lawan_transaksi_id', data.lawan_transaksi_id);
+    formData.append('objek_pajak_id', data.objek_pajak_id);
+    formData.append('jumlah_pajak', data.jumlah_pajak ?? '');
+    formData.append('persentase_pajak', data.persentase_pajak ?? '');
+    formData.append('dpp', data.dpp ?? '');
+    formData.append('is_smart_tax', 'true');
+    formData.append('jurnal_detail', data.jurnal_detail);
+    if (data.file) {
+      formData.append('file', data.file);
     }
+    formData.append('company_id', data.company_id);
+    formData.append('deskripsi', data.deskripsi || '');
 
-    return responseData.message;
-  } catch (error: any) {
-    console.error("Error Response:", error.response?.data?.errors?.[0] || error.message);
-    throw new Error(error.response?.data?.errors?.[0] || "Edit jurnal smartax gagal");
+    const response = await axios.put(`http://127.0.0.1:5000/jurnal/${data.company_id}`, formData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
   }
 }; 
