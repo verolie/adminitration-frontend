@@ -51,7 +51,12 @@ function parseInputNumber(str: string): number {
   return parseFloat(str.replace(/\./g, '').replace(',', '.'));
 }
 
-export default function EditJurnalSmartax({ id }: { id: string }) {
+interface EditJurnalSmartaxProps {
+  id: string;
+  onClose: () => void;
+}
+
+export default function EditJurnalSmartax({ id, onClose }: EditJurnalSmartaxProps) {
   // State (identical to CreateJurnalSmartax)
   const [viewMode, setViewMode] = React.useState<'smart-tax' | 'jurnal'>('smart-tax');
   const [isConfirmLoading, setIsConfirmLoading] = React.useState(false);

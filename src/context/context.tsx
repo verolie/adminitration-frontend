@@ -27,6 +27,7 @@ interface AppContextProps {
   openAlert: boolean;
   tabs: { label: string; content: React.ReactNode }[];
   activeTabIndex: number;
+  editTabs: { label: string; id: string; type: 'umum' | 'smartax' }[];
   updateErrorMessage: (error: string) => void;
   updateCurrentMenu: (menu: string) => void;
   updateSettings: (settings: ISettings) => void;
@@ -45,6 +46,8 @@ interface AppContextProps {
   addTab: (label: string) => void;
   removeTab: (label: string) => void;
   handleTabChange: (index: number) => void;
+  addEditTab: (id: string, type: 'umum' | 'smartax') => void;
+  removeEditTab: (label: string) => void;
 }
 
 const AppContext = createContext<AppContextProps | undefined>(undefined);
@@ -74,6 +77,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
   const [tabs, setTabs] = React.useState<
     { label: string; content: React.ReactNode }[]
   >([{ label: menuList[0].label, content: menuList[0].path }]);
+  const [editTabs, setEditTabs] = React.useState<{ label: string; id: string; type: 'umum' | 'smartax' }[]>([]);
 
   const updateErrorMessage = (error: string) => {
     setError({ errorMessage: error });
@@ -190,6 +194,21 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     setTabs((prevTabs) => prevTabs.filter((tab) => tab.label !== label));
   };
 
+  const addEditTab = (id: string, type: 'umum' | 'smartax') => {
+    const label = `Edit Jurnal ${type === 'umum' ? 'Umum' : 'Smartax'}`;
+    setEditTabs(prev => {
+      const isExist = prev.find(tab => tab.label === label);
+      if (!isExist) {
+        return [...prev, { label, id, type }];
+      }
+      return prev;
+    });
+  };
+
+  const removeEditTab = (label: string) => {
+    setEditTabs(prev => prev.filter(tab => tab.label !== label));
+  };
+
   const contextValue: AppContextProps = {
     menu,
     settings,
@@ -203,6 +222,7 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     openAlert,
     tabs,
     activeTabIndex,
+    editTabs,
     handleTabChange,
     updateErrorMessage,
     updateCurrentMenu,
@@ -221,6 +241,8 @@ export const AppContextProvider: React.FC<AppContextProviderProps> = ({
     closeAlert,
     addTab,
     removeTab,
+    addEditTab,
+    removeEditTab,
   };
 
   return (

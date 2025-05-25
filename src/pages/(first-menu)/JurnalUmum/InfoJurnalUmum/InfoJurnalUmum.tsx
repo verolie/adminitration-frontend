@@ -10,6 +10,7 @@ interface Column<T> {
   label: string;
   align?: "left" | "right" | "center";
 }
+
 interface DataRow {
   id: string;
   faktur: string;
@@ -17,6 +18,9 @@ interface DataRow {
   akun_perkiraan: string;
   total_debit: number;
   total_kredit: number;
+  is_smart_tax: boolean;
+  deskripsi: string;
+  lawan_transaksi_nama?: string;
 }
 
 const columns: Column<DataRow>[] = [
@@ -24,12 +28,15 @@ const columns: Column<DataRow>[] = [
   { key: "tgl", label: "Tanggal" },
   { key: "total_debit", label: "Debit", align: "right" },
   { key: "total_kredit", label: "Kredit", align: "right" },
+  { key: "deskripsi", label: "Deskripsi" },
 ];
+
 interface InfoJurnalUmumProps {
   onEdit: (id: string) => void;
+  onSwitchToSmartax: (id: string) => void;
 }
 
-export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
+export default function InfoJurnalUmum({ onEdit, onSwitchToSmartax }: InfoJurnalUmumProps) {
   const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
   const [itemToDelete, setItemToDelete] = React.useState<DataRow | null>(null);
 
@@ -90,7 +97,7 @@ export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
         }
       }
     } catch (err) {
-      console.error("Failed to fetch jurnal umum:", err);
+      console.error("Failed to fetch jurnal:", err);
     } finally {
       setLoading(false);
       isFetching.current = false;
@@ -133,7 +140,13 @@ export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
 
   const handleEdit = (item: DataRow) => {
     if (item.id) {
-      onEdit(item.id);
+      if (item.is_smart_tax) {
+        // Switch to Jurnal Smartax tab
+        onSwitchToSmartax(item.id);
+      } else {
+        // Stay in Jurnal Umum tab and open edit form
+        onEdit(item.id);
+      }
     }
   };
 
@@ -154,7 +167,11 @@ export default function InfoJurnalUmum({ onEdit }: InfoJurnalUmumProps) {
             open={isConfirmOpen}
             onClose={() => setIsConfirmOpen(false)}
             onConfirm={confirmDelete}
-            message={`Apakah kamu yakin ingin menghapus faktur ${itemToDelete?.faktur}?`}
+            title="Hapus Jurnal"
+            description={`Apakah kamu yakin ingin menghapus faktur ${itemToDelete?.faktur}?`}
+            confirmLabel="Hapus"
+            cancelLabel="Batal"
+            confirmColor="red"
           />
         )}
       </div>
