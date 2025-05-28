@@ -3,11 +3,16 @@ import Cookies from "js-cookie";
 
 export const logoutProcess = () => {
     clearSession();
-        router.push("/login");
+    router.push("/login");
 }
 
 const clearSession = () => {
-      Cookies.remove("sessionId");
-      localStorage.removeItem("token");
-      localStorage.removeItem("companyID");
-    };
+    // Clear all cookies
+    Cookies.remove("sessionId");
+    
+    // Clear all localStorage data
+    localStorage.clear();
+    
+    // Clear sessionStorage if needed
+    sessionStorage.clear();
+};
