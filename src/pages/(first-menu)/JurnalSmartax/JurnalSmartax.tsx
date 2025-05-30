@@ -6,7 +6,7 @@ import EditJurnalSmartax from "./EditJurnalSmartax/EditJurnalSmartax";
 import { useAppContext } from "@/context/context";
 
 export default function JurnalSmartax() {
-  const { editTabs, addEditTab, removeEditTab } = useAppContext();
+  const { editTabs, addEditTab, removeEditTab, handleTabChange } = useAppContext();
   const [dynamicTabs, setDynamicTabs] = React.useState<
     { label: string; content: React.ReactNode; closable: boolean }[]
   >([]);
@@ -21,8 +21,26 @@ export default function JurnalSmartax() {
     })));
   }, [editTabs, removeEditTab]);
 
+  // Handler edit: tutup tab edit smartax lain, buka tab baru, fokus ke tab edit baru
   const handleAddEditTab = (id: string) => {
-    addEditTab(id, 'smartax');
+    // Tutup semua tab edit smartax yang id-nya beda
+    editTabs.filter(tab => tab.type === 'smartax' && tab.id !== id)
+      .forEach(tab => removeEditTab(tab.label));
+    // Tambahkan tab edit baru jika belum ada
+    if (!editTabs.find(tab => tab.type === 'smartax' && tab.id === id)) {
+      addEditTab(id, 'smartax');
+    }
+    // Fokus ke tab edit smartax yang baru
+    setTimeout(() => {
+      // Cari index tab edit smartax yang baru
+      const allTabs = [
+        { label: "Info" },
+        { label: "Create Jurnal Smartax" },
+        ...editTabs.filter(tab => tab.type === 'smartax').map(tab => ({ label: tab.label }))
+      ];
+      const idx = allTabs.findIndex(tab => tab.label === id);
+      if (idx !== -1) handleTabChange(idx);
+    }, 0);
   };
 
   const handleRemoveTab = (label: string) => {

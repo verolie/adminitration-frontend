@@ -11,6 +11,8 @@ import { createJurnalUmum } from "../function/createJurnalUmum";
 import { fetchAkunPerkiraanDetail } from "../function/fetchAkunPerkiraanDetail";
 import { JurnalUmum } from "../model/JurnalUmumModel";
 import { useAlert } from "@/context/AlertContext";
+import ModalConfirm from '@/component/confirmModalPopup/confirmModalPopup';
+import { useAppContext } from '@/context/context';
 
 type RowData = {
   no: string;
@@ -46,9 +48,9 @@ export default function DataBaru() {
       keterangan: "",
     },
   ]);
-  const [akunOptions, setAkunOptions] = React.useState<
-    { value: string; label: string }[]
-  >([]);
+  const [akunOptions, setAkunOptions] = React.useState<{ value: string; label: string; has_akun_objek_pajak?: boolean }[]>([]);
+  const [showSmartaxModal, setShowSmartaxModal] = React.useState(false);
+  const { addTab, handleTabChange } = useAppContext();
 
   const columns: Column<RowData>[] = React.useMemo(
     () => [
@@ -85,6 +87,7 @@ export default function DataBaru() {
         const akunList = data.map((akun: any) => ({
           value: akun.id.toString(),
           label: `${akun.kode_akun} - ${akun.nama_akun}`,
+          has_akun_objek_pajak: akun.has_akun_objek_pajak,
         }));
 
         setAkunOptions(akunList);
@@ -100,6 +103,13 @@ export default function DataBaru() {
     field: keyof RowData,
     value: string
   ) => {
+    if (field === 'rekening') {
+      const akun = akunOptions.find(a => a.value === value);
+      if (akun && akun.has_akun_objek_pajak) {
+        setShowSmartaxModal(true);
+        return;
+      }
+    }
     const updatedRows = [...rows];
     updatedRows[index][field] = value;
     setRows(updatedRows);
@@ -307,6 +317,21 @@ export default function DataBaru() {
           onClick={onSubmit("submit")}
         />
       </div>
+
+      <ModalConfirm
+        open={showSmartaxModal}
+        onClose={() => setShowSmartaxModal(false)}
+        onConfirm={() => {
+          addTab('Jurnal Smartax');
+          handleTabChange(1);
+          setShowSmartaxModal(false);
+        }}
+        title="Akun ini memiliki pajak"
+        description="Akun ini memiliki pajak, ingin beralih ke jurnal smartax?"
+        confirmLabel="OK"
+        cancelLabel="Batal"
+        confirmColor="blue"
+      />
     </div>
   );
 }

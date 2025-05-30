@@ -9,7 +9,7 @@ import {
   IconButton
 } from "@mui/material";
 import Button from "../button/button";
-import { Close, Warning } from "@mui/icons-material";
+import { Close, Warning, InfoOutlined } from "@mui/icons-material";
 
 interface ModalConfirmProps {
   open: boolean;
@@ -58,7 +58,7 @@ const ModalConfirm: React.FC<ModalConfirmProps> = ({
           {icon || (
             confirmColor === 'red'
               ? <Warning sx={{ color: 'white', fontSize: 28 }} />
-              : <span style={{ color: '#2196f3', fontSize: 28 }}>ℹ️</span>
+              : <InfoOutlined sx={{ color: 'white', fontSize: 28 }} />
           )}
         </Box>
         <DialogTitle sx={{ textAlign: 'center', fontWeight: 700, fontSize: 20, p: 0, mb: 1 }}>{title}</DialogTitle>
