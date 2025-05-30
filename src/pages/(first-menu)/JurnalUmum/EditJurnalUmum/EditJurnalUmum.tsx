@@ -13,6 +13,7 @@ import { JurnalUmum } from "../model/JurnalUmumModel";
 import { fetchJurnal } from "../function/fetchJurnalUmum";
 import { fetchJurnalDetail } from "../function/fetchJurnalDetail";
 import { editJurnalUmum } from "../function/editJurnalUmum";
+import { useAlert } from "@/context/AlertContext";
 
 type RowData = {
   no: string;
@@ -66,6 +67,7 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
   >([]);
   const [deskripsiValue, setDeskripsiValue] = React.useState(""); // State untuk Deskripsi
   const [fileUpload, setFileUpload] = React.useState<File | null>(null); // State untuk File Upload
+  const { showAlert } = useAlert();
 
   const columns: Column<RowData>[] = React.useMemo(
     () => [
@@ -204,7 +206,7 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
 
   const onSubmit = (status: "active" | "submit") => async () => {
     if (totalDebit !== totalKredit) {
-      alert("Total debit dan kredit harus seimbang.");
+      showAlert("Total debit dan kredit harus seimbang.", "error");
       return;
     }
 
@@ -238,10 +240,10 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
         };
 
         const result = await editJurnalUmum(data, token);
-        alert(`Jurnal berhasil disimpan: ${result}`);
+        showAlert(`Jurnal berhasil disimpan: ${result}`, "success");
       }
     } catch (error: any) {
-      alert(`Gagal menyimpan jurnal: ${error.message}`);
+      showAlert(`Gagal menyimpan jurnal: ${error.message}`, "error");
     }
   };
 

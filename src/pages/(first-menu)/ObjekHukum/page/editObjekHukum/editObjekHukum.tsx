@@ -14,6 +14,7 @@ import { editAkunObjekPajak } from "../../function/fetchObjekPajakDataEdit";
 import { fetchObjekPajakDataMember } from "../../function/fetchObjekPajakDataMember";
 import { fetchAkunPerkiraanDetail } from "../../function/fetchAkunPerkiraanDetail";
 import FieldText from "@/component/textField/fieldText";
+import { useAlert } from "@/context/AlertContext";
 
 type FilterOperator = "equals" | "contains" | "startsWith" | "endsWith";
 
@@ -47,6 +48,8 @@ const EditObjekHukum = () => {
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const companyId =
     typeof window !== "undefined" ? localStorage.getItem("companyID") : null;
+
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     fetchObjekPajakDetailData();
@@ -218,19 +221,19 @@ const EditObjekHukum = () => {
     }
     
     if (!selectedAkunPerkiraan) {
-      alert("Silakan pilih Akun Perkiraan terlebih dahulu.");
+      showAlert("Silakan pilih Akun Perkiraan terlebih dahulu.", "error");
       return;
     }
 
     // Validasi minimal 1 objek pajak untuk badan usaha
     if (badanUsahaList.length === 0) {
-      alert("Badan Usaha harus memiliki minimal 1 objek pajak.");
+      showAlert("Badan Usaha harus memiliki minimal 1 objek pajak.", "error");
       return;
     }
 
     // Validasi minimal 1 objek pajak untuk non badan usaha
     if (nonBadanUsahaList.length === 0) {
-      alert("Non Badan Usaha harus memiliki minimal 1 objek pajak.");
+      showAlert("Non Badan Usaha harus memiliki minimal 1 objek pajak.", "error");
       return;
     }
 
@@ -262,13 +265,13 @@ const EditObjekHukum = () => {
     try {
       const result = await editAkunObjekPajak(companyId, payload, token);
       console.log("Berhasil update:", result);
-      alert("Berhasil update data akun objek pajak.");
+      showAlert("Berhasil update data akun objek pajak.", "success");
       // Refresh data setelah update
       fetchObjekPajakDetailData();
       fetchAkunPerkiraanList();
     } catch (err: any) {
       console.error("Gagal update:", err.message);
-      alert("Terjadi kesalahan saat mengedit data.");
+      showAlert("Terjadi kesalahan saat mengedit data.", "error");
     }
   };
 

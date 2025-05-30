@@ -4,7 +4,6 @@ import styles from "./styles.module.css";
 import Table from "@/component/table/table";
 import Button from "@/component/button/button";
 import PopupModal from "@/component/popupModal/popUpModal";
-import { PopUpUserContent } from "./popUpUser/popUpUserContent";
 import { fetchCompanyMember } from "../function/fetchCompanyMember";
 
 interface Column<T> {
@@ -74,16 +73,6 @@ export default function InfoUser() {
           onEdit={handleEdit}
         />
       </div>
-
-      <PopupModal
-        open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        data={selectedData}
-        mode={modalMode}
-        renderContent={(data) =>
-          data ? <PopUpUserContent data={data} mode={modalMode} /> : null
-        }
-      />
     </>
   );
 }

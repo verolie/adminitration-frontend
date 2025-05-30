@@ -10,6 +10,7 @@ import TableInsertManual from "@/component/tableInsertManual/tableInserManual";
 import { createJurnalUmum } from "../function/createJurnalUmum";
 import { fetchAkunPerkiraanDetail } from "../function/fetchAkunPerkiraanDetail";
 import { JurnalUmum } from "../model/JurnalUmumModel";
+import { useAlert } from "@/context/AlertContext";
 
 type RowData = {
   no: string;
@@ -64,6 +65,8 @@ export default function DataBaru() {
     ],
     [akunOptions]
   );
+
+  const { showAlert } = useAlert();
 
   React.useEffect(() => {
     const fetchAkun = async () => {
@@ -147,7 +150,7 @@ export default function DataBaru() {
 
   const onSubmit = (status: "active" | "submit") => async () => {
     if (totalDebit !== totalKredit) {
-      alert("Total debit dan kredit harus seimbang.");
+      showAlert("Total debit dan kredit harus seimbang.", "error");
       return;
     }
 
@@ -181,10 +184,10 @@ export default function DataBaru() {
         };
 
         const result = await createJurnalUmum(data, token);
-        alert(`Jurnal berhasil disimpan: ${result}`);
+        showAlert(`Jurnal berhasil disimpan: ${result}`, "success");
       }
     } catch (error: any) {
-      alert(`Gagal menyimpan jurnal: ${error.message}`);
+      showAlert(`Gagal menyimpan jurnal: ${error.message}`, "error");
     }
   };
 
@@ -194,7 +197,7 @@ export default function DataBaru() {
       // Validate file type
       const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
       if (!validTypes.includes(file.type)) {
-        alert('File harus berupa PDF, JPEG, PNG, atau Word');
+        showAlert('File harus berupa PDF, JPEG, PNG, atau Word', "error");
         event.target.value = '';
         return;
       }

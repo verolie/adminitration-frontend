@@ -220,7 +220,7 @@ export default function CreateJurnalSmartax() {
 
   const onSubmit = async () => {
     if (totalDebit !== totalKredit) {
-      alert("Total debit dan kredit harus seimbang.");
+      showAlert("Total debit dan kredit harus seimbang.", "error");
       return;
     }
 
@@ -256,10 +256,10 @@ export default function CreateJurnalSmartax() {
         };
 
         const result = await createJurnalSmartax(data, token);
-        alert(`Jurnal Smartax berhasil disimpan: ${result}`);
+        showAlert(`Jurnal Smartax berhasil disimpan: ${result}`, "success");
       }
     } catch (error: any) {
-      alert(`Gagal menyimpan jurnal: ${error.message}`);
+      showAlert(`Gagal menyimpan jurnal: ${error.message}`, "error");
     }
   };
 
