@@ -9,6 +9,7 @@ import FieldText from "../../../../component/textField/fieldText";
 import { useAppContext } from "@/context/context";
 import { useAlert } from "../../../../context/AlertContext";
 import { CircularProgress } from "@mui/material";
+import { formatRupiah, parseInputNumber, formatRupiahInput } from "@/utils/formatNumber";
 
 interface LawanTransaksi {
   id: number;
@@ -19,6 +20,15 @@ interface LawanTransaksi {
   alamat: string;
   is_badan_usaha: boolean;
 }
+
+type RowData = {
+  no: string;
+  akunPerkiraan: string;
+  bukti: string;
+  Jumlah: string;
+  kredit: string;
+  keterangan: string;
+};
 
 interface AkunPerkiraan {
   id: string;
@@ -50,7 +60,7 @@ interface TableInsertSmartTaxProps {
   lawanTransaksiList: LawanTransaksi[];
   selectedLawanTransaksi: string;
   onLawanTransaksiChange: (value: string) => void;
-  onChange: (index: number, field: string, value: string) => void;
+  onChange: (index: number, field: keyof RowData, value: string) => void;
   addRow: () => void;
   deleteRow: (index: number) => void;
   onPajakChange: (pajak: { pajakId: string; nama: string; persentase: number; } | null) => void;
@@ -66,24 +76,6 @@ interface TableInsertSmartTaxProps {
   totalSetelahPajak: number;
   totalJumlah: number;
   onTotalChange: (totalPajak: number, totalSetelahPajak: number, totalJumlah: number) => void;
-}
-
-function formatRupiah(value: number | string) {
-  const number = typeof value === "string" ? parseFloat(value) : value;
-  if (isNaN(number)) return "Rp 0";
-  return "Rp " + number.toLocaleString("id-ID");
-}
-
-function formatNumber(value: string) {
-  // Remove all non-digit characters
-  const number = value.replace(/\D/g, "");
-  // Format with thousand separators
-  return number.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
-
-function parseNumber(value: string): number {
-  // Remove all non-digit characters and convert to integer
-  return parseInt(value.replace(/\D/g, "")) || 0;
 }
 
 const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
@@ -116,7 +108,7 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
 
   // Add calculation utility function
   const calculatePajakValues = (dppValue: string, persentaseValue: string) => {
-    const dppNum = parseNumber(dppValue);
+    const dppNum = parseInputNumber(dppValue);
     const persenNum = parseFloat(persentaseValue);
     const pajakValueRaw = (dppNum - (dppNum / (1 + (persenNum / 100))));
     const totalSetelahPajakRaw = dppNum - pajakValueRaw;
@@ -129,7 +121,7 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
 
   // Unified DPP change handler
   const handleDppChange = (rowIndex: number, value: string) => {
-    const formattedValue = formatNumber(value);
+    const formattedValue = formatRupiah(value);
     
     // Update parent DPP state
     onDppChange(rowIndex, formattedValue);
@@ -150,7 +142,7 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
 
   // Calculate totals using the utility function
   React.useEffect(() => {
-    const jumlahValue = parseInt((rows[0]?.Jumlah || '0').replace(/\D/g, "")) || 0;
+    const jumlahValue = parseInputNumber(rows[0]?.Jumlah || '0');
     let finalTotalPajak = 0;
 
     const rowPajak = pajakRows[0]?.[0];
@@ -351,7 +343,8 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
                       <TextField
                         label="Jumlah "
                         value={rows[0].Jumlah}
-                        onChange={(e) => onChange(0, "Jumlah", formatNumber(e.target.value))}
+                        onChange={(e) => onChange(0, "Jumlah", formatRupiahInput(e.target.value))}
+                        onBlur={(e) => onChange(0, "Jumlah", formatRupiah(e.target.value))}
                         size="small"
                         fullWidth
                         required
@@ -438,7 +431,8 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
                                 <TextField
                                   label="DPP"
                                   value={currentDppValue}
-                                  onChange={(e) => handleDppChange(0, e.target.value)} // Always use first index
+                                  onChange={(e) => onDppChange(0, formatRupiahInput(e.target.value))}
+                                  onBlur={(e) => onDppChange(0, formatRupiah(e.target.value))}
                                   size="small"
                                   sx={{ width: 120 }}
                                 />

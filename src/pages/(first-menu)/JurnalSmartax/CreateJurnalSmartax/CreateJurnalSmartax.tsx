@@ -15,6 +15,7 @@ import { AkunPerkiraan } from "../../AkunPerkiraan/model/AkunPerkiraanModel";
 import { useAlert } from "../../../../context/AlertContext";
 import { fetchAkunHutangPajak } from "../function/fetchAkunHutangPajak";
 import { fetchLawanTransaksiById } from "../function/fetchLawanTransaksiById ";
+import { formatRupiah, parseInputNumber } from "@/utils/formatNumber";
 
 type RowData = {
   no: string;
@@ -58,11 +59,6 @@ type FilterValue = {
 
 type FilterInput = Record<string, FilterValue>;
 
-function parseInputNumber(str: string): number {
-  if (!str) return 0;
-  return parseFloat(str.replace(/\./g, '').replace(',', '.'));
-}
-
 export default function CreateJurnalSmartax() {
   const [viewMode, setViewMode] = React.useState<'smart-tax' | 'jurnal'>('smart-tax');
   const [isConfirmLoading, setIsConfirmLoading] = React.useState(false);
@@ -92,35 +88,16 @@ export default function CreateJurnalSmartax() {
 
   const { showAlert } = useAlert();
 
-  const handleRowChange = (index: number, field: string, value: string) => {
-    const updatedRows = [...rows];
-    updatedRows[index][field as keyof RowData] = value;
-    setRows(updatedRows);
+  const handleRowChange = (index: number, field: keyof RowData, value: string) => {
+    const newRows = [...rows];
+    newRows[index] = { ...newRows[index], [field]: value };
+    setRows(newRows);
 
-    // When Jumlah changes, update DPP and trigger recalculation
-    if (field === "Jumlah") {
-      setDppValues(prev => ({
-        ...prev,
-        [index]: value
-      }));
-
-      // Update pajakRows if exists
-      if (pajakRows[index]?.[0]) {
-        const updatedPajakRows = {
-          ...pajakRows,
-          [index]: [{
-            ...pajakRows[index][0],
-            dpp: value
-          }]
-        };
-        setPajakRows(updatedPajakRows);
-      }
-    }
-
-    // Update the shared state when lawan transaksi changes in the table
-    if (field === "akunPerkiraan" && index === 0) {
-      setSelectedLawanTransaksi(value);
-    }
+    // Recalculate totals
+    const totalDebit = newRows.reduce((sum, row) => sum + parseInputNumber(row.Jumlah), 0);
+    const totalKredit = newRows.reduce((sum, row) => sum + parseInputNumber(row.kredit), 0);
+    setTotalDebit(totalDebit);
+    setTotalKredit(totalKredit);
   };
 
   const handlePajakChange = (pajak: PajakData | null) => {
@@ -261,7 +238,7 @@ export default function CreateJurnalSmartax() {
           objek_pajak_id: selectedPajak?.pajakId || '',
           jumlah_pajak: totalPajak ? totalPajak.toString() : 'null',
           persentase_pajak: selectedPajak?.persentase?.toString() || 'null',
-          dpp: dppValues[0] || 'null',
+          dpp: dppValues[0] ? parseInputNumber(dppValues[0]).toString() : 'null',
           is_smart_tax: true,
           deskripsi: deskripsiValue,
           jurnal_detail: JSON.stringify(
@@ -401,14 +378,6 @@ export default function CreateJurnalSmartax() {
   const dummyAddRow = () => {};
   const dummyDeleteRow = () => {};
 
-  // Update formatRupiah to always show two decimals and correct separators
-  const formatRupiah = (value: number | string) => {
-    const number = typeof value === "string"
-      ? parseFloat(value.replace(/\./g, '').replace(',', '.'))
-      : value;
-    if (isNaN(number)) return "0";
-    return number.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  };
 
   const getJurnalViewData = () => {
     const firstRow = rows[0];

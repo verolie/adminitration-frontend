@@ -20,6 +20,7 @@
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.483.0",
     "next": "15.1.7",
+    "number-separator": "^2.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },

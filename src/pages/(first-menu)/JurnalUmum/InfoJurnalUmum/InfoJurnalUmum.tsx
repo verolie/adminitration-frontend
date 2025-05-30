@@ -145,7 +145,7 @@ export default function InfoJurnalUmum({ onEdit, onSwitchToSmartax }: InfoJurnal
         onSwitchToSmartax(item.id);
       } else {
         // Stay in Jurnal Umum tab and open edit form
-        onEdit(item.id);
+      onEdit(item.id);
       }
     }
   };
