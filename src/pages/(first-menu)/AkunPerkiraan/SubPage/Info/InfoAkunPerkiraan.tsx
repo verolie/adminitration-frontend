@@ -7,6 +7,7 @@ import Table from "@/component/table/table";
 import Button from "@/component/button/button";
 import { fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraan";
 import { deleteAkunPerkiraan } from "../../function/deleteAkunPerkiraan";
+import { useAlert } from "@/context/AlertContext";
 
 const accountType = [
   { id: 1, name: "Asset" },
@@ -63,6 +64,7 @@ interface InfoAkunPerkiraanProps {
 }
 
 export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
+  const { showAlert } = useAlert();
   const [selectedAcctType, setSelectedAcctType] = React.useState<number | "">(
     ""
   );
@@ -93,9 +95,9 @@ export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
         kode_akun: level,
       };
 
-      const message = await deleteAkunPerkiraan(data, token);
+      const message = await deleteAkunPerkiraan(data, token, showAlert);
 
-      console.log(message);
+      if(!message) return;
 
       setTableData((prevData) =>
         prevData.filter((row) => row.kodePerkiraan !== item.kodePerkiraan)

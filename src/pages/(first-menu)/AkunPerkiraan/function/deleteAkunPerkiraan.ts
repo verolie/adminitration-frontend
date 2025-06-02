@@ -1,11 +1,19 @@
 import axios from "axios";
 import { AkunPerkiraan } from "../model/AkunPerkiraanModel";
 
-export const deleteAkunPerkiraan = async (data: AkunPerkiraan, token: string) => {
-  return await deleteAkunPerkiraanBackend(data, token);
+export const deleteAkunPerkiraan = async (
+  data: AkunPerkiraan, 
+  token: string,
+  showAlert: (message: string, type: "success" | "error" | "info") => void
+) => {
+  return await deleteAkunPerkiraanBackend(data, token, showAlert);
 };
 
-const deleteAkunPerkiraanBackend = async (data: AkunPerkiraan, token: string) => {
+const deleteAkunPerkiraanBackend = async (
+  data: AkunPerkiraan, 
+  token: string,
+  showAlert: (message: string, type: "success" | "error" | "info") => void
+) => {
   try {
     const requestData = {
       id: data.id,
@@ -27,12 +35,14 @@ const deleteAkunPerkiraanBackend = async (data: AkunPerkiraan, token: string) =>
     console.log(responseData.data);
 
     if (responseData.success === false) {
-      throw new Error(responseData);
+      showAlert(responseData.message, "error");
+      return false;
     }
 
     return responseData.message;
   } catch (error: any) {
-    console.error("Error Response:", error.response?.data?.errors[0]);
-    throw new Error(error.response?.data?.errors[0] || "Company failed");
+    const errorMessage = error.response?.data?.errors?.[0] || "Company failed";
+    showAlert(errorMessage, "error");
+    throw new Error(errorMessage);
   }
 };
