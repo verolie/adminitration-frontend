@@ -7,7 +7,6 @@ import Table from "@/component/table/table";
 import Button from "@/component/button/button";
 import { fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraan";
 import { deleteAkunPerkiraan } from "../../function/deleteAkunPerkiraan";
-import { classifyKodePerkiraan } from "../../function/classifyKodePerkiraan";
 
 const accountType = [
   { id: 1, name: "Asset" },
@@ -60,7 +59,7 @@ function formatKodePerkiraan(kode: string, allData: DataRow[], jenisAkun: string
 }
 
 interface InfoAkunPerkiraanProps {
-  onEdit: (id: string, kode_akun: string) => void;
+  onEdit: (id: string, jenis_akun: string) => void;
 }
 
 export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
@@ -85,8 +84,8 @@ export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
       return;
     }
 
-    const level = classifyKodePerkiraan(item.kodePerkiraan);
-
+    const level = item.jenisAkun;
+  
     try {
       const data = {
         id: item.id,
@@ -109,7 +108,7 @@ export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
   const handleEdit = (item: DataRow) => {
     console.log(item);
     if (item.id) {
-      onEdit(item.id, item.kodePerkiraan);
+      onEdit(item.id, item.jenisAkun);
     }
   };
 

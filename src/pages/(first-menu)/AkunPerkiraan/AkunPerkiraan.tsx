@@ -3,14 +3,13 @@ import * as React from "react";
 import InfoAkunPerkiraan from "./SubPage/Info/InfoAkunPerkiraan";
 import CreateAkunPerkiraan from "./SubPage/DataBaruAkunPerkiraan/DataBaruAkunPerkiraan";
 import EditAkunPerkiraan from "./SubPage/editAkunPerkiraan/EditAkunPerkiraan";
-import { classifyKodePerkiraan } from "./function/classifyKodePerkiraan";
 
 export default function AkunPerkiraan() {
   const [dynamicTabs, setDynamicTabs] = React.useState<
     { label: string; content: React.ReactNode; closable: boolean }[]
   >([]);
 
-  const handleAddEditTab = (id: string, kodePerkiraan: string) => {
+  const handleAddEditTab = (id: string, jenis_akun: string) => {
     const label = `Edit Info Akun`;
     const isExist = dynamicTabs.find((tab) => tab.label === label);
 
@@ -22,7 +21,7 @@ export default function AkunPerkiraan() {
           content: (
             <EditAkunPerkiraan
               id={id}
-              level={classifyKodePerkiraan(kodePerkiraan)}
+              level={jenis_akun}
               onClose={() => handleRemoveTab(label)}
             />
           ),
