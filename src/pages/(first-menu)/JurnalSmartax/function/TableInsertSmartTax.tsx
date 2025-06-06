@@ -110,7 +110,7 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
   const calculatePajakValues = (dppValue: string, persentaseValue: string) => {
     const dppNum = parseInputNumber(dppValue);
     const persenNum = parseFloat(persentaseValue);
-    const pajakValueRaw = (dppNum - (dppNum / (1 + (persenNum / 100))));
+    const pajakValueRaw = dppNum * (persenNum / 100);
     const totalSetelahPajakRaw = dppNum - pajakValueRaw;
 
     const pajakValue = Math.round(pajakValueRaw * 100) / 100;
@@ -118,6 +118,13 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
 
     return { pajakValue, totalSetelahPajak };
   };
+
+  // Initialize DPP with Jumlah value
+  React.useEffect(() => {
+    if (rows[0]?.Jumlah) {
+      onDppChange(0, formatRupiah(rows[0].Jumlah));
+    }
+  }, [rows[0]?.Jumlah]);
 
   // Unified DPP change handler
   const handleDppChange = (rowIndex: number, value: string) => {
@@ -144,11 +151,11 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
   React.useEffect(() => {
     const jumlahValue = parseInputNumber(rows[0]?.Jumlah || '0');
     let finalTotalPajak = 0;
-
     const rowPajak = pajakRows[0]?.[0];
+
     if (rowPajak) {
       const calculated = calculatePajakValues(
-        rowPajak.dpp || rows[0]?.Jumlah || '0',
+        rowPajak.dpp || dppValues[0] || rows[0]?.Jumlah || '0',
         rowPajak.persentase
       );
       finalTotalPajak = calculated.pajakValue;
@@ -156,7 +163,38 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
 
     const finalTotalSetelahPajak = jumlahValue - finalTotalPajak;
     onTotalChange(finalTotalPajak, finalTotalSetelahPajak, jumlahValue);
-  }, [rows, pajakRows, onTotalChange]);
+  }, [rows, pajakRows, dppValues, onTotalChange]);
+
+  // Auto-select tax when available
+  React.useEffect(() => {
+    if (selectedLawanTransaksi && selectedAkunPerkiraan[0]) {
+      const lawan = lawanTransaksiList.find(l => String(l.id) === String(selectedLawanTransaksi));
+      const isBadanUsaha = lawan?.is_badan_usaha;
+      const akun = akunPerkiraanOptions[0]?.find(a => a.id === selectedAkunPerkiraan[0]);
+      const pajakList = akun?.pajak?.filter(p => p.is_badan_usaha === isBadanUsaha) || [];
+      const currentDppValue = formatRupiah(rows[0]?.Jumlah || '0');
+      const rowPajak = pajakRows[0]?.[0];
+
+      if (pajakList.length > 0 && !rowPajak) {
+        const selectedPajakItem = pajakList[0];
+        onPajakChange({
+          pajakId: selectedPajakItem.id,
+          nama: selectedPajakItem.nama,
+          persentase: selectedPajakItem.persentase
+        });
+
+        const updatedPajakRows = {
+          0: [{
+            pajakId: selectedPajakItem.id,
+            dpp: currentDppValue,
+            persentase: String(selectedPajakItem.persentase)
+          }]
+        };
+        setLocalPajakRows(updatedPajakRows);
+        onPajakRowsChange(updatedPajakRows);
+      }
+    }
+  }, [selectedLawanTransaksi, selectedAkunPerkiraan, akunPerkiraanOptions, lawanTransaksiList, pajakRows, rows]);
 
   function mapAkunPerkiraan(api: any[]): AkunPerkiraan[] {
     console.log("akunPerkiraanOptions", JSON.stringify(api));
@@ -363,6 +401,20 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
                         size="small"
                         fullWidth
                       />
+                      <TextField
+                        label="DPP"
+                        value={dppValues[0] || rows[0].Jumlah || '0'}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          onDppChange(0, value);
+                        }}
+                        onBlur={(e) => {
+                          const value = e.target.value;
+                          onDppChange(0, formatRupiah(value));
+                        }}
+                        size="small"
+                        fullWidth
+                      />
                     </div>
 
                     {/* Pajak Section */}
@@ -375,79 +427,31 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
                       // Show pajak section if akun perkiraan has pajak options
                       if (!akun || pajakList.length === 0) return null;
 
-                      const currentDppValue = dppValues[0] || rows[0].Jumlah || '0';
                       const rowPajak = pajakRows[0]?.[0]; // Always use first index
 
                       return (
                         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                           {/* Pajak Details */}
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <FormControl size="small" sx={{ minWidth: 200 }}>
-                              <InputLabel>Pajak</InputLabel>
-                              <Select
-                                value={rowPajak?.pajakId || ""}
-                                label="Pajak"
-                                onChange={(e) => {
-                                  if (e.target.value) {
-                                    const selectedPajakItem = pajakList.find(p => p.id === e.target.value);
-                                    if (selectedPajakItem) {
-                                      // Update parent's selectedPajak
-                                      onPajakChange({
-                                        pajakId: selectedPajakItem.id,
-                                        nama: selectedPajakItem.nama,
-                                        persentase: selectedPajakItem.persentase
-                                      });
-
-                                      // Update pajakRows
-                                      const updatedPajakRows = {
-                                        0: [{  // Always use first index
-                                          pajakId: selectedPajakItem.id,
-                                          dpp: currentDppValue,
-                                          persentase: String(selectedPajakItem.persentase)
-                                        }]
-                                      };
-                                      setLocalPajakRows(updatedPajakRows);
-                                      onPajakRowsChange(updatedPajakRows);
-                                    }
-                                  } else {
-                                    onPajakChange(null);
-                                    const updatedPajakRows = { 0: [] };
-                                    setLocalPajakRows(updatedPajakRows);
-                                    onPajakRowsChange(updatedPajakRows);
-                                  }
-                                }}
-                              >
-                                <MenuItem value="">Pilih Pajak</MenuItem>
-                                {pajakList.map((p) => (
-                                  <MenuItem key={p.id} value={p.id}>
-                                    {p.nama} ({p.persentase}%)
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </FormControl>
+                            <TextField
+                              label="Pajak"
+                              value={`${pajakList[0]?.nama} (${pajakList[0]?.persentase}%)`}
+                              size="small"
+                              sx={{ minWidth: 200 }}
+                              InputProps={{
+                                readOnly: true
+                              }}
+                            />
 
                             {rowPajak && (
-                              <>
-                                <TextField
-                                  label="DPP"
-                                  value={currentDppValue}
-                                  onChange={(e) => onDppChange(0, formatRupiahInput(e.target.value))}
-                                  onBlur={(e) => onDppChange(0, formatRupiah(e.target.value))}
-                                  size="small"
-                                  sx={{ width: 120 }}
-                                />
-                                <TextField
-                                  label="Persentase"
-                                  value={rowPajak.persentase || "0"}
-                                  size="small"
-                                  sx={{ width: 120 }}
-                                  InputProps={{ endAdornment: <span>%</span> }}
-                                  disabled={true}
-                                />
-                                <IconButton onClick={() => handleDeletePajak(0, 0)}> {/* Always use first index */}
-                                  <Delete />
-                                </IconButton>
-                              </>
+                              <TextField
+                                label="Persentase"
+                                value={rowPajak.persentase || "0"}
+                                size="small"
+                                sx={{ width: 120 }}
+                                InputProps={{ endAdornment: <span>%</span> }}
+                                disabled={true}
+                              />
                             )}
                           </div>
 
@@ -462,7 +466,7 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
                               gap: 8
                             }}>
                               {(() => {
-                                const { pajakValue, totalSetelahPajak } = calculatePajakValues(currentDppValue, rowPajak.persentase);
+                                const { pajakValue, totalSetelahPajak } = calculatePajakValues(dppValues[0] || rows[0].Jumlah || '0', rowPajak.persentase);
                                 return (
                                   <>
                                     <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
@@ -476,9 +480,9 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
                                         />
                                       </div>
                                       <div style={{ flex: 1 }}>
-                                        <div style={{ fontSize: "12px", color: "#666", marginBottom: 4 }}>Sisa DPP setelah pajak</div>
+                                        <div style={{ fontSize: "12px", color: "#666", marginBottom: 4 }}>Non objek pajak</div>
                                         <FieldText
-                                          label="Sisa DPP setelah pajak"
+                                          label="Non objek pajak"
                                           value={formatRupiah(totalSetelahPajak)}
                                           disabled
                                           sx={{ width: "100%" }}
