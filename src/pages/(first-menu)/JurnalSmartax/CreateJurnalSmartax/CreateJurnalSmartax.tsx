@@ -387,14 +387,14 @@ export default function CreateJurnalSmartax() {
         akunPerkiraan: selectedAkunPerkiraan[0] || "",
         kredit: "0"
       },
-      {
+      ...(parseInputNumber(dppValues[0] || '0') > 0 ? [{
         no: "",
         akunPerkiraan: akunHutangPajak?.toString() || "",
         bukti: "",
         Jumlah: "0",
         kredit: formatRupiah(totalPajak).replace("Rp ", ""),
         keterangan: ""
-      },
+      }] : []),
       {
         no: "",
         akunPerkiraan: akunLawanBeban?.toString() || "",
