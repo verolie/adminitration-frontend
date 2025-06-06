@@ -48,6 +48,20 @@ interface PajakRowData {
   persentase: string;
 }
 
+interface TransactionData {
+  akunPerkiraan: string;
+  dpp: string;
+  pajak: {
+    pajakId: string;
+    nama: string;
+    persentase: number;
+    nilai: number;
+  } | null;
+  jumlah: string;
+  bukti: string;
+  keterangan: string;
+}
+
 interface TableInsertSmartTaxProps {
   rows: {
     no: string;
@@ -76,6 +90,8 @@ interface TableInsertSmartTaxProps {
   totalSetelahPajak: number;
   totalJumlah: number;
   onTotalChange: (totalPajak: number, totalSetelahPajak: number, totalJumlah: number) => void;
+  transactions: TransactionData[];
+  onTransactionsChange: (transactions: TransactionData[]) => void;
 }
 
 const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
@@ -99,71 +115,147 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
   totalSetelahPajak,
   totalJumlah,
   onTotalChange,
+  transactions,
+  onTransactionsChange,
 }) => {
   const { showAlert } = useAlert();
   const { addTab } = useAppContext();
   const [akunPerkiraanOptions, setAkunPerkiraanOptions] = React.useState<{ [row: number]: AkunPerkiraan[] }>({});
   const [loadingAkun, setLoadingAkun] = React.useState<{ [row: number]: boolean }>({});
-  const [localPajakRows, setLocalPajakRows] = useState<{ [key: number]: PajakRowData[] }>(pajakRows);
 
-  // Add calculation utility function
-  const calculatePajakValues = (dppValue: string, persentaseValue: string) => {
-    const dppNum = parseInputNumber(dppValue);
-    const persenNum = parseFloat(persentaseValue);
-    const pajakValueRaw = dppNum * (persenNum / 100);
-    const totalSetelahPajakRaw = dppNum - pajakValueRaw;
-
-    const pajakValue = Math.round(pajakValueRaw * 100) / 100;
-    const totalSetelahPajak = Math.round(totalSetelahPajakRaw * 100) / 100;
-
-    return { pajakValue, totalSetelahPajak };
+  // Calculate tax values for a transaction
+  const calculateTaxValues = (dpp: string, persentase: number) => {
+    const dppValue = parseInputNumber(dpp);
+    const pajakValue = dppValue * (persentase / 100);
+    const sisaDpp = dppValue - pajakValue;
+    return {
+      pajakValue,
+      sisaDpp
+    };
   };
 
-  // Initialize DPP with Jumlah value
-  React.useEffect(() => {
-    if (rows[0]?.Jumlah) {
-      onDppChange(0, formatRupiah(rows[0].Jumlah));
-    }
-  }, [rows[0]?.Jumlah]);
-
-  // Unified DPP change handler
-  const handleDppChange = (rowIndex: number, value: string) => {
-    const formattedValue = formatRupiah(value);
+  // Handle transaction changes
+  const handleTransactionChange = (index: number, field: keyof TransactionData, value: string) => {
+    const newTransactions = [...transactions];
+    const transaction = newTransactions[index];
     
-    // Update parent DPP state
-    onDppChange(rowIndex, formattedValue);
-
-    // Update pajakRows with new DPP value
-    if (pajakRows[rowIndex]?.[0]) {
-      const newPajakRows = {
-        ...pajakRows,
-        [rowIndex]: [{
-          ...pajakRows[rowIndex][0],
-          dpp: formattedValue
-        }]
-      };
-      setLocalPajakRows(newPajakRows);
-      onPajakRowsChange(newPajakRows);
+    // Update the field
+    if (field === 'pajak') {
+      // Handle pajak separately since it's an object
+      return;
     }
+    transaction[field] = value;
+
+    // If jumlah is changed, update DPP and recalculate tax
+    if (field === 'jumlah') {
+      transaction.dpp = formatRupiah(value);
+      if (transaction.pajak) {
+        const { pajakValue } = calculateTaxValues(value, transaction.pajak.persentase);
+        transaction.pajak.nilai = pajakValue;
+      }
+    }
+
+    // If DPP is changed, recalculate tax values
+    if (field === 'dpp' && transaction.pajak) {
+      const { pajakValue } = calculateTaxValues(value, transaction.pajak.persentase);
+      console.log("NILAI PAJAK = " + pajakValue)
+      transaction.pajak.nilai = pajakValue;
+    }
+
+    onTransactionsChange(newTransactions);
   };
 
-  // Calculate totals using the utility function
-  React.useEffect(() => {
-    const jumlahValue = parseInputNumber(rows[0]?.Jumlah || '0');
-    let finalTotalPajak = 0;
-    const rowPajak = pajakRows[0]?.[0];
-
-    if (rowPajak) {
-      const calculated = calculatePajakValues(
-        rowPajak.dpp || dppValues[0] || rows[0]?.Jumlah || '0',
-        rowPajak.persentase
-      );
-      finalTotalPajak = calculated.pajakValue;
+  // Handle tax selection for a transaction
+  const handleTransactionPajakChange = (index: number, pajak: PajakTerkait | null) => {
+    const newTransactions = [...transactions];
+    const transaction = newTransactions[index];
+    
+    if (pajak) {
+      const { pajakValue } = calculateTaxValues(transaction.dpp, pajak.persentase);
+      transaction.pajak = {
+        pajakId: pajak.id,
+        nama: pajak.nama,
+        persentase: pajak.persentase,
+        nilai: pajakValue
+      };
+    } else {
+      transaction.pajak = null;
     }
 
-    const finalTotalSetelahPajak = jumlahValue - finalTotalPajak;
-    onTotalChange(finalTotalPajak, finalTotalSetelahPajak, jumlahValue);
-  }, [rows, pajakRows, dppValues, onTotalChange]);
+    onTransactionsChange(newTransactions);
+  };
+
+  // Handle adding a new transaction
+  const handleAddTransaction = () => {
+    const newTransaction: TransactionData = {
+      akunPerkiraan: '',
+      dpp: '0',
+      pajak: null,
+      jumlah: '0',
+      bukti: '',
+      keterangan: ''
+    };
+    onTransactionsChange([...transactions, newTransaction]);
+
+    // Fetch akun perkiraan options for the new row
+    const newIndex = transactions.length;
+    setLoadingAkun((prev) => ({ ...prev, [newIndex]: true }));
+    const token = localStorage.getItem("token") || "";
+    const companyId = localStorage.getItem("companyID") || "";
+    fetchAkunPerkiraanDetail({ companyId }, token)
+      .then((data) => {
+        const mapped = mapAkunPerkiraan(data);
+        setAkunPerkiraanOptions((prev) => ({ ...prev, [newIndex]: mapped }));
+        setLoadingAkun((prev) => ({ ...prev, [newIndex]: false }));
+      })
+      .catch(() => setLoadingAkun((prev) => ({ ...prev, [newIndex]: false })));
+  };
+
+  // Handle deleting a transaction
+  const handleDeleteTransaction = (index: number) => {
+    onTransactionsChange(transactions.filter((_, i) => i !== index));
+  };
+
+  // Calculate totals whenever transactions change
+  React.useEffect(() => {
+    let newTotalJumlah = 0;
+    let newTotalPajak = 0;
+
+    transactions.forEach(transaction => {
+      const jumlahValue = parseInputNumber(transaction.jumlah);
+      newTotalJumlah += jumlahValue;
+      
+      if (transaction.pajak) {
+        const { pajakValue } = calculateTaxValues(transaction.dpp, transaction.pajak.persentase);
+        newTotalPajak += pajakValue;
+      }
+    });
+
+    const newTotalSetelahPajak = newTotalJumlah - newTotalPajak;
+    onTotalChange(newTotalPajak, newTotalSetelahPajak, newTotalJumlah);
+  }, [transactions, onTotalChange]);
+
+  // Initialize akun perkiraan options when lawan transaksi is selected
+  React.useEffect(() => {
+    if (selectedLawanTransaksi) {
+      const token = localStorage.getItem("token") || "";
+      const companyId = localStorage.getItem("companyID") || "";
+      
+      // Fetch akun perkiraan options for all rows
+      transactions.forEach((_, index) => {
+        if (!akunPerkiraanOptions[index] && !loadingAkun[index]) {
+          setLoadingAkun((prev) => ({ ...prev, [index]: true }));
+          fetchAkunPerkiraanDetail({ companyId }, token)
+            .then((data) => {
+              const mapped = mapAkunPerkiraan(data);
+              setAkunPerkiraanOptions((prev) => ({ ...prev, [index]: mapped }));
+              setLoadingAkun((prev) => ({ ...prev, [index]: false }));
+            })
+            .catch(() => setLoadingAkun((prev) => ({ ...prev, [index]: false })));
+        }
+      });
+    }
+  }, [selectedLawanTransaksi, transactions]);
 
   // Auto-select tax when available
   React.useEffect(() => {
@@ -173,7 +265,7 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
       const akun = akunPerkiraanOptions[0]?.find(a => a.id === selectedAkunPerkiraan[0]);
       const pajakList = akun?.pajak?.filter(p => p.is_badan_usaha === isBadanUsaha) || [];
       const currentDppValue = formatRupiah(rows[0]?.Jumlah || '0');
-      const rowPajak = pajakRows[0]?.[0];
+    const rowPajak = pajakRows[0]?.[0];
 
       if (pajakList.length > 0 && !rowPajak) {
         const selectedPajakItem = pajakList[0];
@@ -190,14 +282,12 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
             persentase: String(selectedPajakItem.persentase)
           }]
         };
-        setLocalPajakRows(updatedPajakRows);
         onPajakRowsChange(updatedPajakRows);
       }
     }
   }, [selectedLawanTransaksi, selectedAkunPerkiraan, akunPerkiraanOptions, lawanTransaksiList, pajakRows, rows]);
 
   function mapAkunPerkiraan(api: any[]): AkunPerkiraan[] {
-    console.log("akunPerkiraanOptions", JSON.stringify(api));
     return api.map((a) => ({
       id: a.id,
       nama: `${a.kode_akun} - ${a.nama_akun}`,
@@ -227,25 +317,6 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
     const sorted = (valid.length ? valid : details).sort((a, b) => new Date(b.tgl).getTime() - new Date(a.tgl).getTime());
     return sorted[0]?.persentase ?? 0;
   }
-  
-  
-  // Fetch akun perkiraan saat lawan transaksi dipilih
-  React.useEffect(() => {
-    if (selectedLawanTransaksi && !akunPerkiraanOptions[0] && !loadingAkun[0]) {
-      setLoadingAkun((prev) => ({ ...prev, [0]: true }));
-      const token = localStorage.getItem("token") || "";
-      const companyId = localStorage.getItem("companyID") || "";
-      fetchAkunPerkiraanDetail({ companyId }, token)
-        .then((data) => {
-          // data.data dari API
-          const mapped = mapAkunPerkiraan(data);
-          setAkunPerkiraanOptions((prev) => ({ ...prev, [0]: mapped }));
-          console.log("akunPerkiraanOptions", akunPerkiraanOptions);
-          setLoadingAkun((prev) => ({ ...prev, [0]: false }));
-        })
-        .catch(() => setLoadingAkun((prev) => ({ ...prev, [0]: false })));
-    }
-  }, [selectedLawanTransaksi]);
 
   // Handler untuk pilih akun perkiraan
   const handleAkunPerkiraanChange = (rowIdx: number, akunId: string) => {
@@ -256,7 +327,6 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
       ...pajakRows,
       [rowIdx]: []
     };
-    setLocalPajakRows(updatedPajakRows);
     onPajakRowsChange(updatedPajakRows);
     
     // Call the parent's handler to update shared state
@@ -271,7 +341,6 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
       ...pajakRows,
       [rowIdx]: pajakRows[rowIdx].filter((_: PajakRowData, i: number) => i !== pajakIdx),
     };
-    setLocalPajakRows(newPajakRows);
     onPajakRowsChange(newPajakRows);
   };
 
@@ -324,7 +393,9 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
               <Button label="+ lawan transaksi" onClick={handleAddLawanTransaksi} />
             </td>
           </tr>
-          {/* Additional Lawan Transaksi Details */}
+          
+          {/* Lawan Transaksi Details */}
+          {selectedLawanTransaksi && (
           <tr>
             <td colSpan={2}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, padding: "8px 0" }}>
@@ -352,111 +423,112 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
               </div>
             </td>
           </tr>
-          {/* Collapse Row */}
-          {selectedLawanTransaksi && akunPerkiraanOptions[0] && (
-            <tr className={styles.collapseRow}>
-              <td colSpan={7} style={{ background: "#f5faff", padding: 0 }}>
-                <div className={styles.collapseContent}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%" }}>
+          )}
+
+          {/* Transactions */}
+          {selectedLawanTransaksi && transactions.map((transaction, index) => (
+            <React.Fragment key={index}>
+              <tr>
+                <td colSpan={2}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "16px 0" }}>
                     {/* Akun Perkiraan Section */}
                     <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                       <FormControl size="small" sx={{ minWidth: 200 }}>
                         <InputLabel>Akun Perkiraan</InputLabel>
                         <Select
-                          value={selectedAkunPerkiraan[0] || ""}
+                          value={transaction.akunPerkiraan}
                           label="Akun Perkiraan"
-                          onChange={(e) => handleAkunPerkiraanChange(0, e.target.value)}
+                          onChange={(e) => handleTransactionChange(index, 'akunPerkiraan', e.target.value)}
                         >
                           <MenuItem value="" disabled>Pilih Akun Perkiraan</MenuItem>
-                          {akunPerkiraanOptions[0].map((akun) => (
+                          {akunPerkiraanOptions[index]?.map((akun) => (
                             <MenuItem key={akun.id} value={akun.id}>{akun.nama}</MenuItem>
                           ))}
                         </Select>
                       </FormControl>
                       <Button label="+" onClick={handleBuatBaruAkun} />
+                      {index > 0 && (
+                        <IconButton onClick={() => handleDeleteTransaction(index)}>
+                          <Delete />
+                        </IconButton>
+                      )}
                     </div>
 
-                    {/* Bukti, Jumlah, Keterangan Section */}
+                    {/* Transaction Details */}
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
                       <TextField
-                        label="Jumlah "
-                        value={rows[0].Jumlah}
-                        onChange={(e) => onChange(0, "Jumlah", formatRupiahInput(e.target.value))}
-                        onBlur={(e) => onChange(0, "Jumlah", formatRupiah(e.target.value))}
+                        label="Jumlah"
+                        value={transaction.jumlah}
+                        onChange={(e) => handleTransactionChange(index, 'jumlah', formatRupiahInput(e.target.value))}
+                        onBlur={(e) => handleTransactionChange(index, 'jumlah', formatRupiah(e.target.value))}
                         size="small"
                         fullWidth
                         required
                       />
                       <TextField
                         label="Bukti"
-                        value={rows[0].bukti}
-                        onChange={(e) => onChange(0, "bukti", e.target.value)}
+                        value={transaction.bukti}
+                        onChange={(e) => handleTransactionChange(index, 'bukti', e.target.value)}
                         size="small"
                         fullWidth
                       />
                       <TextField
                         label="Keterangan"
-                        value={rows[0].keterangan}
-                        onChange={(e) => onChange(0, "keterangan", e.target.value)}
+                        value={transaction.keterangan}
+                        onChange={(e) => handleTransactionChange(index, 'keterangan', e.target.value)}
                         size="small"
                         fullWidth
                       />
                       <TextField
                         label="DPP"
-                        value={dppValues[0] || rows[0].Jumlah || '0'}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          onDppChange(0, value);
-                        }}
-                        onBlur={(e) => {
-                          const value = e.target.value;
-                          onDppChange(0, formatRupiah(value));
-                        }}
+                        value={transaction.dpp}
+                        onChange={(e) => handleTransactionChange(index, 'dpp', e.target.value)}
+                        onBlur={(e) => handleTransactionChange(index, 'dpp', formatRupiah(e.target.value))}
                         size="small"
                         fullWidth
                       />
                     </div>
 
-                    {/* Pajak Section */}
+                    {/* Tax Section */}
                     {(() => {
                       const lawan = lawanTransaksiList.find(l => String(l.id) === String(selectedLawanTransaksi));
                       const isBadanUsaha = lawan?.is_badan_usaha;
-                      const akun = akunPerkiraanOptions[0]?.find(a => a.id === selectedAkunPerkiraan[0]);
+                      const akun = akunPerkiraanOptions[index]?.find(a => a.id === transaction.akunPerkiraan);
                       const pajakList = akun?.pajak?.filter(p => p.is_badan_usaha === isBadanUsaha) || [];
 
-                      // Show pajak section if akun perkiraan has pajak options
                       if (!akun || pajakList.length === 0) return null;
 
-                      const rowPajak = pajakRows[0]?.[0]; // Always use first index
+                      const selectedPajak = pajakList[0];
+                      const { pajakValue, sisaDpp } = calculateTaxValues(transaction.dpp, selectedPajak.persentase);
+
+                      // Update transaction's tax values
+                      if (!transaction.pajak) {
+                        handleTransactionPajakChange(index, selectedPajak);
+                      }
 
                       return (
                         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                          {/* Pajak Details */}
                           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                             <TextField
-                              label="Pajak"
-                              value={`${pajakList[0]?.nama} (${pajakList[0]?.persentase}%)`}
+                                label="Pajak"
+                              value={`${selectedPajak.nama} (${selectedPajak.persentase}%)`}
                               size="small"
                               sx={{ minWidth: 200 }}
                               InputProps={{
                                 readOnly: true
                               }}
-                            />
-
-                            {rowPajak && (
-                              <TextField
-                                label="Persentase"
-                                value={rowPajak.persentase || "0"}
-                                size="small"
-                                sx={{ width: 120 }}
-                                InputProps={{ endAdornment: <span>%</span> }}
-                                disabled={true}
-                              />
-                            )}
+                                />
+                                <TextField
+                                  label="Persentase"
+                              value={selectedPajak.persentase.toString()}
+                                  size="small"
+                                  sx={{ width: 120 }}
+                                  InputProps={{ endAdornment: <span>%</span> }}
+                                  disabled={true}
+                                />
                           </div>
 
                           {/* Tax Summary */}
-                          {rowPajak && (
                             <div style={{ 
                               background: "#e3f2fd", 
                               padding: "12px 16px", 
@@ -465,10 +537,6 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
                               flexDirection: "column",
                               gap: 8
                             }}>
-                              {(() => {
-                                const { pajakValue, totalSetelahPajak } = calculatePajakValues(dppValues[0] || rows[0].Jumlah || '0', rowPajak.persentase);
-                                return (
-                                  <>
                                     <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
                                       <div style={{ flex: 1 }}>
                                         <div style={{ fontSize: "12px", color: "#666", marginBottom: 4 }}>Pajak yang harus dibayar</div>
@@ -483,7 +551,7 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
                                         <div style={{ fontSize: "12px", color: "#666", marginBottom: 4 }}>Non objek pajak</div>
                                         <FieldText
                                           label="Non objek pajak"
-                                          value={formatRupiah(totalSetelahPajak)}
+                                  value={formatRupiah(sisaDpp)}
                                           disabled
                                           sx={{ width: "100%" }}
                                         />
@@ -492,16 +560,21 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
                                     <div style={{ fontSize: "12px", color: "#888" }}>
                                       DPP sudah termasuk pajak
                                     </div>
-                                  </>
-                                );
-                              })()}
                             </div>
-                          )}
                         </div>
                       );
                     })()}
                   </div>
-                </div>
+                </td>
+              </tr>
+            </React.Fragment>
+          ))}
+          
+          {/* Add Transaction Button */}
+          {selectedLawanTransaksi && (
+            <tr>
+              <td colSpan={2}>
+                <Button label="+ Tambah Transaksi" onClick={handleAddTransaction} />
               </td>
             </tr>
           )}

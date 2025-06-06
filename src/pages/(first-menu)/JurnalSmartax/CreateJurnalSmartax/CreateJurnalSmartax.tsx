@@ -59,6 +59,20 @@ type FilterValue = {
 
 type FilterInput = Record<string, FilterValue>;
 
+interface TransactionData {
+  akunPerkiraan: string;
+  dpp: string;
+  pajak: {
+    pajakId: string;
+    nama: string;
+    persentase: number;
+    nilai: number;
+  } | null;
+  jumlah: string;
+  bukti: string;
+  keterangan: string;
+}
+
 export default function CreateJurnalSmartax() {
   const [viewMode, setViewMode] = React.useState<'smart-tax' | 'jurnal'>('smart-tax');
   const [isConfirmLoading, setIsConfirmLoading] = React.useState(false);
@@ -85,6 +99,15 @@ export default function CreateJurnalSmartax() {
   const [isLoadingRekening, setIsLoadingRekening] = React.useState(false);
   const [akunHutangPajak, setAkunHutang] = React.useState<number | null>(null);
   const [akunLawanBeban, setAkunLawanBeban] = React.useState<number | null>(null);
+  const [transactions, setTransactions] = React.useState<TransactionData[]>([{
+    akunPerkiraan: '',
+    dpp: '0',
+    pajak: null,
+    jumlah: '0',
+    bukti: '',
+    keterangan: ''
+  }]);
+  const [jurnalData, setJurnalData] = React.useState<RowData[]>([]);
 
   const { showAlert } = useAlert();
 
@@ -208,16 +231,6 @@ export default function CreateJurnalSmartax() {
     fetchData();
   }, []);
 
-  // Fungsi untuk mengubah file menjadi base64
-  const toBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
-
   const onSubmit = async () => {
     if (totalDebit !== totalKredit) {
       showAlert("Total debit dan kredit harus seimbang.", "error");
@@ -242,7 +255,7 @@ export default function CreateJurnalSmartax() {
           is_smart_tax: true,
           deskripsi: deskripsiValue,
           jurnal_detail: JSON.stringify(
-            (viewMode === 'jurnal' ? getJurnalViewData() : rows).map((row, index) => ({
+            (viewMode === 'jurnal' ? jurnalData : rows).map((row, index) => ({
               akun_perkiraan_detail_id: row.akunPerkiraan,
               bukti: row.bukti,
               debit: parseInputNumber(row.Jumlah) || 0,
@@ -297,26 +310,48 @@ export default function CreateJurnalSmartax() {
   };
 
   const validateFields = () => {
-    // Check first row required fields
-    const firstRow = rows[0];
-    const akun = akunPerkiraanOptions.find(a => a.id === selectedAkunPerkiraan[0]);
-    
-    if (!selectedLawanTransaksi || !selectedAkunPerkiraan[0] || !firstRow.Jumlah) {
-      showAlert("Please fill all required fields!", "error");
+    // Check if there are any transactions
+    if (transactions.length === 0) {
+      showAlert("Please add at least one transaction!", "error");
       return false;
     }
 
-    // Check if akun has pajak options and if pajak is selected
-    const hasPajakOptions = akun?.pajak && akun.pajak.length > 0;
-    if (hasPajakOptions) {
-      if (!selectedPajak) {
-        showAlert("Please select a Pajak for this Akun Perkiraan!", "error");
+    // Check if lawan transaksi is selected
+    if (!selectedLawanTransaksi) {
+      showAlert("Please select a Lawan Transaksi!", "error");
+      return false;
+    }
+
+    // Validate each transaction
+    for (let i = 0; i < transactions.length; i++) {
+      const transaction = transactions[i];
+      const akun = akunPerkiraanOptions.find(a => a.id === transaction.akunPerkiraan);
+
+      // Check required fields for each transaction
+      if (!transaction.akunPerkiraan) {
+        showAlert(`Please select an Akun Perkiraan for transaction ${i + 1}!`, "error");
         return false;
       }
-      
-      if (!dppValues[0]) {
-        showAlert("Please fill the DPP value!", "error");
+
+      // Check jumlah is not empty and not 0
+      const jumlahValue = parseInputNumber(transaction.jumlah);
+      if (!transaction.jumlah || jumlahValue <= 0) {
+        showAlert(`Jumlah must be greater than 0 for transaction ${i + 1}!`, "error");
         return false;
+      }
+
+      // Check if akun has pajak options and if pajak is selected
+      const hasPajakOptions = akun?.pajak && akun.pajak.length > 0;
+      if (hasPajakOptions) {
+        if (!transaction.pajak) {
+          showAlert(`Please select a Pajak for transaction ${i + 1}!`, "error");
+          return false;
+        }
+        
+        if (!transaction.dpp) {
+          showAlert(`Please fill the DPP value for transaction ${i + 1}!`, "error");
+          return false;
+        }
       }
     }
 
@@ -334,12 +369,13 @@ export default function CreateJurnalSmartax() {
   const handleConfirm = async () => {
     try {
       setIsConfirmLoading(true);
+      console.log(transactions)
       const token = localStorage.getItem("token");
       const companyId = localStorage.getItem("companyID");
       if (!token || !companyId) return;
       // Here you will add the fetch to akunpajakdata
-      const akunHutang = await fetchAkunHutangPajak(selectedPajak?.pajakId || "", companyId, token)
-      setAkunHutang(akunHutang.akun_perkiraan_hutang_details[0].id);
+      // const akunHutang = await fetchAkunHutangPajak(selectedPajak?.pajakId || "", companyId, token)
+      // setAkunHutang(akunHutang.akun_perkiraan_hutang_details[0].id);
 
       const akunLawanBeban = await fetchLawanTransaksiById(companyId, parseInt(selectedLawanTransaksi))
       setAkunLawanBeban(akunLawanBeban.akun_hutang.id);
@@ -379,32 +415,64 @@ export default function CreateJurnalSmartax() {
   const dummyDeleteRow = () => {};
 
 
-  const getJurnalViewData = () => {
-    const firstRow = rows[0];
-    return [
-      {
-        ...firstRow,
-        akunPerkiraan: selectedAkunPerkiraan[0] || "",
-        kredit: "0"
-      },
-      ...(parseInputNumber(dppValues[0] || '0') > 0 ? [{
-        no: "",
-        akunPerkiraan: akunHutangPajak?.toString() || "",
-        bukti: "",
-        Jumlah: "0",
-        kredit: formatRupiah(totalPajak).replace("Rp ", ""),
-        keterangan: ""
-      }] : []),
-      {
-        no: "",
-        akunPerkiraan: akunLawanBeban?.toString() || "",
-        bukti: "",
-        Jumlah: "0",
-        kredit: formatRupiah(totalSetelahPajak).replace("Rp ", ""),
-        keterangan: ""
+  const getJurnalViewData = async () => {
+    const data = [];
+    let entryNo = 1;
+    const token = localStorage.getItem("token") || "";
+    const companyId = localStorage.getItem("companyID") || "";
+
+    // Process each transaction
+    for (const transaction of transactions) {
+      // Add akun perkiraan entry
+      data.push({
+        no: entryNo.toString(),
+        akunPerkiraan: transaction.akunPerkiraan,
+        bukti: transaction.bukti,
+        Jumlah: formatRupiah(transaction.jumlah),
+        kredit: "0",
+        keterangan: transaction.keterangan
+      });
+      entryNo++;
+
+      // If transaction has tax, add tax entry
+      if (transaction.pajak && parseInt(transaction.dpp) != 0) {
+        const akunHutangPajak = await fetchAkunHutangPajak(
+          transaction.pajak.pajakId,
+          companyId,
+          token
+        );
+        data.push({
+          no: entryNo.toString(),
+          akunPerkiraan: akunHutangPajak?.akun_perkiraan_hutang_details[0]?.id.toString() || "",
+          bukti: transaction.bukti,
+          Jumlah: "0",
+          kredit: formatRupiah(transaction.pajak.nilai.toString()),
+          keterangan: transaction.keterangan
+        });
+        entryNo++;
       }
-    ];
+    }
+
+    // Add lawan transaksi entry
+    data.push({
+      no: entryNo.toString(),
+      akunPerkiraan: akunLawanBeban?.toString() || "",
+      bukti: transactions[0]?.bukti || "",
+      Jumlah: "0",
+      kredit: formatRupiah(totalSetelahPajak.toString()),
+      keterangan: transactions[0]?.keterangan || ""
+    });
+
+    setJurnalData(data);
+    return data;
   };
+
+  // Update jurnal data when transactions or akunLawanBeban changes
+  React.useEffect(() => {
+    if (viewMode === 'jurnal') {
+      getJurnalViewData();
+    }
+  }, [transactions, akunLawanBeban, viewMode]);
 
   const handleLawanTransaksiChange = (value: string) => {
     setSelectedLawanTransaksi(value);
@@ -415,6 +483,11 @@ export default function CreateJurnalSmartax() {
     setTotalSetelahPajak(newTotalSetelahPajak);
     setTotalJumlah(newTotalJumlah);
   }, []);
+
+  // Handle transactions change
+  const handleTransactionsChange = (newTransactions: TransactionData[]) => {
+    setTransactions(newTransactions);
+  };
 
   return (
     <div className={styles.container}>
@@ -551,15 +624,13 @@ export default function CreateJurnalSmartax() {
               totalSetelahPajak={totalSetelahPajak}
               totalJumlah={totalJumlah}
               onTotalChange={handleTotalChange}
+              transactions={transactions}
+              onTransactionsChange={handleTransactionsChange}
             />
           ) : (
             <>
               <TableInsertManual
-                rows={getJurnalViewData().map(row => ({
-                  ...row,
-                  Jumlah: formatRupiah(row.Jumlah),
-                  kredit: formatRupiah(row.kredit),
-                }))}
+                rows={viewMode === 'jurnal' ? jurnalData : rows}
                 columns={columns}
                 onChange={dummyChange}
                 addRow={dummyAddRow}
