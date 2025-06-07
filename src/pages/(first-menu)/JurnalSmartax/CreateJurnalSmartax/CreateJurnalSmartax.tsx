@@ -255,14 +255,23 @@ export default function CreateJurnalSmartax() {
           is_smart_tax: true,
           deskripsi: deskripsiValue,
           jurnal_detail: JSON.stringify(
-            (viewMode === 'jurnal' ? jurnalData : rows).map((row, index) => ({
-              akun_perkiraan_detail_id: row.akunPerkiraan,
-              bukti: row.bukti,
-              debit: parseInputNumber(row.Jumlah) || 0,
-              kredit: parseInputNumber(row.kredit) || 0,
-              urut: index + 1,
-              keterangan: row.keterangan,
-            }))
+            (viewMode === 'jurnal' ? jurnalData : rows).map((row, index) => {
+              // Find the corresponding transaction for this row
+              const transaction = transactions.find(t => t.akunPerkiraan === row.akunPerkiraan);
+              
+              return {
+                akun_perkiraan_detail_id: row.akunPerkiraan,
+                bukti: row.bukti,
+                debit: parseInputNumber(row.Jumlah) || 0,
+                kredit: parseInputNumber(row.kredit) || 0,
+                urut: index + 1,
+                keterangan: row.keterangan,
+                dpp: transaction?.dpp ? parseInputNumber(transaction.dpp) : null,
+                persentase_pajak: transaction?.pajak?.persentase || null,
+                jumlah_pajak: transaction?.pajak?.nilai || null,
+                objek_pajak_id: transaction?.pajak?.pajakId || null
+              };
+            })
           ),
           file: fileUpload || undefined,
           company_id: companyId || ""

@@ -9,10 +9,6 @@ export const createJurnalSmartax = async (data: JurnalSmartaxFormData, token: st
     formData.append('total_debit', data.total_debit);
     formData.append('total_kredit', data.total_kredit);
     formData.append('lawan_transaksi_id', data.lawan_transaksi_id);
-    formData.append('objek_pajak_id', data.objek_pajak_id);
-    formData.append('jumlah_pajak', data.jumlah_pajak ?? '');
-    formData.append('persentase_pajak', data.persentase_pajak ?? '');
-    formData.append('dpp', data.dpp ?? '');
     formData.append('is_smart_tax', 'true');
     formData.append('jurnal_detail', data.jurnal_detail);
     formData.append('deskripsi', data.deskripsi || '');
