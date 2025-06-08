@@ -23,10 +23,10 @@ export const formatRupiah = (value: number | string): string => {
  * @param str - The formatted string (e.g., "1.234,56")
  * @returns The parsed number
  */
-export const parseInputNumber = (str: string): number => {
+export const parseInputNumber = (str: any) => {
+    if (typeof str === 'number') return str;
     if (!str) return 0;
-    // Remove all dots (thousand separator), replace comma with dot (decimal)
-    const cleanStr = str.replace(/\./g, '').replace(',', '.');
+    const cleanStr = String(str).replace(/\./g, '').replace(',', '.');
     return parseFloat(cleanStr);
 };
 

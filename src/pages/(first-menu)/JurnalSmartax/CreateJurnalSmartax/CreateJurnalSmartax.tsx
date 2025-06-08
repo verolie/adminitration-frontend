@@ -20,7 +20,6 @@ import { formatRupiah, parseInputNumber } from "@/utils/formatNumber";
 type RowData = {
   no: string;
   akunPerkiraan: string;
-  bukti: string;
   Jumlah: string;
   kredit: string;
   keterangan: string;
@@ -69,7 +68,6 @@ interface TransactionData {
     nilai: number;
   } | null;
   jumlah: string;
-  bukti: string;
   keterangan: string;
 }
 
@@ -77,7 +75,7 @@ export default function CreateJurnalSmartax() {
   const [viewMode, setViewMode] = React.useState<'smart-tax' | 'jurnal'>('smart-tax');
   const [isConfirmLoading, setIsConfirmLoading] = React.useState(false);
   const [rows, setRows] = React.useState<RowData[]>([
-    { no: "", akunPerkiraan: "", bukti: "", Jumlah: "", kredit: "", keterangan: "" },
+    { no: "", akunPerkiraan: "", Jumlah: "", kredit: "", keterangan: "" },
   ]);
   const [totalDebit, setTotalDebit] = React.useState(0);
   const [totalKredit, setTotalKredit] = React.useState(0);
@@ -104,7 +102,6 @@ export default function CreateJurnalSmartax() {
     dpp: '0',
     pajak: null,
     jumlah: '0',
-    bukti: '',
     keterangan: ''
   }]);
   const [jurnalData, setJurnalData] = React.useState<RowData[]>([]);
@@ -191,7 +188,7 @@ export default function CreateJurnalSmartax() {
   const handleAddRow = () => {
     setRows([
       ...rows,
-      { no: "", akunPerkiraan: "", bukti: "", Jumlah: "", kredit: "", keterangan: "" },
+      { no: "", akunPerkiraan: "", Jumlah: "", kredit: "", keterangan: "" },
     ]);
   };
 
@@ -251,17 +248,16 @@ export default function CreateJurnalSmartax() {
           objek_pajak_id: selectedPajak?.pajakId || '',
           jumlah_pajak: totalPajak ? totalPajak.toString() : 'null',
           persentase_pajak: selectedPajak?.persentase?.toString() || 'null',
-          dpp: dppValues[0] ? parseInputNumber(dppValues[0]).toString() : 'null',
+          dpp: transactions[0]?.dpp ? parseInputNumber(transactions[0].dpp).toString() : 'null',
           is_smart_tax: true,
           deskripsi: deskripsiValue,
           jurnal_detail: JSON.stringify(
             (viewMode === 'jurnal' ? jurnalData : rows).map((row, index) => {
               // Find the corresponding transaction for this row
-              const transaction = transactions.find(t => t.akunPerkiraan === row.akunPerkiraan);
+              const transaction = transactions[index];
               
               return {
                 akun_perkiraan_detail_id: row.akunPerkiraan,
-                bukti: row.bukti,
                 debit: parseInputNumber(row.Jumlah) || 0,
                 kredit: parseInputNumber(row.kredit) || 0,
                 urut: index + 1,
@@ -410,7 +406,6 @@ export default function CreateJurnalSmartax() {
           label: item.nama
         })) : []
       },
-      { field: "bukti" as const, label: "Bukti", type: "text" as const },
       { field: "Jumlah" as const, label: "Debit", type: "text" as const },
       { field: "kredit" as const, label: "Kredit", type: "text" as const },
       { field: "keterangan" as const, label: "Keterangan", type: "text" as const },
@@ -436,7 +431,6 @@ export default function CreateJurnalSmartax() {
       data.push({
         no: entryNo.toString(),
         akunPerkiraan: transaction.akunPerkiraan,
-        bukti: transaction.bukti,
         Jumlah: formatRupiah(transaction.jumlah),
         kredit: "0",
         keterangan: transaction.keterangan
@@ -453,7 +447,6 @@ export default function CreateJurnalSmartax() {
         data.push({
           no: entryNo.toString(),
           akunPerkiraan: akunHutangPajak?.akun_perkiraan_hutang_details[0]?.id.toString() || "",
-          bukti: transaction.bukti,
           Jumlah: "0",
           kredit: formatRupiah(transaction.pajak.nilai.toString()),
           keterangan: transaction.keterangan
@@ -466,7 +459,6 @@ export default function CreateJurnalSmartax() {
     data.push({
       no: entryNo.toString(),
       akunPerkiraan: akunLawanBeban?.toString() || "",
-      bukti: transactions[0]?.bukti || "",
       Jumlah: "0",
       kredit: formatRupiah(totalSetelahPajak.toString()),
       keterangan: transactions[0]?.keterangan || ""

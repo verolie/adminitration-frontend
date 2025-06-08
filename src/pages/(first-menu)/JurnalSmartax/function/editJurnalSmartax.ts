@@ -18,34 +18,28 @@ interface JurnalSmartaxData {
   }[];
 }
 
-export const editJurnalSmartax = async (data: FormData, token: string) => {
+export const editJurnalSmartax = async (formData: FormData, token: string) => {
   try {
-    // Ambil jurnal_detail dari FormData
-    const jurnalDetailStr = data.get('jurnal_detail');
-    if (typeof jurnalDetailStr === 'string') {
-      // Parse string JSON menjadi array objek
-      const jurnalDetail = JSON.parse(jurnalDetailStr);
-      // Format ulang jurnal_detail
-      const formattedJurnalDetail = jurnalDetail.map((detail: any) => ({
-        akun_perkiraan_detail_id: detail.akun_perkiraan_detail_id,
-        bukti: detail.bukti,
-        debit: Number(detail.debit),  // pastikan dalam bentuk number
-        kredit: Number(detail.kredit), // pastikan dalam bentuk number
-        urut: detail.urut,
-        keterangan: detail.keterangan,
-      }));
-      // Update FormData dengan jurnal_detail yang sudah diformat
-      data.set('jurnal_detail', JSON.stringify(formattedJurnalDetail));
+    const response = await axios.put(
+      `http://127.0.0.1:5000/jurnal/${formData.get('company_id')}`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
+    const responseData = response.data;
+
+    if (responseData.success === false) {
+      throw new Error(responseData.message || 'Edit jurnal smartax gagal');
     }
 
-    const response = await axios.put(`http://127.0.0.1:5000/jurnal/${data.get('company_id')}`, data, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
+    return responseData.message;
+  } catch (error: any) {
+    console.error('Error Response:', error.response?.data?.errors?.[0] || error.message);
+    throw new Error(error.response?.data?.errors?.[0] || 'Edit jurnal smartax gagal');
   }
 }; 

@@ -24,7 +24,6 @@ interface LawanTransaksi {
 type RowData = {
   no: string;
   akunPerkiraan: string;
-  bukti: string;
   Jumlah: string;
   kredit: string;
   keterangan: string;
@@ -58,7 +57,6 @@ interface TransactionData {
     nilai: number;
   } | null;
   jumlah: string;
-  bukti: string;
   keterangan: string;
 }
 
@@ -66,7 +64,6 @@ interface TableInsertSmartTaxProps {
   rows: {
     no: string;
     akunPerkiraan: string;
-    bukti: string;
     Jumlah: string;
     kredit: string;
     keterangan: string;
@@ -192,7 +189,6 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
       dpp: '0',
       pajak: null,
       jumlah: '0',
-      bukti: '',
       keterangan: ''
     };
     onTransactionsChange([...transactions, newTransaction]);
@@ -455,7 +451,7 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
                     </div>
 
                     {/* Transaction Details */}
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16 }}>
                       <TextField
                         label="Jumlah"
                         value={transaction.jumlah}
@@ -464,13 +460,6 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
                         size="small"
                         fullWidth
                         required
-                      />
-                      <TextField
-                        label="Bukti"
-                        value={transaction.bukti}
-                        onChange={(e) => handleTransactionChange(index, 'bukti', e.target.value)}
-                        size="small"
-                        fullWidth
                       />
                       <TextField
                         label="Keterangan"
