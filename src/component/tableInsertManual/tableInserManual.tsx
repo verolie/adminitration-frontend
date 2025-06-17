@@ -63,6 +63,7 @@ const TableInsertManual = <T extends object>({
                         <TextField
                           value={value}
                           onChange={handleChange}
+                          onBlur={(e) => onChange(index, col.field, require("@/utils/formatNumber").formatRupiah(e.target.value))}
                           size="small"
                           fullWidth
                         />
@@ -106,9 +107,11 @@ const TableInsertManual = <T extends object>({
                 }
               })}
               <td>
-                <IconButton onClick={() => deleteRow(index)}>
-                  <Delete />
-                </IconButton>
+                {!(row as any).isSmartTax && (
+                  <IconButton onClick={() => deleteRow(index)}>
+                    <Delete />
+                  </IconButton>
+                )}
               </td>
             </tr>
           ))}

@@ -23,6 +23,7 @@ type RowData = {
   Jumlah: string;
   kredit: string;
   keterangan: string;
+  isSmartTax: boolean;
 };
 
 interface AkunPerkiraanOption {
@@ -69,13 +70,14 @@ interface TransactionData {
   } | null;
   jumlah: string;
   keterangan: string;
+  isSmartTax: boolean;
 }
 
 export default function CreateJurnalSmartax() {
   const [viewMode, setViewMode] = React.useState<'smart-tax' | 'jurnal'>('smart-tax');
   const [isConfirmLoading, setIsConfirmLoading] = React.useState(false);
   const [rows, setRows] = React.useState<RowData[]>([
-    { no: "", akunPerkiraan: "", Jumlah: "", kredit: "", keterangan: "" },
+    { no: "", akunPerkiraan: "", Jumlah: "", kredit: "", keterangan: "", isSmartTax: false },
   ]);
   const [totalDebit, setTotalDebit] = React.useState(0);
   const [totalKredit, setTotalKredit] = React.useState(0);
@@ -102,9 +104,11 @@ export default function CreateJurnalSmartax() {
     dpp: '0',
     pajak: null,
     jumlah: '0',
-    keterangan: ''
+    keterangan: '',
+    isSmartTax: false
   }]);
   const [jurnalData, setJurnalData] = React.useState<RowData[]>([]);
+  const [manualRows, setManualRows] = React.useState<RowData[]>([]);
 
   const { showAlert } = useAlert();
 
@@ -188,7 +192,7 @@ export default function CreateJurnalSmartax() {
   const handleAddRow = () => {
     setRows([
       ...rows,
-      { no: "", akunPerkiraan: "", Jumlah: "", kredit: "", keterangan: "" },
+      { no: "", akunPerkiraan: "", Jumlah: "", kredit: "", keterangan: "", isSmartTax: false },
     ]);
   };
 
@@ -253,20 +257,51 @@ export default function CreateJurnalSmartax() {
           deskripsi: deskripsiValue,
           jurnal_detail: JSON.stringify(
             (viewMode === 'jurnal' ? jurnalData : rows).map((row, index) => {
-              // Find the corresponding transaction for this row
-              const transaction = transactions[index];
-              
-              return {
-                akun_perkiraan_detail_id: row.akunPerkiraan,
-                debit: parseInputNumber(row.Jumlah) || 0,
-                kredit: parseInputNumber(row.kredit) || 0,
-                urut: index + 1,
-                keterangan: row.keterangan,
-                dpp: transaction?.dpp ? parseInputNumber(transaction.dpp) : null,
-                persentase_pajak: transaction?.pajak?.persentase || null,
-                jumlah_pajak: transaction?.pajak?.nilai || null,
-                objek_pajak_id: transaction?.pajak?.pajakId || null
-              };
+              // For jurnal mode, handle smart-tax and manual rows differently
+              if (viewMode === 'jurnal') {
+                if (row.isSmartTax) {
+                  // Find corresponding transaction for smart-tax rows
+                  const transaction = transactions.find(t => t.akunPerkiraan === row.akunPerkiraan);
+                  return {
+                    akun_perkiraan_detail_id: row.akunPerkiraan,
+                    debit: parseInputNumber(row.Jumlah) || 0,
+                    kredit: parseInputNumber(row.kredit) || 0,
+                    urut: index + 1,
+                    keterangan: row.keterangan,
+                    dpp: transaction?.dpp ? parseInputNumber(transaction.dpp) : null,
+                    persentase_pajak: transaction?.pajak?.persentase || null,
+                    jumlah_pajak: transaction?.pajak?.nilai || null,
+                    objek_pajak_id: transaction?.pajak?.pajakId || null
+                  };
+                } else {
+                  // Manual rows don't have tax data
+                  return {
+                    akun_perkiraan_detail_id: row.akunPerkiraan,
+                    debit: parseInputNumber(row.Jumlah) || 0,
+                    kredit: parseInputNumber(row.kredit) || 0,
+                    urut: index + 1,
+                    keterangan: row.keterangan,
+                    dpp: null,
+                    persentase_pajak: null,
+                    jumlah_pajak: null,
+                    objek_pajak_id: null
+                  };
+                }
+              } else {
+                // Smart-tax mode - original logic
+                const transaction = transactions[index];
+                return {
+                  akun_perkiraan_detail_id: row.akunPerkiraan,
+                  debit: parseInputNumber(row.Jumlah) || 0,
+                  kredit: parseInputNumber(row.kredit) || 0,
+                  urut: index + 1,
+                  keterangan: row.keterangan,
+                  dpp: transaction?.dpp ? parseInputNumber(transaction.dpp) : null,
+                  persentase_pajak: transaction?.pajak?.persentase || null,
+                  jumlah_pajak: transaction?.pajak?.nilai || null,
+                  objek_pajak_id: transaction?.pajak?.pajakId || null
+                };
+              }
             })
           ),
           file: fileUpload || undefined,
@@ -420,20 +455,21 @@ export default function CreateJurnalSmartax() {
 
 
   const getJurnalViewData = async () => {
-    const data = [];
+    const smartTaxData = [];
     let entryNo = 1;
     const token = localStorage.getItem("token") || "";
     const companyId = localStorage.getItem("companyID") || "";
 
-    // Process each transaction
+    // Process each transaction (smart-tax data)
     for (const transaction of transactions) {
       // Add akun perkiraan entry
-      data.push({
+      smartTaxData.push({
         no: entryNo.toString(),
         akunPerkiraan: transaction.akunPerkiraan,
         Jumlah: formatRupiah(transaction.jumlah),
         kredit: "0",
-        keterangan: transaction.keterangan
+        keterangan: transaction.keterangan,
+        isSmartTax: true // Mark as smart-tax generated
       });
       entryNo++;
 
@@ -444,36 +480,48 @@ export default function CreateJurnalSmartax() {
           companyId,
           token
         );
-        data.push({
+        smartTaxData.push({
           no: entryNo.toString(),
           akunPerkiraan: akunHutangPajak?.akun_perkiraan_hutang_details[0]?.id.toString() || "",
           Jumlah: "0",
           kredit: formatRupiah(transaction.pajak.nilai.toString()),
-          keterangan: transaction.keterangan
+          keterangan: transaction.keterangan,
+          isSmartTax: true // Mark as smart-tax generated
         });
         entryNo++;
       }
     }
 
     // Add lawan transaksi entry
-    data.push({
+    smartTaxData.push({
       no: entryNo.toString(),
       akunPerkiraan: akunLawanBeban?.toString() || "",
       Jumlah: "0",
       kredit: formatRupiah(totalSetelahPajak.toString()),
-      keterangan: transactions[0]?.keterangan || ""
+      keterangan: transactions[0]?.keterangan || "",
+      isSmartTax: true // Mark as smart-tax generated
     });
 
-    setJurnalData(data);
-    return data;
+    // Merge smart-tax data with existing manual rows
+    const combinedData = [
+      ...smartTaxData,
+      ...manualRows.map((row, index) => ({
+        ...row,
+        no: (smartTaxData.length + index + 1).toString() // Renumber manual rows
+      }))
+    ];
+
+    setJurnalData(combinedData);
+    return combinedData;
   };
 
-  // Update jurnal data when transactions or akunLawanBeban changes
+  // Update jurnal data when first entering jurnal mode or when akunLawanBeban changes
   React.useEffect(() => {
-    if (viewMode === 'jurnal') {
+    if (viewMode === 'jurnal' && akunLawanBeban) {
+      // Only regenerate smart-tax data, preserve manual data
       getJurnalViewData();
     }
-  }, [transactions, akunLawanBeban, viewMode]);
+  }, [akunLawanBeban, viewMode]); // Removed transactions dependency
 
   const handleLawanTransaksiChange = (value: string) => {
     setSelectedLawanTransaksi(value);
@@ -488,6 +536,105 @@ export default function CreateJurnalSmartax() {
   // Handle transactions change
   const handleTransactionsChange = (newTransactions: TransactionData[]) => {
     setTransactions(newTransactions);
+  };
+
+  // Fungsi untuk TableInsertManual (mode jurnal)
+  const handleManualRowChange = (index: number, field: keyof RowData, value: string) => {
+    const newData = [...jurnalData];
+    const rowToUpdate = newData[index];
+    
+    // Update the field
+    if ((field === 'Jumlah' || field === 'kredit') && value.trim() === '') {
+      (rowToUpdate[field] as any) = '0';
+    } else {
+      (rowToUpdate[field] as any) = value;
+    }
+    
+    // If this is a manual row, update manualRows state
+    if (!rowToUpdate.isSmartTax) {
+      const smartTaxRows = jurnalData.filter(row => row.isSmartTax);
+      const manualRowIndex = index - smartTaxRows.length;
+      
+      if (manualRowIndex >= 0 && manualRowIndex < manualRows.length) {
+        const updatedManualRows = [...manualRows];
+        const updatedRow = { ...updatedManualRows[manualRowIndex] };
+        
+        if ((field === 'Jumlah' || field === 'kredit') && value.trim() === '') {
+          (updatedRow[field] as any) = '0';
+        } else {
+          (updatedRow[field] as any) = value;
+        }
+        
+        updatedManualRows[manualRowIndex] = updatedRow;
+        setManualRows(updatedManualRows);
+      }
+    }
+    
+    setJurnalData(newData);
+  };
+
+  // Hitung total debit dan kredit setiap jurnalData berubah
+  React.useEffect(() => {
+    if (viewMode === 'jurnal') {
+      const totalDebit = jurnalData.reduce((sum, row) => sum + parseInputNumber(row.Jumlah), 0);
+      const totalKredit = jurnalData.reduce((sum, row) => sum + parseInputNumber(row.kredit), 0);
+      setTotalDebit(totalDebit);
+      setTotalKredit(totalKredit);
+    }
+  }, [jurnalData, viewMode]);
+
+  const handleAddManualRow = () => {
+    const newManualRow = {
+      no: (manualRows.length + 1).toString(),
+      akunPerkiraan: '',
+      Jumlah: '',
+      kredit: '',
+      keterangan: '',
+      isSmartTax: false
+    };
+    
+    const updatedManualRows = [...manualRows, newManualRow];
+    setManualRows(updatedManualRows);
+    
+    // Update jurnalData by merging smart-tax data with updated manual rows
+    const smartTaxRows = jurnalData.filter(row => row.isSmartTax);
+    const combinedData = [
+      ...smartTaxRows,
+      ...updatedManualRows.map((row, index) => ({
+        ...row,
+        no: (smartTaxRows.length + index + 1).toString()
+      }))
+    ];
+    setJurnalData(combinedData);
+  };
+
+  const handleDeleteManualRow = (index: number) => {
+    const rowToDelete = jurnalData[index];
+    if (!rowToDelete.isSmartTax) {
+      // Find the index in manualRows
+      const manualIndex = manualRows.findIndex(row => 
+        row.akunPerkiraan === rowToDelete.akunPerkiraan && 
+        row.Jumlah === rowToDelete.Jumlah &&
+        row.kredit === rowToDelete.kredit &&
+        row.keterangan === rowToDelete.keterangan
+      );
+      
+      if (manualIndex !== -1) {
+        const updatedManualRows = manualRows.filter((_, i) => i !== manualIndex);
+        setManualRows(updatedManualRows);
+        
+        // Update jurnalData by merging smart-tax data with updated manual rows
+        const smartTaxRows = jurnalData.filter(row => row.isSmartTax);
+        const combinedData = [
+          ...smartTaxRows,
+          ...updatedManualRows.map((row, index) => ({
+            ...row,
+            no: (smartTaxRows.length + index + 1).toString()
+          }))
+        ];
+        setJurnalData(combinedData);
+      }
+    }
   };
 
   return (
@@ -633,10 +780,10 @@ export default function CreateJurnalSmartax() {
               <TableInsertManual
                 rows={viewMode === 'jurnal' ? jurnalData : rows}
                 columns={columns}
-                onChange={dummyChange}
-                addRow={dummyAddRow}
-                deleteRow={dummyDeleteRow}
-                showAddButton={false}
+                onChange={handleManualRowChange}
+                addRow={handleAddManualRow}
+                deleteRow={handleDeleteManualRow}
+                showAddButton={true}
               />
               <div className={styles.container}>
                 <div className={styles.rowContainer}>

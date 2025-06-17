@@ -58,6 +58,7 @@ interface TransactionData {
   } | null;
   jumlah: string;
   keterangan: string;
+  isSmartTax: boolean;
 }
 
 interface TableInsertSmartTaxProps {
@@ -141,7 +142,7 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
       // Handle pajak separately since it's an object
       return;
     }
-    transaction[field] = value;
+    (transaction[field] as any) = value;
 
     // If jumlah is changed, update DPP and recalculate tax
     if (field === 'jumlah') {
@@ -175,8 +176,10 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
         persentase: pajak.persentase,
         nilai: pajakValue
       };
+      transaction.isSmartTax = true;
     } else {
       transaction.pajak = null;
+      transaction.isSmartTax = false;
     }
 
     onTransactionsChange(newTransactions);
@@ -189,7 +192,8 @@ const TableInsertSmartTax: React.FC<TableInsertSmartTaxProps> = ({
       dpp: '0',
       pajak: null,
       jumlah: '0',
-      keterangan: ''
+      keterangan: '',
+      isSmartTax: false
     };
     onTransactionsChange([...transactions, newTransaction]);
 
