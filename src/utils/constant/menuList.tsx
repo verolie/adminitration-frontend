@@ -16,6 +16,7 @@ import LawanTransaksi from "@/pages/(first-menu)/LawanTransaksi/lawanTransaksi";
 import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
 import MasterTax from "@/pages/(first-menu)/MasterTax/MasterTax";
 import JurnalSmartax from "@/pages/(first-menu)/JurnalSmartax/JurnalSmartax";
+import LaporanLabaRugi from "@/pages/(first-menu)/LaporanLabaRugi/LaporanLabaRugi";
 
 interface MenuList {
   no: number;
@@ -90,6 +91,11 @@ export const menuList: MenuList[] = [
         label: "Jurnal Smartax",
         path: <JurnalSmartax />,
         roles: ["Jurnal Smartax"],
+      },
+      {
+        label: "Laporan Laba Rugi",
+        path: <LaporanLabaRugi />,
+        roles: ["Laporan Laba Rugi"],
       },
     ],
     roles: ["Sub-Division"],

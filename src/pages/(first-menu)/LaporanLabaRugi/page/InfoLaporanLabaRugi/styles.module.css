@@ -1,0 +1,84 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 253px);
+}
+
+.titleText {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.editFilterTable {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.filterTextField {
+  width: 300px;
+}
+
+.scrollContent {
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+  border-radius: 0px 0px 10px 10px;
+  border: 1px solid #ddd;
+  box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.1);
+  padding: 8px;
+}
+
+.scrollContent::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollContent::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.tableContainer {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #000;
+}
+
+.table td {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #000;
+}
+
+.panel {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tagPanel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 0;
+} 

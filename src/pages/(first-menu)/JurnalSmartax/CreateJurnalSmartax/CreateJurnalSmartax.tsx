@@ -249,10 +249,6 @@ export default function CreateJurnalSmartax() {
           total_debit: totalDebit.toString(),
           total_kredit: totalKredit.toString(),
           lawan_transaksi_id: selectedLawanTransaksi,
-          objek_pajak_id: selectedPajak?.pajakId || '',
-          jumlah_pajak: totalPajak ? totalPajak.toString() : 'null',
-          persentase_pajak: selectedPajak?.persentase?.toString() || 'null',
-          dpp: transactions[0]?.dpp ? parseInputNumber(transactions[0].dpp).toString() : 'null',
           is_smart_tax: true,
           deskripsi: deskripsiValue,
           jurnal_detail: JSON.stringify(
