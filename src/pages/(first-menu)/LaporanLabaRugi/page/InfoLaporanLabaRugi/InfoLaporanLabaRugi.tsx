@@ -86,14 +86,14 @@ export default function InfoLaporanLabaRugi() {
                 <th>Kode Akun Laporan</th>
                 <th>Nama Akun Laporan</th>
                 <th>Pilih Akun Perkiraan</th>
-                <th>Akun Perkiraan Terpilih</th>
+                <th className={styles.akunPerkiraanTerpilihColumn}>Akun Perkiraan Terpilih</th>
               </tr>
             </thead>
             <tbody>
               {tableData.map((row) => (
                 <tr key={row.id} style={{ backgroundColor: row.is_header ? '#f5f5f5' : 'transparent' }}>
                   <td>{row.kode_akun}</td>
-                  <td>{"  ".repeat(row.indent_num)}{row.nama_akun}</td>
+                  <td>{"  ".repeat(row.indent_num)}{row.nama_akun}</td>
                   <td>
                     {!row.is_header && (
                       <div className={styles.panel}>
@@ -113,7 +113,7 @@ export default function InfoLaporanLabaRugi() {
                       </div>
                     )}
                   </td>
-                  <td>
+                  <td className={styles.akunPerkiraanTerpilihColumn}>
                     <div className={styles.tagPanel}>
                       {row.selectedAkun?.map((item, idx) => (
                         <Tag

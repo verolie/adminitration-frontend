@@ -69,6 +69,10 @@
   font-size: 14px;
   color: #000;
 }
+  
+.akunPerkiraanTerpilihColumn {
+  width: 30%;
+}
 
 .panel {
   display: flex;
@@ -81,4 +85,7 @@
   flex-wrap: wrap;
   gap: 8px;
   padding: 8px 0;
+  max-width: 100%;
+  align-items: flex-start;
+  justify-content: flex-start;
 } 
