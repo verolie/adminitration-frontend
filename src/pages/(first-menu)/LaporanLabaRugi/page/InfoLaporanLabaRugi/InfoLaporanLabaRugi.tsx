@@ -143,14 +143,14 @@ export default function InfoLaporanLabaRugi() {
             </thead>
             <tbody>
               {tableData.map((row) => (
-                <tr key={row.id} style={{ backgroundColor: row.is_header ? '#f5f5f5' : 'transparent' }}>
+                <tr key={row.id} style={{ backgroundColor: row.is_header || row.formula != null ? '#f5f5f5' : 'transparent' }}>
                   <td>{row.kode_akun}</td>
                   <td>
                     {Array(row.indent_num).fill('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0').join('')}
                     {row.nama_akun}
                   </td>
                   <td>
-                    {!row.is_header && (
+                    {!row.is_header && row.formula == null && (
                       <div className={styles.panel}>
                         <AutocompleteTextField
                           label="Akun Perkiraan"

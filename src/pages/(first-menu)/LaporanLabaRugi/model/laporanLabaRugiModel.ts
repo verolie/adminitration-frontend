@@ -7,4 +7,5 @@ export interface TableRow {
   indent_num: number;
   is_header: boolean;
   selectedAkun: OptionType[];
+  formula: string | null;
 } 
