@@ -69,6 +69,10 @@
   font-size: 14px;
   color: #000;
 }
+
+.akunPerkiraanDetailDropdown {
+  width: 22%;
+}
   
 .akunPerkiraanTerpilihColumn {
   width: 30%;

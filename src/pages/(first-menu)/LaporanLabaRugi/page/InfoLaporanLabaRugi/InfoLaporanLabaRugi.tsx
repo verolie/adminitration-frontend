@@ -7,16 +7,7 @@ import Tag from "@/component/tag/tag";
 import { TableRow } from "../../model/laporanLabaRugiModel";
 import { fetchLaporanLabaRugi } from "../../function/fetchLaporanLabaRugi";
 import { useAlert } from "@/context/AlertContext";
-
-// Hardcoded data for demonstration
-const hardcodedAkunPerkiraan = [
-  { label: "1001 - Kas", value: "1" },
-  { label: "1002 - Bank", value: "2" },
-  { label: "2001 - Hutang Usaha", value: "3" },
-  { label: "3001 - Modal", value: "4" },
-  { label: "4001 - Pendapatan", value: "5" },
-  { label: "5001 - Beban", value: "6" },
-];
+import { fetchAkunPerkiraanDetail } from "../../function/fetchAkunPerkiraanDetail";
 
 export default function InfoLaporanLabaRugi() {
   const [tableData, setTableData] = React.useState<TableRow[]>([]);
@@ -25,6 +16,7 @@ export default function InfoLaporanLabaRugi() {
   const [initialTableData, setInitialTableData] = React.useState<TableRow[]>([]);
   const [hasChanges, setHasChanges] = React.useState(false);
   const { showAlert } = useAlert();
+  const [akunPerkiraanOptions, setAkunPerkiraanOptions] = React.useState<OptionType[]>([]);
 
   const fetchData = async () => {
     try {
@@ -50,6 +42,26 @@ export default function InfoLaporanLabaRugi() {
 
   React.useEffect(() => {
     fetchData();
+  }, []);
+
+  // Fetch akun perkiraan detail for dropdown
+  React.useEffect(() => {
+    const fetchAkun = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const companyId = localStorage.getItem("companyID");
+        if (!token || !companyId) return;
+        const data = await fetchAkunPerkiraanDetail({ companyId }, token);
+        const options = data.map((akun: any) => ({
+          value: akun.id?.toString() ?? '',
+          label: `${akun.kode_akun} - ${akun.nama_akun}`,
+        }));
+        setAkunPerkiraanOptions(options);
+      } catch (err) {
+        console.error("Gagal fetch akun perkiraan detail:", err);
+      }
+    };
+    fetchAkun();
   }, []);
 
   // Detect changes in selectedAkun
@@ -118,7 +130,7 @@ export default function InfoLaporanLabaRugi() {
               <tr>
                 <th>Kode Akun Laporan</th>
                 <th>Nama Akun Laporan</th>
-                <th>Pilih Akun Perkiraan</th>
+                <th className={styles.akunPerkiraanDetailDropdown}>Pilih Akun Perkiraan</th>
                 <th className={styles.akunPerkiraanTerpilihColumn}>Akun Perkiraan Terpilih</th>
               </tr>
             </thead>
@@ -134,8 +146,8 @@ export default function InfoLaporanLabaRugi() {
                     {!row.is_header && (
                       <div className={styles.panel}>
                         <AutocompleteTextField
-                          label="Objek Pajak"
-                          options={hardcodedAkunPerkiraan}
+                          label="Akun Perkiraan"
+                          options={akunPerkiraanOptions}
                           value={selectedOptions[row.id]}
                           onChange={(option) => setSelectedOptions(prev => ({ ...prev, [row.id]: option }))}
                           size="large"

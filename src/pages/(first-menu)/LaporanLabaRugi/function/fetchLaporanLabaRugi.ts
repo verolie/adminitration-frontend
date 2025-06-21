@@ -10,7 +10,7 @@ export const fetchLaporanLabaRugi = async (
 ): Promise<TableRow[]> => {
   try {
     const response = await fetch(
-      `http://127.0.0.1:5000/laporan-laba-rugi?companyId=${params.companyId}`,
+      `http://127.0.0.1:5000/laporan-laba-rugi/${params.companyId}`,
       {
         method: "GET",
         headers: {
