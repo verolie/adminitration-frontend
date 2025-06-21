@@ -22,6 +22,8 @@ export default function InfoLaporanLabaRugi() {
   const [tableData, setTableData] = React.useState<TableRow[]>([]);
   const [selectedOptions, setSelectedOptions] = React.useState<{ [key: string]: OptionType | undefined }>({});
   const [isLoading, setIsLoading] = React.useState(true);
+  const [initialTableData, setInitialTableData] = React.useState<TableRow[]>([]);
+  const [hasChanges, setHasChanges] = React.useState(false);
   const { showAlert } = useAlert();
 
   const fetchData = async () => {
@@ -35,7 +37,9 @@ export default function InfoLaporanLabaRugi() {
       }
 
       const data = await fetchLaporanLabaRugi({ companyId }, token);
+      console.log(data);
       setTableData(data);
+      setInitialTableData(data); // Save initial data for change detection
     } catch (error) {
       console.error("Error fetching data:", error);
       showAlert("Gagal mengambil data laporan laba rugi", "error");
@@ -47,6 +51,19 @@ export default function InfoLaporanLabaRugi() {
   React.useEffect(() => {
     fetchData();
   }, []);
+
+  // Detect changes in selectedAkun
+  React.useEffect(() => {
+    // Compare selectedAkun arrays for all rows
+    const isChanged = tableData.some((row, idx) => {
+      const initial = initialTableData[idx];
+      if (!initial) return true;
+      const currAkun = row.selectedAkun?.map(a => a.value).join(',') || '';
+      const initAkun = initial.selectedAkun?.map(a => a.value).join(',') || '';
+      return currAkun !== initAkun;
+    });
+    setHasChanges(isChanged);
+  }, [tableData, initialTableData]);
 
   const handleTambahData = (rowId: string) => {
     const selectedOption = selectedOptions[rowId];
@@ -78,6 +95,22 @@ export default function InfoLaporanLabaRugi() {
 
   return (
     <div className={styles.container}>
+      {/* Action buttons row */}
+      <div style={{ display: 'flex', gap: 12, marginBottom: 20, justifyContent: 'flex-end' }}>
+        <Button
+          size="large"
+          variant={hasChanges ? "confirm" : "disable"}
+          label="Save"
+          onClick={() => { /* TODO: Save handler */ }}
+          disabled={!hasChanges}
+        />
+        <Button
+          size="large"
+          variant="info"
+          label="Generate Report"
+          onClick={() => { /* TODO: Generate report handler */ }}
+        />
+      </div>
       <div className={styles.scrollContent}>
         <div className={styles.tableContainer}>
           <table className={styles.table}>
@@ -93,7 +126,10 @@ export default function InfoLaporanLabaRugi() {
               {tableData.map((row) => (
                 <tr key={row.id} style={{ backgroundColor: row.is_header ? '#f5f5f5' : 'transparent' }}>
                   <td>{row.kode_akun}</td>
-                  <td>{"  ".repeat(row.indent_num)}{row.nama_akun}</td>
+                  <td>
+                    {Array(row.indent_num).fill('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0').join('')}
+                    {row.nama_akun}
+                  </td>
                   <td>
                     {!row.is_header && (
                       <div className={styles.panel}>
