@@ -29,9 +29,16 @@ export default function InfoLaporanLabaRugi() {
       }
 
       const data = await fetchLaporanLabaRugi({ companyId }, token);
-      console.log(data);
-      setTableData(data);
-      setInitialTableData(data); // Save initial data for change detection
+      // Map akun_perkiraan_details to selectedAkun for each row
+      const mappedData = data.map((row: any) => ({
+        ...row,
+        selectedAkun: (row.akun_perkiraan_details || []).map((akun: any) => ({
+          label: `${akun.kode_akun} - ${akun.nama_akun}`,
+          value: akun.id?.toString() ?? '',
+        })),
+      }));
+      setTableData(mappedData);
+      setInitialTableData(mappedData); // Save initial data for change detection
     } catch (error) {
       console.error("Error fetching data:", error);
       showAlert("Gagal mengambil data laporan laba rugi", "error");
