@@ -8,6 +8,7 @@ import { TableRow } from "../../model/laporanLabaRugiModel";
 import { fetchLaporanLabaRugi } from "../../function/fetchLaporanLabaRugi";
 import { useAlert } from "@/context/AlertContext";
 import { fetchAkunPerkiraanDetail } from "../../function/fetchAkunPerkiraanDetail";
+import { bulkUpdateLaporanLabaRugi } from "../../function/bulkUpdate";
 
 export default function InfoLaporanLabaRugi() {
   const [tableData, setTableData] = React.useState<TableRow[]>([]);
@@ -108,6 +109,38 @@ export default function InfoLaporanLabaRugi() {
     );
   };
 
+  const handleSubmit = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const companyId = localStorage.getItem("companyID");
+      
+      if (!token || !companyId) {
+        showAlert("Token atau Company ID tidak tersedia", "error");
+        return;
+      }
+
+      const updateData = tableData
+        .filter(row => !row.is_header && row.formula == null && row.selectedAkun?.length > 0)
+        .map(row => ({
+          id: parseInt(row.id),
+          akun_perkiraan_detail_ids: row.selectedAkun.map(akun => parseInt(akun.value))
+        }));
+
+      if (updateData.length === 0) {
+        showAlert("Tidak ada data yang akan disimpan", "error");
+        return;
+      }
+
+      await bulkUpdateLaporanLabaRugi(updateData, token, companyId);
+      showAlert("Data berhasil disimpan", "success");
+      await fetchData(); // Refresh data after successful save
+      setHasChanges(false); // Reset changes flag after successful save
+    } catch (error) {
+      console.error("Error saving data:", error);
+      showAlert("Gagal menyimpan data", "error");
+    }
+  };
+
   if (isLoading) {
     return <div className={styles.loadingText}>Loading...</div>;
   }
@@ -120,7 +153,7 @@ export default function InfoLaporanLabaRugi() {
           size="large"
           variant={hasChanges ? "confirm" : "disable"}
           label="Save"
-          onClick={() => { /* TODO: Save handler */ }}
+          onClick={handleSubmit}
           disabled={!hasChanges}
         />
         <Button
