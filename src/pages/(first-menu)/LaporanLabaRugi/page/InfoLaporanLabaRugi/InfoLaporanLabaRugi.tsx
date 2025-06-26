@@ -9,8 +9,13 @@ import { fetchLaporanLabaRugi } from "../../function/fetchLaporanLabaRugi";
 import { useAlert } from "@/context/AlertContext";
 import { fetchAkunPerkiraanDetail } from "../../function/fetchAkunPerkiraanDetail";
 import { bulkUpdateLaporanLabaRugi } from "../../function/bulkUpdate";
+import { useAppContext } from '@/context/context';
 
-export default function InfoLaporanLabaRugi() {
+interface InfoLaporanLabaRugiProps {
+  onGenerate?: () => void;
+}
+
+export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiProps) {
   const [tableData, setTableData] = React.useState<TableRow[]>([]);
   const [selectedOptions, setSelectedOptions] = React.useState<{ [key: string]: OptionType | undefined }>({});
   const [isLoading, setIsLoading] = React.useState(true);
@@ -18,6 +23,7 @@ export default function InfoLaporanLabaRugi() {
   const [hasChanges, setHasChanges] = React.useState(false);
   const { showAlert } = useAlert();
   const [akunPerkiraanOptions, setAkunPerkiraanOptions] = React.useState<OptionType[]>([]);
+  const { addTab } = useAppContext();
 
   const fetchData = async () => {
     try {
@@ -160,7 +166,7 @@ export default function InfoLaporanLabaRugi() {
           size="large"
           variant="info"
           label="Generate Report"
-          onClick={() => { /* TODO: Generate report handler */ }}
+          onClick={onGenerate}
         />
       </div>
       <div className={styles.scrollContent}>
