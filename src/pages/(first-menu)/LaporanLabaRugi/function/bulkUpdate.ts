@@ -1,5 +1,5 @@
 interface BulkUpdateItem {
-    id: number;
+    laporan_laba_rugi_id: number;
     akun_perkiraan_detail_ids: number[];
   }
   

@@ -122,7 +122,7 @@ export default function InfoLaporanLabaRugi() {
       const updateData = tableData
         .filter(row => !row.is_header && row.formula == null && row.selectedAkun?.length > 0)
         .map(row => ({
-          id: parseInt(row.id),
+          laporan_laba_rugi_id: parseInt(row.id),
           akun_perkiraan_detail_ids: row.selectedAkun.map(akun => parseInt(akun.value))
         }));
 
