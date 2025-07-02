@@ -37,7 +37,7 @@ export default function GenerateLaporanLabaRugi() {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.titleText}>Generate Report</h2>
+      <h2 className={styles.titleText}>Laporan Laba Rugi</h2>
       <div className={styles.tableContainer}>
         <table className={styles.table}>
           <thead>
