@@ -3,16 +3,16 @@ import styles from "./styles.module.css";
 import { fetchGenerateLaporanLabaRugi, GenerateLaporanLabaRugiRow } from "../../function/fetchGenerateLaporanLabaRugi";
 
 const columns = [
-  { key: "kode_akun", label: "Kode Akun", sub: "(1)" },
-  { key: "nama_akun", label: "Nama Akun", sub: "(2)" },
-  { key: "nilai_komersial", label: "Nilai (Komersial)", sub: "(3)" },
-  { key: "tidak_termasuk_objek_pajak", label: "Tidak Termasuk Objek Pajak", sub: "(4)" },
-  { key: "dikenakan_pph_bersifat_final", label: "Dikenakan PPh Bersifat Final", sub: "(5)" },
-  { key: "objek_pajak_tidak_final", label: "Objek Pajak Tidak Final", sub: "(6) = (3)-(4)-(5)" },
-  { key: "penyesuaian_fiskal_positif", label: "Penyesuaian Fiskal Positif", sub: "(7)" },
-  { key: "penyesuaian_fiskal_negatif", label: "Penyesuaian Fiskal Negatif", sub: "(8)" },
-  { key: "kode_penyesuaian_fiskal", label: "Kode Penyesuaian Fiskal", sub: "(9)" },
-  { key: "nilai_fiskal", label: "Nilai Fiskal (Sebelum Fasilitas Perpajakan)", sub: "(10)" },
+  { label: "Kode Akun", sub: "(1)" },
+  { label: "Nama Akun", sub: "(2)" },
+  { label: "Nilai (Komersial)", sub: "(3)" },
+  { label: "Tidak Termasuk Objek Pajak", sub: "(4)" },
+  { label: "Dikenakan PPh Bersifat Final", sub: "(5)" },
+  { label: "Objek Pajak Tidak Final", sub: "(6) = (3)-(4)-(5)" },
+  { label: "Penyesuaian Fiskal Positif", sub: "(7)" },
+  { label: "Penyesuaian Fiskal Negatif", sub: "(8)" },
+  { label: "Kode Penyesuaian Fiskal", sub: "(9)" },
+  { label: "Nilai Fiskal (Sebelum Fasilitas Perpajakan)", sub: "(10)" },
 ];
 
 export default function GenerateLaporanLabaRugi() {
