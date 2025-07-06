@@ -13,6 +13,7 @@ import { JurnalUmum } from "../model/JurnalUmumModel";
 import { useAlert } from "@/context/AlertContext";
 import ModalConfirm from '@/component/confirmModalPopup/confirmModalPopup';
 import { useAppContext } from '@/context/context';
+import { formatRupiah } from "@/utils/formatNumber";
 
 type RowData = {
   no: string;
@@ -28,6 +29,7 @@ type Column<T> = {
   label: string;
   type: "text" | "select" | "date";
   options?: { label: string; value: string }[]; // Only for "select" type
+  onBlur?: (value: string) => string;
 };
 
 export default function DataBaru() {
@@ -61,8 +63,18 @@ export default function DataBaru() {
         options: akunOptions,
       },
       { field: "bukti", label: "Bukti", type: "text" },
-      { field: "debit", label: "Debit", type: "text" },
-      { field: "kredit", label: "Kredit", type: "text" },
+      { 
+        field: "debit", 
+        label: "Debit", 
+        type: "text",
+        onBlur: (value: string) => formatRupiah(value)
+      },
+      { 
+        field: "kredit", 
+        label: "Kredit", 
+        type: "text",
+        onBlur: (value: string) => formatRupiah(value)
+      },
       { field: "keterangan", label: "Keterangan", type: "text" },
     ],
     [akunOptions]
@@ -110,6 +122,7 @@ export default function DataBaru() {
         return;
       }
     }
+
     const updatedRows = [...rows];
     updatedRows[index][field] = value;
     setRows(updatedRows);
@@ -134,8 +147,12 @@ export default function DataBaru() {
     let kredit = 0;
 
     rows.forEach((row) => {
-      debit += parseFloat(row.debit) || 0;
-      kredit += parseFloat(row.kredit) || 0;
+      // Parse the formatted numbers
+      const debitNum = parseFloat(row.debit.replace(/\./g, '').replace(',', '.')) || 0;
+      const kreditNum = parseFloat(row.kredit.replace(/\./g, '').replace(',', '.')) || 0;
+      
+      debit += debitNum;
+      kredit += kreditNum;
     });
 
     setTotalDebit(debit);
@@ -157,6 +174,11 @@ export default function DataBaru() {
       reader.readAsDataURL(file);
     });
   };
+
+  function parseIndoNumber(str: string) {
+    if (!str) return 0;
+    return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
+  }
 
   const onSubmit = (status: "active" | "submit") => async () => {
     if (totalDebit !== totalKredit) {
@@ -186,8 +208,8 @@ export default function DataBaru() {
           jurnalDetail: rows.map((row, index) => ({
             akunPerkiraanDetailId: Number(row.rekening),
             bukti: row.bukti,
-            debit: parseFloat(row.debit) || 0,
-            kredit: parseFloat(row.kredit) || 0,
+            debit: parseIndoNumber(row.debit),
+            kredit: parseIndoNumber(row.kredit),
             urut: index + 1,
             keterangan: row.keterangan,
           })),
@@ -283,7 +305,7 @@ export default function DataBaru() {
               <Typography className={styles.labelText}>Total Debit</Typography>
               <FieldText
                 label="0"
-                value={totalDebit.toString()}
+                value={formatRupiah(totalDebit)}
                 onChange={(e) => setKodeAkunValue(e.target.value)}
                 sx={{ width: "100%" }}
                 disabled={true}
@@ -293,7 +315,7 @@ export default function DataBaru() {
               <Typography className={styles.labelText}>Total Kredit</Typography>
               <FieldText
                 label="0"
-                value={totalKredit.toString()}
+                value={formatRupiah(totalKredit)}
                 onChange={(e) => setKodeAkunValue(e.target.value)}
                 sx={{ width: "100%" }}
                 disabled={true}

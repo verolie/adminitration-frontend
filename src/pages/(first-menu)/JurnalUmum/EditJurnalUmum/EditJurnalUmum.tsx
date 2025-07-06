@@ -29,7 +29,7 @@ type Column<T> = {
   field: keyof T;
   label: string;
   type: "text" | "select" | "date";
-  options?: { label: string; value: string }[]; // Only for "select" type
+  options?: { label: string; value: string }[];
 };
 
 interface EditJurnalUmumProps {
@@ -45,6 +45,20 @@ type FilterValue = {
 type FilterOperator = "equals" | "contains";
 
 type FilterInput = Record<string, FilterValue>;
+
+const formatRupiah = (value: string | number): string => {
+  if (!value) return "0,00";
+  const numberValue = typeof value === 'string' ? parseFloat(value.replace(/[^\d,-]/g, '').replace(',', '.')) : value;
+  return new Intl.NumberFormat('id-ID', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(numberValue);
+};
+
+const parseFormattedNumber = (formattedValue: string): number => {
+  if (!formattedValue) return 0;
+  return parseFloat(formattedValue.replace(/\./g, '').replace(',', '.')) || 0;
+};
 
 export default function EditData({ id, onClose }: EditJurnalUmumProps) {
   const [kodeAkunValue, setKodeAkunValue] = React.useState("");
@@ -118,8 +132,27 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
     value: string
   ) => {
     const updatedRows = [...rows];
-    updatedRows[index][field] = value;
+    
+    if (field === 'debit' || field === 'kredit') {
+      // Only format on blur/enter, store raw input during typing
+      updatedRows[index][field] = value;
+    } else {
+      updatedRows[index][field] = value;
+    }
+    
     setRows(updatedRows);
+
+    // Calculate totals
+    let debit = 0;
+    let kredit = 0;
+
+    updatedRows.forEach((row) => {
+      debit += parseFormattedNumber(row.debit);
+      kredit += parseFormattedNumber(row.kredit);
+    });
+
+    setTotalDebit(debit);
+    setTotalKredit(kredit);
   };
 
   const handleAddRow = () => {
@@ -136,19 +169,6 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
       },
     ]);
   };
-
-  React.useEffect(() => {
-    let debit = 0;
-    let kredit = 0;
-
-    rows.forEach((row) => {
-      debit += parseFloat(row.debit) || 0;
-      kredit += parseFloat(row.kredit) || 0;
-    });
-
-    setTotalDebit(debit);
-    setTotalKredit(kredit);
-  }, [rows]);
 
   React.useEffect(() => {
     const fetchDataById = async () => {
@@ -172,8 +192,8 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
             no: (index + 1).toString(),
             rekening: item.id_akun_perkiraan_detail.toString(),
             bukti: item.bukti,
-            debit: item.debit.toString(),
-            kredit: item.kredit.toString(),
+            debit: formatRupiah(item.debit),
+            kredit: formatRupiah(item.kredit),
             keterangan: item.keterangan,
             tanggal: item.tgl,
           })
@@ -192,6 +212,18 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
     const updatedRows = [...rows];
     updatedRows.splice(index, 1);
     setRows(updatedRows);
+
+    // Recalculate totals after deletion
+    let debit = 0;
+    let kredit = 0;
+
+    updatedRows.forEach((row) => {
+      debit += parseFormattedNumber(row.debit);
+      kredit += parseFormattedNumber(row.kredit);
+    });
+
+    setTotalDebit(debit);
+    setTotalKredit(kredit);
   };
 
   // Fungsi untuk mengubah file menjadi base64
@@ -227,13 +259,13 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
           totalDebit: totalDebit,
           totalKredit: totalKredit,
           companyId: companyId,
-          deskripsi: deskripsiValue, // Sertakan deskripsi
-          file: fileBase64, // Sertakan file base64
+          deskripsi: deskripsiValue,
+          file: fileBase64,
           jurnalDetail: rows.map((row, index) => ({
             akunPerkiraanDetailId: Number(row.rekening),
             bukti: row.bukti,
-            debit: parseFloat(row.debit) || 0,
-            kredit: parseFloat(row.kredit) || 0,
+            debit: parseFormattedNumber(row.debit),
+            kredit: parseFormattedNumber(row.kredit),
             urut: index + 1,
             keterangan: row.keterangan,
           })),
@@ -322,7 +354,7 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
               <Typography className={styles.labelText}>Total Debit</Typography>
               <FieldText
                 label="0"
-                value={totalDebit.toString()}
+                value={formatRupiah(totalDebit)}
                 onChange={(e) => setKodeAkunValue(e.target.value)}
                 sx={{ width: "100%" }}
                 disabled={true}
@@ -332,7 +364,7 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
               <Typography className={styles.labelText}>Total Kredit</Typography>
               <FieldText
                 label="0"
-                value={totalKredit.toString()}
+                value={formatRupiah(totalKredit)}
                 onChange={(e) => setKodeAkunValue(e.target.value)}
                 sx={{ width: "100%" }}
                 disabled={true}
