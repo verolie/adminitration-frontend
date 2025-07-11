@@ -2,7 +2,7 @@ import * as React from "react";
 import styles from "./styles.module.css";
 import AutocompleteTextField, { OptionType } from "@/component/textField/autoCompleteText";
 import Button from "@/component/button/button";
-import { Add } from "@mui/icons-material";
+import { Add, Edit } from "@mui/icons-material";
 import Tag from "@/component/tag/tag";
 import { TableRow } from "../../model/laporanLabaRugiModel";
 import { fetchLaporanLabaRugi } from "../../function/fetchLaporanLabaRugi";
@@ -10,9 +10,17 @@ import { useAlert } from "@/context/AlertContext";
 import { fetchAkunPerkiraanDetail } from "../../function/fetchAkunPerkiraanDetail";
 import { bulkUpdateLaporanLabaRugi } from "../../function/bulkUpdate";
 import { useAppContext } from '@/context/context';
+import PopupMappingLabaRugi from "@/component/popupMappingLabaRugi/popupMappingLabaRugi";
 
 interface InfoLaporanLabaRugiProps {
   onGenerate?: () => void;
+}
+
+interface MappingRow {
+  id: string;
+  field1: string;
+  operator: string;
+  field2: string;
 }
 
 export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiProps) {
@@ -24,6 +32,8 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
   const { showAlert } = useAlert();
   const [akunPerkiraanOptions, setAkunPerkiraanOptions] = React.useState<OptionType[]>([]);
   const { addTab } = useAppContext();
+  const [showMappingPopup, setShowMappingPopup] = React.useState(false);
+  const [selectedRowId, setSelectedRowId] = React.useState<string>("");
 
   const fetchData = async () => {
     try {
@@ -91,18 +101,15 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
     setHasChanges(isChanged);
   }, [tableData, initialTableData]);
 
-  const handleTambahData = (rowId: string) => {
-    const selectedOption = selectedOptions[rowId];
-    if (selectedOption) {
-      setTableData(prevData => 
-        prevData.map(row => 
-          row.id === rowId 
-            ? { ...row, selectedAkun: [...(row.selectedAkun || []), selectedOption] }
-            : row
-        )
-      );
-      setSelectedOptions(prev => ({ ...prev, [rowId]: undefined }));
-    }
+  const handleEditMapping = (rowId: string) => {
+    setSelectedRowId(rowId);
+    setShowMappingPopup(true);
+  };
+
+  const handleSaveMapping = (mappings: MappingRow[]) => {
+    // TODO: Implement save mapping logic
+    console.log("Saving mappings for row:", selectedRowId, mappings);
+    showAlert("Mapping berhasil disimpan", "success");
   };
 
   const handleRemoveAkun = (rowId: string, indexToRemove: number) => {
@@ -176,8 +183,8 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
               <tr>
                 <th>Kode Akun Laporan</th>
                 <th>Nama Akun Laporan</th>
-                <th className={styles.akunPerkiraanDetailDropdown}>Pilih Akun Perkiraan</th>
                 <th className={styles.akunPerkiraanTerpilihColumn}>Akun Perkiraan Terpilih</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -187,25 +194,6 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
                   <td>
                     {Array(row.indent_num).fill('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0').join('')}
                     {row.nama_akun}
-                  </td>
-                  <td>
-                    {!row.is_header && row.formula == null && (
-                      <div className={styles.panel}>
-                        <AutocompleteTextField
-                          label="Akun Perkiraan"
-                          options={akunPerkiraanOptions}
-                          value={selectedOptions[row.id]}
-                          onChange={(option) => setSelectedOptions(prev => ({ ...prev, [row.id]: option }))}
-                          size="large"
-                        />
-                        <Button
-                          size="small"
-                          variant="confirm"
-                          icon={<Add sx={{ color: "white" }} />}
-                          onClick={() => handleTambahData(row.id)}
-                        />
-                      </div>
-                    )}
                   </td>
                   <td className={styles.akunPerkiraanTerpilihColumn}>
                     <div className={styles.tagPanel}>
@@ -218,12 +206,29 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
                       ))}
                     </div>
                   </td>
+                  <td>
+                    {!row.is_header && row.formula != null && (
+                      <Button
+                        size="small"
+                        variant="info"
+                        icon={<Edit sx={{ fontSize: 19.2 }} />}
+                        onClick={() => handleEditMapping(row.id)}
+                      />
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      <PopupMappingLabaRugi
+        open={showMappingPopup}
+        onClose={() => setShowMappingPopup(false)}
+        onSave={handleSaveMapping}
+        akunPerkiraanOptions={akunPerkiraanOptions}
+      />
     </div>
   );
 } 
