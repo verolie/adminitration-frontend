@@ -1,0 +1,128 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 253px);
+  overflow: hidden;
+}
+
+.titleText {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.loadingText {
+  text-align: center;
+  padding: 20px;
+}
+
+.scrollContainer {
+  flex: 1;
+  width: 100%;
+  height: calc(100vh - 200px); /* Adjust based on your header/tab heights */
+  overflow: auto;
+}
+
+.tablesContainer {
+  display: flex;
+  gap: 24px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.tableContainer {
+  flex: 1;
+  overflow: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.tableWrapper {
+  flex: 1;
+  min-width: 500px; /* Minimum width for each table */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+}
+
+.table th,
+.table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  color: #222;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-bottom: 2px solid #d0d0d0;
+  text-align: center;
+  border-right: 1px solid #ededed;
+}
+
+.table th:last-child {
+  border-right: none;
+}
+
+.stickyHeader {
+  background: #f5f5f5;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-bottom: 2px solid #d0d0d0;
+  text-align: center;
+  font-size: 12px;
+}
+
+.colSub {
+  font-size: 12px;
+  color: #888;
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.table td {
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  color: #222;
+  border-right: 1px solid #ededed;
+}
+
+.table td:last-child {
+  border-right: none;
+}
+
+.greyCell {
+  background-color: #f0f0f0;
+  color: #888;
+}
+
+.namaAkunCol {
+  min-width: 220px;
+  max-width: 400px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uniformCol {
+  min-width: 110px;
+  max-width: 110px;
+} 
