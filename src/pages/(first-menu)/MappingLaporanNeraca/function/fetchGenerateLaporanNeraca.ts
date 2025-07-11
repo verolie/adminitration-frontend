@@ -6,14 +6,7 @@ export interface GenerateLaporanNeracaRow {
     nama_akun: string;
     indent_num: number;
     is_header: boolean;
-    nilai_komersial: number | boolean;
-    tidak_termasuk_objek_pajak: number | boolean;
-    dikenakan_pph_bersifat_final: number | boolean;
-    objek_pajak_tidak_final: number | boolean;
-    penyesuaian_fiskal_positif: number | boolean;
-    penyesuaian_fiskal_negatif: number | boolean;
-    kode_penyesuaian_fiskal: number | boolean;
-    nilai_fiskal: number | boolean;
+    nilai: number | boolean;
 }
 
 interface FetchGenerateLaporanNeracaParams {

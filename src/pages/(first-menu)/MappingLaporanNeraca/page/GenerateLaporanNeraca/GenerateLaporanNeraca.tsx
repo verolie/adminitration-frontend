@@ -60,8 +60,8 @@ export default function GenerateLaporanNeraca() {
               {Array(row.indent_num).fill('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0').join('')}
               {row.nama_akun}
             </td>
-            <td className={row.nilai_komersial === null ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
-              {row.nilai_komersial === null ? '' : String(row.nilai_komersial)}
+            <td className={row.nilai === null ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
+              {row.nilai === null ? '' : String(row.nilai)}
             </td>
           </tr>
         ))}
