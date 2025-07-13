@@ -2,7 +2,7 @@ import * as React from "react";
 import styles from "./styles.module.css";
 import AutocompleteTextField, { OptionType } from "@/component/textField/autoCompleteText";
 import Button from "@/component/button/button";
-import { Add, Edit } from "@mui/icons-material";
+import { Add, Edit, TableChart } from "@mui/icons-material";
 import Tag from "@/component/tag/tag";
 import { TableRow } from "../../model/laporanLabaRugiModel";
 import { fetchLaporanLabaRugi } from "../../function/fetchLaporanLabaRugi";
@@ -11,6 +11,7 @@ import { fetchAkunPerkiraanDetail } from "../../function/fetchAkunPerkiraanDetai
 import { bulkUpdateLaporanLabaRugi } from "../../function/bulkUpdate";
 import { useAppContext } from '@/context/context';
 import PopupMappingLabaRugi from "@/component/popupMappingLabaRugi/popupMappingLabaRugi";
+import { exportLaporanLabaRugiExcel } from '@/utils/function/exportLaporanLabaRugiExcel';
 
 interface InfoLaporanLabaRugiProps {
   onGenerate?: () => void;
@@ -20,7 +21,7 @@ interface MappingRow {
   id: string;
   field1: string;
   operator: string;
-  field2: string;
+  field2: (string | number)[];
 }
 
 export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiProps) {
@@ -34,6 +35,7 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
   const { addTab } = useAppContext();
   const [showMappingPopup, setShowMappingPopup] = React.useState(false);
   const [selectedRowId, setSelectedRowId] = React.useState<string>("");
+  const [selectedRowData, setSelectedRowData] = React.useState<{ kode_akun: string; nama_akun: string } | null>(null);
 
   const fetchData = async () => {
     try {
@@ -102,14 +104,26 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
   }, [tableData, initialTableData]);
 
   const handleEditMapping = (rowId: string) => {
-    setSelectedRowId(rowId);
-    setShowMappingPopup(true);
+    const rowData = tableData.find(row => row.id === rowId);
+    if (rowData) {
+      setSelectedRowId(rowId);
+      setSelectedRowData({
+        kode_akun: rowData.kode_akun,
+        nama_akun: rowData.nama_akun
+      });
+      setShowMappingPopup(true);
+    }
   };
 
-  const handleSaveMapping = (mappings: MappingRow[]) => {
-    // TODO: Implement save mapping logic
-    console.log("Saving mappings for row:", selectedRowId, mappings);
-    showAlert("Mapping berhasil disimpan", "success");
+  const handleSaveMapping = async (mappings: MappingRow[]) => {
+    try {
+      // Refresh data after successful mapping save
+      await fetchData();
+      showAlert("Mapping berhasil disimpan", "success");
+    } catch (error) {
+      console.error("Error handling mapping save:", error);
+      showAlert("Gagal memproses mapping", "error");
+    }
   };
 
   const handleRemoveAkun = (rowId: string, indexToRemove: number) => {
@@ -122,7 +136,7 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
     );
   };
 
-  const handleSubmit = async () => {
+  const handleGenerate = async () => {
     try {
       const token = localStorage.getItem("token");
       const companyId = localStorage.getItem("companyID");
@@ -132,25 +146,11 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
         return;
       }
 
-      const updateData = tableData
-        .filter(row => !row.is_header && row.formula == null && row.selectedAkun?.length > 0)
-        .map(row => ({
-          laporan_laba_rugi_id: parseInt(row.id),
-          akun_perkiraan_detail_ids: row.selectedAkun.map(akun => parseInt(akun.value))
-        }));
-
-      if (updateData.length === 0) {
-        showAlert("Tidak ada data yang akan disimpan", "error");
-        return;
-      }
-
-      await bulkUpdateLaporanLabaRugi(updateData, token, companyId);
-      showAlert("Data berhasil disimpan", "success");
-      await fetchData(); // Refresh data after successful save
-      setHasChanges(false); // Reset changes flag after successful save
+      await exportLaporanLabaRugiExcel(companyId, token);
+      showAlert("Excel berhasil di-generate", "success");
     } catch (error) {
-      console.error("Error saving data:", error);
-      showAlert("Gagal menyimpan data", "error");
+      console.error("Error generating excel:", error);
+      showAlert("Gagal generate excel", "error");
     }
   };
 
@@ -164,15 +164,14 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, justifyContent: 'flex-end' }}>
         <Button
           size="large"
-          variant={hasChanges ? "confirm" : "disable"}
-          label="Save"
-          onClick={handleSubmit}
-          disabled={!hasChanges}
+          variant="confirm"
+          label="Generate Excel"
+          onClick={handleGenerate}
         />
         <Button
           size="large"
           variant="info"
-          label="Generate Report"
+          label="View Mapping Report"
           onClick={onGenerate}
         />
       </div>
@@ -225,9 +224,14 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
 
       <PopupMappingLabaRugi
         open={showMappingPopup}
-        onClose={() => setShowMappingPopup(false)}
+        onClose={() => {
+          setShowMappingPopup(false);
+          setSelectedRowData(null);
+        }}
         onSave={handleSaveMapping}
         akunPerkiraanOptions={akunPerkiraanOptions}
+        accountCodeBeingEdited={selectedRowData ? `${selectedRowData.kode_akun} - ${selectedRowData.nama_akun}` : ""}
+        laporanLabaRugiId={selectedRowId ? parseInt(selectedRowId) : undefined}
       />
     </div>
   );

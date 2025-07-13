@@ -11,13 +11,16 @@ import {
 import { Close, Add, Delete } from "@mui/icons-material";
 import Button from "../button/button";
 import SelectedTextField from "../textField/selectedText";
+import SelectionCheckbox from "../textField/selectionCheckbox";
 import styles from "./styles.module.css";
+import { bulkUpdateLaporanLabaRugi } from "../../pages/(first-menu)/MappingLabaRugi/function/bulkUpdate";
+import { useAlert } from "@/context/AlertContext";
 
 interface MappingRow {
   id: string;
   field1: string;
   operator: string;
-  field2: string;
+  field2: (string | number)[];
 }
 
 interface PopupMappingLabaRugiProps {
@@ -26,6 +29,8 @@ interface PopupMappingLabaRugiProps {
   onSave: (mappings: MappingRow[]) => void;
   akunPerkiraanOptions: { value: string; label: string }[];
   initialMappings?: MappingRow[];
+  accountCodeBeingEdited?: string; // New prop for the account code being edited
+  laporanLabaRugiId?: number; // Add the ID for the laporan laba rugi row
 }
 
 const operatorOptions = [
@@ -41,9 +46,12 @@ export default function PopupMappingLabaRugi({
   onSave,
   akunPerkiraanOptions,
   initialMappings = [],
+  accountCodeBeingEdited = "",
+  laporanLabaRugiId,
 }: PopupMappingLabaRugiProps) {
   const [mappings, setMappings] = React.useState<MappingRow[]>([]);
   const [showAddRow, setShowAddRow] = React.useState(false); // State untuk kontrol visibilitas tombol Add New Row
+  const { showAlert } = useAlert();
 
   React.useEffect(() => {
     if (open) {
@@ -53,9 +61,9 @@ export default function PopupMappingLabaRugi({
 
   const createNewRow = (): MappingRow => ({
     id: Date.now().toString(),
-    field1: "",
+    field1: accountCodeBeingEdited, // Set the account code being edited
     operator: "+",
-    field2: "",
+    field2: [],
   });
 
   const handleAddRow = () => {
@@ -68,15 +76,50 @@ export default function PopupMappingLabaRugi({
     }
   };
 
-  const handleRowChange = (id: string, field: keyof MappingRow, value: string) => {
+  const handleRowChange = (id: string, field: keyof MappingRow, value: string | (string | number)[]) => {
     setMappings(mappings.map(row =>
       row.id === id ? { ...row, [field]: value } : row
     ));
   };
 
-  const handleSave = () => {
-    onSave(mappings);
-    onClose();
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const companyId = localStorage.getItem("companyID");
+      
+      if (!token || !companyId) {
+        showAlert("Token atau Company ID tidak tersedia", "error");
+        return;
+      }
+
+      if (!laporanLabaRugiId) {
+        showAlert("ID Laporan Laba Rugi tidak tersedia", "error");
+        return;
+      }
+
+      // Validate that at least one mapping has selected accounts
+      const validMappings = mappings.filter(mapping => mapping.field2.length > 0);
+      if (validMappings.length === 0) {
+        showAlert("Pilih minimal satu akun perkiraan", "error");
+        return;
+      }
+
+      // Format data sesuai dengan API yang diharapkan
+      const bulkData = validMappings.map(mapping => ({
+        laporan_laba_rugi_id: laporanLabaRugiId,
+        akun_perkiraan_detail_ids: mapping.field2.map(id => parseInt(id.toString())),
+      }));
+
+      console.log("Sending mapping data:", bulkData);
+      await bulkUpdateLaporanLabaRugi(bulkData, token, companyId);
+
+      showAlert("Mapping berhasil disimpan", "success");
+      onSave(mappings);
+      onClose();
+    } catch (error) {
+      console.error("Error saving mapping:", error);
+      showAlert("Gagal menyimpan mapping", "error");
+    }
   };
 
   return (
@@ -103,13 +146,14 @@ export default function PopupMappingLabaRugi({
               <div className={styles.rowNumber}>{index + 1}</div>
               
               <div className={styles.fieldContainer}>
-                <Typography className={styles.fieldLabel}>Field 1</Typography>
+                <Typography className={styles.fieldLabel}>Kode Akun Laporan</Typography>
                 <SelectedTextField
-                  label="Pilih Akun Perkiraan"
-                  options={akunPerkiraanOptions}
+                  label="Kode Akun Laporan"
+                  options={[{ value: accountCodeBeingEdited, label: accountCodeBeingEdited }]}
                   value={row.field1}
                   onChange={(e) => handleRowChange(row.id, "field1", e.target.value)}
                   sx={{ width: "100%" }}
+                  readOnly={true}
                 />
               </div>
 
@@ -125,12 +169,12 @@ export default function PopupMappingLabaRugi({
               </div>
 
               <div className={styles.fieldContainer}>
-                <Typography className={styles.fieldLabel}>Field 2</Typography>
-                <SelectedTextField
+                <Typography className={styles.fieldLabel}>Akun Perkiraan</Typography>
+                <SelectionCheckbox
                   label="Pilih Akun Perkiraan"
                   options={akunPerkiraanOptions}
                   value={row.field2}
-                  onChange={(e) => handleRowChange(row.id, "field2", e.target.value)}
+                  onChange={(value) => handleRowChange(row.id, "field2", value)}
                   sx={{ width: "100%" }}
                 />
               </div>
@@ -152,12 +196,12 @@ export default function PopupMappingLabaRugi({
 
       <DialogActions className={styles.dialogActionsSplit}>
         <div className={styles.dialogActionsLeft}>
-          <Button
+          {/* <Button
             size="large"
             variant="info"
             label="Add New Row"
             onClick={handleAddRow}
-          />
+          /> */}
         </div>
         <div className={styles.dialogActionsRight}>
                   <Button

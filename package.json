@@ -17,12 +17,15 @@
     "@toolpad/core": "^0.12.0",
     "axios": "^1.8.4",
     "crypto-js": "^4.2.0",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.483.0",
     "next": "15.1.7",
     "number-separator": "^2.0.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",
