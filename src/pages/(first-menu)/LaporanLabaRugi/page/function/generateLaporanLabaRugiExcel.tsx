@@ -1,18 +1,28 @@
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 
-export async function exportGenerateLaporanLabaRugiExcel(companyId: string, token: string, startDate?: string, endDate?: string) {
-  // Build query string for start_date and end_date
-  const query = new URLSearchParams();
-  if (startDate) query.append('start_date', startDate);
-  if (endDate) query.append('end_date', endDate);
-  const url = `http://127.0.0.1:5000/laporan-laba-rugi/${companyId}/generate_laporan` + (query.toString() ? `?${query.toString()}` : '');
+export async function exportGenerateLaporanLabaRugiExcel(
+  companyId: string,
+  token: string,
+  startDate?: string,
+  endDate?: string,
+  dataOverride?: any[]
+) {
+  let data = dataOverride;
+  if (!dataOverride) {
+    // Build query string for start_date and end_date
+    const query = new URLSearchParams();
+    if (startDate) query.append('start_date', startDate);
+    if (endDate) query.append('end_date', endDate);
+    const url = `http://127.0.0.1:5000/laporan-laba-rugi/${companyId}/generate_laporan` + (query.toString() ? `?${query.toString()}` : '');
 
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  const result = await response.json();
-  const data = result.data || [];
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const result = await response.json();
+    data = result.data || [];
+  }
+  data = data || [];
 
   // Header dan sub-header sesuai GenerateLaporanLabaRugi
   const headerRow = [

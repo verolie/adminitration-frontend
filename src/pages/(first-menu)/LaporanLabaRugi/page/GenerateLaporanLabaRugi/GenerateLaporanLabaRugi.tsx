@@ -66,12 +66,23 @@ export default function GenerateLaporanLabaRugi() {
         return;
       }
 
-      await exportGenerateLaporanLabaRugiExcel(companyId, token, startDate, endDate);
+      await exportGenerateLaporanLabaRugiExcel(companyId, token, startDate, endDate, data);
       showAlert("Excel berhasil di-generate", "success");
     } catch (error) {
       console.error("Error generating excel:", error);
       showAlert("Gagal generate excel", "error");
     }
+  };
+
+  // Tambahkan handler untuk update cell
+  const handleCellChange = (rowIdx: number, field: keyof GenerateLaporanLabaRugiRow, value: string) => {
+    setData(prev => prev.map((row, idx) => {
+      if (idx !== rowIdx) return row;
+      return {
+        ...row,
+        [field]: value === '' ? 0 : Number(value)
+      };
+    }));
   };
 
   return (
@@ -128,30 +139,33 @@ export default function GenerateLaporanLabaRugi() {
                   <td className={styles.namaAkunCol}>
                     {Array(row.indent_num).fill('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0').join('')}{row.nama_akun}
                   </td>
-                  <td className={row.nilai_komersial === null ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
-                    {row.nilai_komersial === null ? '' : String(row.nilai_komersial)}
-                  </td>
-                  <td className={row.tidak_termasuk_objek_pajak === null ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
-                    {row.tidak_termasuk_objek_pajak === null ? '' : String(row.tidak_termasuk_objek_pajak)}
-                  </td>
-                  <td className={row.dikenakan_pph_bersifat_final === null ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
-                    {row.dikenakan_pph_bersifat_final === null ? '' : String(row.dikenakan_pph_bersifat_final)}
-                  </td>
-                  <td className={row.objek_pajak_tidak_final === null ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
-                    {row.objek_pajak_tidak_final === null ? '' : String(row.objek_pajak_tidak_final)}
-                  </td>
-                  <td className={row.penyesuaian_fiskal_positif === null ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
-                    {row.penyesuaian_fiskal_positif === null ? '' : String(row.penyesuaian_fiskal_positif)}
-                  </td>
-                  <td className={row.penyesuaian_fiskal_negatif === null ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
-                    {row.penyesuaian_fiskal_negatif === null ? '' : String(row.penyesuaian_fiskal_negatif)}
-                  </td>
-                  <td className={row.kode_penyesuaian_fiskal === null ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
-                    {row.kode_penyesuaian_fiskal === null ? '' : String(row.kode_penyesuaian_fiskal)}
-                  </td>
-                  <td className={row.nilai_fiskal === null ? styles.greyCell + " " + styles.nilaiFiskalCol : styles.nilaiFiskalCol}>
-                    {row.nilai_fiskal === null ? '' : String(row.nilai_fiskal)}
-                  </td>
+                  {/* Untuk setiap kolom angka, cek null, jika tidak null render input */}
+                  {["nilai_komersial","tidak_termasuk_objek_pajak","dikenakan_pph_bersifat_final","objek_pajak_tidak_final","penyesuaian_fiskal_positif","penyesuaian_fiskal_negatif","kode_penyesuaian_fiskal","nilai_fiskal"].map((field, colIdx) => {
+                    const value = row[field as keyof GenerateLaporanLabaRugiRow];
+                    const isEditable = value !== null;
+                    const colClass = field === "nilai_fiskal" ? styles.nilaiFiskalCol : styles.uniformCol;
+                    return (
+                      <td key={field} className={isEditable ? colClass : styles.greyCell + " " + colClass}>
+                        {isEditable ? (
+                          <input
+                            type="number"
+                            value={String(value ?? 0)}
+                            onChange={e => handleCellChange(idx, field as keyof GenerateLaporanLabaRugiRow, e.target.value)}
+                            style={{
+                              width: '94%',
+                              border: 'none',
+                              background: 'transparent',
+                              padding: '2px 6px',
+                              outline: 'none',
+                              // borderBottom: '1px solid #ccc',
+                              fontSize: 'inherit',
+                              textAlign: 'right',
+                            }}
+                          />
+                        ) : ''}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))
             )}
