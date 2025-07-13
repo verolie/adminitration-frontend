@@ -1,6 +1,10 @@
 import * as React from "react";
 import styles from "./styles.module.css";
 import { fetchGenerateLaporanLabaRugi, GenerateLaporanLabaRugiRow } from "../../function/fetchGenerateLaporanLabaRugi";
+import DatePickerField from "@/component/textField/dateAreaText";
+import Button from "@/component/button/button";
+import { useAlert } from "@/context/AlertContext";
+import { exportGenerateLaporanLabaRugiExcel } from '../function/generateLaporanLabaRugiExcel';
 
 const columns = [
   { label: "Kode Akun", sub: "(1)" },
@@ -15,29 +19,85 @@ const columns = [
   { label: "Nilai Fiskal (Sebelum Fasilitas Perpajakan)", sub: "(10)" },
 ];
 
+function getDefaultDates() {
+  const end = new Date();
+  const start = new Date();
+  start.setDate(end.getDate() - 10);
+  const toISO = (d: Date) => d.toISOString().slice(0, 10);
+  return { start: toISO(start), end: toISO(end) };
+}
+
 export default function GenerateLaporanLabaRugi() {
+  const { start, end } = getDefaultDates();
+  const [startDate, setStartDate] = React.useState(start);
+  const [endDate, setEndDate] = React.useState(end);
   const [data, setData] = React.useState<GenerateLaporanLabaRugiRow[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const { showAlert } = useAlert();
+
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value);
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value);
+
+  const fetchData = React.useCallback(async (start_date: string, end_date: string) => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("token") || "dummy-token";
+      const companyId = localStorage.getItem("companyID") || "dummy-company";
+      const result = await fetchGenerateLaporanLabaRugi({ companyId, start_date, end_date }, token);
+      setData(result);
+    } catch (err) {
+      setData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
   React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem("token") || "dummy-token";
-        const companyId = localStorage.getItem("companyID") || "dummy-company";
-        const result = await fetchGenerateLaporanLabaRugi({ companyId }, token);
-        setData(result);
-      } catch (err) {
-        setData([]);
-      } finally {
-        setIsLoading(false);
+    fetchData(startDate, endDate);
+  }, [startDate, endDate, fetchData]);
+
+  const handleGenerateExcel = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const companyId = localStorage.getItem("companyID");
+      
+      if (!token || !companyId) {
+        showAlert("Token atau Company ID tidak tersedia", "error");
+        return;
       }
-    };
-    fetchData();
-  }, []);
+
+      await exportGenerateLaporanLabaRugiExcel(companyId, token, startDate, endDate);
+      showAlert("Excel berhasil di-generate", "success");
+    } catch (error) {
+      console.error("Error generating excel:", error);
+      showAlert("Gagal generate excel", "error");
+    }
+  };
 
   return (
     <div className={styles.container}>
       <h2 className={styles.titleText}>Laporan Laba Rugi</h2>
+      
+      {/* Action buttons row */}
+      <div style={{ display: 'flex', marginBottom: 20, justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className={styles.dateFieldsContainer}>
+          <div className={styles.dateFieldContainer}>
+            <label className={styles.dateFieldLabel}>Start Date:</label>
+            <DatePickerField value={startDate} onChange={handleStartDateChange} sx={{ width: '100%' }} />
+          </div>
+          <div className={styles.dateFieldContainer}>
+            <label className={styles.dateFieldLabel}>End Date:</label>
+            <DatePickerField value={endDate} onChange={handleEndDateChange} sx={{ width: '100%' }} />
+          </div>
+        </div>
+        <Button
+          size="large"
+          variant="confirm"
+          label="Generate Excel"
+          onClick={handleGenerateExcel}
+        />
+      </div>
+      
       <div className={styles.tableContainer}>
         <table className={styles.table}>
           <thead>

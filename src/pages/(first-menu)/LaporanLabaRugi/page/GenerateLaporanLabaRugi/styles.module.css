@@ -100,3 +100,20 @@
   min-width: 110px;
   max-width: 110px;
 }
+
+.dateFieldContainer {
+  display: flex;
+  flex-direction: column;
+  margin-left: 0;
+  width: 45%;
+}
+
+.dateFieldLabel {
+  margin-bottom: 4px;
+}
+
+.dateFieldsContainer {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}

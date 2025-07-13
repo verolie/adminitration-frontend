@@ -16,8 +16,10 @@ export interface GenerateLaporanLabaRugiRow {
     nilai_fiskal: number | boolean;
 }
 
-interface FetchGenerateLaporanLabaRugiParams {
+export interface FetchGenerateLaporanLabaRugiParams {
   companyId: string;
+  start_date?: string;
+  end_date?: string;
 }
 
 export const fetchGenerateLaporanLabaRugi = async (
@@ -25,8 +27,16 @@ export const fetchGenerateLaporanLabaRugi = async (
   token: string
 ): Promise<GenerateLaporanLabaRugiRow[]> => {
   try {
+    // Build query string for start_date and end_date
+    const query = new URLSearchParams();
+    if (params.start_date) query.append('start_date', params.start_date);
+    if (params.end_date) query.append('end_date', params.end_date);
+    const url =
+      `http://127.0.0.1:5000/laporan-laba-rugi/${params.companyId}/generate_laporan` +
+      (query.toString() ? `?${query.toString()}` : '');
+
     const response = await fetch(
-      `http://127.0.0.1:5000/laporan-laba-rugi/${params.companyId}/generate_laporan`,
+      url,
       {
         method: "GET",
         headers: {
