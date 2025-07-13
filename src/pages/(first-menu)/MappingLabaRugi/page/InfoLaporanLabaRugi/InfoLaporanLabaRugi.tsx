@@ -35,7 +35,11 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
   const { addTab } = useAppContext();
   const [showMappingPopup, setShowMappingPopup] = React.useState(false);
   const [selectedRowId, setSelectedRowId] = React.useState<string>("");
-  const [selectedRowData, setSelectedRowData] = React.useState<{ kode_akun: string; nama_akun: string } | null>(null);
+  const [selectedRowData, setSelectedRowData] = React.useState<{ 
+    kode_akun: string; 
+    nama_akun: string;
+    selectedAccountIds?: (string | number)[];
+  } | null>(null);
 
   const fetchData = async () => {
     try {
@@ -110,6 +114,12 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
       setSelectedRowData({
         kode_akun: rowData.kode_akun,
         nama_akun: rowData.nama_akun
+      });
+      // Extract selected account IDs from the existing data
+      const selectedAccountIds = rowData.selectedAkun?.map(akun => akun.value) || [];
+      setSelectedRowData({
+        ...rowData,
+        selectedAccountIds: selectedAccountIds
       });
       setShowMappingPopup(true);
     }
@@ -206,7 +216,7 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
                     </div>
                   </td>
                   <td>
-                    {!row.is_header && row.formula != null && (
+                    {!row.is_header && row.formula === null && (
                       <Button
                         size="small"
                         variant="info"
@@ -232,6 +242,7 @@ export default function InfoLaporanLabaRugi({ onGenerate }: InfoLaporanLabaRugiP
         akunPerkiraanOptions={akunPerkiraanOptions}
         accountCodeBeingEdited={selectedRowData ? `${selectedRowData.kode_akun} - ${selectedRowData.nama_akun}` : ""}
         laporanLabaRugiId={selectedRowId ? parseInt(selectedRowId) : undefined}
+        initialSelectedAccounts={selectedRowData?.selectedAccountIds || []}
       />
     </div>
   );

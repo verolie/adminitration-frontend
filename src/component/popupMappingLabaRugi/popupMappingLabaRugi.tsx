@@ -7,8 +7,12 @@ import {
   Typography,
   Box,
   IconButton,
+  Grid,
+  Checkbox,
+  FormControlLabel,
+  TextField,
 } from "@mui/material";
-import { Close, Add, Delete } from "@mui/icons-material";
+import { Close, Add, Delete, Search } from "@mui/icons-material";
 import Button from "../button/button";
 import SelectedTextField from "../textField/selectedText";
 import SelectionCheckbox from "../textField/selectionCheckbox";
@@ -31,13 +35,12 @@ interface PopupMappingLabaRugiProps {
   initialMappings?: MappingRow[];
   accountCodeBeingEdited?: string; // New prop for the account code being edited
   laporanLabaRugiId?: number; // Add the ID for the laporan laba rugi row
+  initialSelectedAccounts?: (string | number)[]; // New prop for pre-selected accounts
 }
 
 const operatorOptions = [
   { value: "+", label: "+" },
   { value: "-", label: "-" },
-  { value: "×", label: "×" },
-  { value: "÷", label: "÷" },
 ];
 
 export default function PopupMappingLabaRugi({
@@ -48,16 +51,24 @@ export default function PopupMappingLabaRugi({
   initialMappings = [],
   accountCodeBeingEdited = "",
   laporanLabaRugiId,
+  initialSelectedAccounts = [],
 }: PopupMappingLabaRugiProps) {
   const [mappings, setMappings] = React.useState<MappingRow[]>([]);
-  const [showAddRow, setShowAddRow] = React.useState(false); // State untuk kontrol visibilitas tombol Add New Row
+  const [selectedAccounts, setSelectedAccounts] = React.useState<(string | number)[]>([]);
+  const [searchTerm, setSearchTerm] = React.useState("");
   const { showAlert } = useAlert();
 
   React.useEffect(() => {
     if (open) {
       setMappings(initialMappings.length > 0 ? initialMappings : [createNewRow()]);
+      // Initialize selected accounts from initial mappings or from initialSelectedAccounts prop
+      const initialSelected = initialMappings.length > 0 
+        ? initialMappings[0].field2 
+        : initialSelectedAccounts;
+      setSelectedAccounts(initialSelected);
+      setSearchTerm(""); // Reset search when opening
     }
-  }, [open]);
+  }, [open, initialSelectedAccounts]);
 
   const createNewRow = (): MappingRow => ({
     id: Date.now().toString(),
@@ -82,6 +93,24 @@ export default function PopupMappingLabaRugi({
     ));
   };
 
+  const handleAccountSelection = (accountValue: string | number, checked: boolean) => {
+    if (checked) {
+      setSelectedAccounts([...selectedAccounts, accountValue]);
+    } else {
+      setSelectedAccounts(selectedAccounts.filter(acc => acc !== accountValue));
+    }
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  // Filter accounts based on search term
+  const filteredAccounts = akunPerkiraanOptions.filter(account =>
+    account.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    account.value.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -97,15 +126,20 @@ export default function PopupMappingLabaRugi({
         return;
       }
 
-      // Validate that at least one mapping has selected accounts
-      const validMappings = mappings.filter(mapping => mapping.field2.length > 0);
-      if (validMappings.length === 0) {
+      // Validate that at least one account is selected
+      if (selectedAccounts.length === 0) {
         showAlert("Pilih minimal satu akun perkiraan", "error");
         return;
       }
 
+      // Update mappings with selected accounts
+      const updatedMappings = mappings.map(mapping => ({
+        ...mapping,
+        field2: selectedAccounts
+      }));
+
       // Format data sesuai dengan API yang diharapkan
-      const bulkData = validMappings.map(mapping => ({
+      const bulkData = updatedMappings.map(mapping => ({
         laporan_laba_rugi_id: laporanLabaRugiId,
         akun_perkiraan_detail_ids: mapping.field2.map(id => parseInt(id.toString())),
       }));
@@ -114,7 +148,7 @@ export default function PopupMappingLabaRugi({
       await bulkUpdateLaporanLabaRugi(bulkData, token, companyId);
 
       showAlert("Mapping berhasil disimpan", "success");
-      onSave(mappings);
+      onSave(updatedMappings);
       onClose();
     } catch (error) {
       console.error("Error saving mapping:", error);
@@ -140,10 +174,14 @@ export default function PopupMappingLabaRugi({
       </DialogTitle>
 
       <DialogContent className={styles.dialogContent}>
+        {/* Top Section: Mapping Laba Rugi */}
         <div className={styles.mappingContainer}>
+          <Typography variant="h6" className={styles.sectionTitle}>
+            Mapping Laba Rugi
+          </Typography>
           {mappings.map((row, index) => (
             <div key={row.id} className={styles.mappingRow}>
-              <div className={styles.rowNumber}>{index + 1}</div>
+              {/* <div className={styles.rowNumber}>{index + 1}</div> */}
               
               <div className={styles.fieldContainer}>
                 <Typography className={styles.fieldLabel}>Kode Akun Laporan</Typography>
@@ -157,7 +195,7 @@ export default function PopupMappingLabaRugi({
                 />
               </div>
 
-              <div className={styles.operatorContainer}>
+              {/* <div className={styles.operatorContainer}>
                 <Typography className={styles.fieldLabel}>Operator</Typography>
                 <SelectedTextField
                   label="Operator"
@@ -166,20 +204,9 @@ export default function PopupMappingLabaRugi({
                   onChange={(e) => handleRowChange(row.id, "operator", e.target.value)}
                   sx={{ width: "100%" }}
                 />
-              </div>
+              </div> */}
 
-              <div className={styles.fieldContainer}>
-                <Typography className={styles.fieldLabel}>Akun Perkiraan</Typography>
-                <SelectionCheckbox
-                  label="Pilih Akun Perkiraan"
-                  options={akunPerkiraanOptions}
-                  value={row.field2}
-                  onChange={(value) => handleRowChange(row.id, "field2", value)}
-                  sx={{ width: "100%" }}
-                />
-              </div>
-
-              <div className={styles.actionContainer}>
+              {/* <div className={styles.actionContainer}>
                 <IconButton
                   onClick={() => handleDeleteRow(row.id)}
                   disabled={mappings.length === 1}
@@ -187,24 +214,61 @@ export default function PopupMappingLabaRugi({
                 >
                   <Delete />
                 </IconButton>
-              </div>
+              </div> */}
             </div>
           ))}
-          {/* Hapus tombol Add New Row dari sini */}
+        </div>
+
+        {/* Bottom Section: Checklist Akun Perkiraan */}
+        <div className={styles.checklistContainer}>
+          <Typography variant="h6" className={styles.sectionTitle}>
+            Pilih Akun Perkiraan
+          </Typography>
+          
+          {/* Search Field */}
+          <div className={styles.searchContainer}>
+            <TextField
+              fullWidth
+              placeholder="Cari akun perkiraan..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              InputProps={{
+                startAdornment: <Search className={styles.searchIcon} />,
+              }}
+              className={styles.searchField}
+            />
+          </div>
+
+          <div className={styles.checklistGrid}>
+            {filteredAccounts.map((account) => (
+              <FormControlLabel
+                key={account.value}
+                control={
+                  <Checkbox
+                    checked={selectedAccounts.includes(account.value)}
+                    onChange={(e) => handleAccountSelection(account.value, e.target.checked)}
+                    color="primary"
+                  />
+                }
+                label={account.label}
+                className={styles.checkboxItem}
+              />
+            ))}
+          </div>
         </div>
       </DialogContent>
 
       <DialogActions className={styles.dialogActionsSplit}>
         <div className={styles.dialogActionsLeft}>
-          {/* <Button
+          <Button
             size="large"
             variant="info"
             label="Add New Row"
             onClick={handleAddRow}
-          /> */}
+          />
         </div>
         <div className={styles.dialogActionsRight}>
-                  <Button
+          <Button
             size="large"
             variant="alert"
             label="Cancel"
