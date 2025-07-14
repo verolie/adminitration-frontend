@@ -17,7 +17,8 @@ import MasterTax from "@/pages/(first-menu)/MasterTax/MasterTax";
 import JurnalSmartax from "@/pages/(first-menu)/JurnalSmartax/JurnalSmartax";
 import LaporanLabaRugi from "@/pages/(first-menu)/LaporanLabaRugi/LaporanLabaRugi";
 import MappingLabaRugi from "@/pages/(first-menu)/MappingLabaRugi/LaporanLabaRugi";
-import MappingLaporanNeraca from "@/pages/(first-menu)/MappingLaporanNeraca/LaporanNeraca";
+import MappingLaporanNeraca from "@/pages/(first-menu)/MappingLaporanNeraca/LaporanNeracaMapping";
+import LaporanNeraca from "@/pages/(first-menu)/LaporanNeraca/LaporanNeraca";
 
 interface MenuList {
   no: number;
@@ -132,6 +133,11 @@ export const menuList: MenuList[] = [
         label: "Laporan Laba Rugi",
         path: <LaporanLabaRugi />,
         roles: ["Laporan Laba Rugi"],
+      },
+      {
+        label: "Laporan Neraca",
+        path: <LaporanNeraca />,
+        roles: ["Laporan Neraca"],
       },
     ],
     roles: ["Laporan"],

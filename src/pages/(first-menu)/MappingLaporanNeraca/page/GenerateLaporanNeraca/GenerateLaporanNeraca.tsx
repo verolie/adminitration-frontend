@@ -1,6 +1,6 @@
 import * as React from "react";
 import styles from "./styles.module.css";
-import { fetchGenerateLaporanNeraca, GenerateLaporanNeracaRow } from "../../function/fetchGenerateLaporanNeraca";
+import { fetchLaporanNeraca } from "../../function/fetchLaporanNeraca";
 
 const columns = [
   { label: "Kode Akun", sub: "(1)" },
@@ -9,7 +9,7 @@ const columns = [
 ];
 
 export default function GenerateLaporanNeraca() {
-  const [data, setData] = React.useState<GenerateLaporanNeracaRow[]>([]);
+  const [data, setData] = React.useState<any[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -17,7 +17,7 @@ export default function GenerateLaporanNeraca() {
       try {
         const token = localStorage.getItem("token") || "dummy-token";
         const companyId = localStorage.getItem("companyID") || "dummy-company";
-        const result = await fetchGenerateLaporanNeraca({ companyId }, token);
+        const result = await fetchLaporanNeraca({ companyId }, token);
         setData(result);
       } catch (err) {
         setData([]);
@@ -32,7 +32,7 @@ export default function GenerateLaporanNeraca() {
   const assetsData = data.filter(row => row.kode_akun?.startsWith('1'));
   const liabilitiesEquityData = data.filter(row => row.kode_akun?.startsWith('2') || row.kode_akun?.startsWith('3'));
 
-  const renderTable = (tableData: GenerateLaporanNeracaRow[]) => (
+  const renderTable = (tableData: any[]) => (
     <table className={styles.table}>
       <thead>
         <tr>
@@ -53,15 +53,15 @@ export default function GenerateLaporanNeraca() {
       <tbody>
         {tableData.map((row, idx) => (
           <tr key={idx}>
-            <td className={row.is_header ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
+            <td className={row.is_header || row.formula !== null ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
               {row.kode_akun}
             </td>
             <td className={styles.namaAkunCol}>
               {Array(row.indent_num).fill('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0').join('')}
               {row.nama_akun}
             </td>
-            <td className={row.nilai === null ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
-              {row.nilai === null ? '' : String(row.nilai)}
+            <td className={row.is_header || row.formula !== null ? styles.greyCell + " " + styles.uniformCol : styles.uniformCol}>
+              {''}
             </td>
           </tr>
         ))}

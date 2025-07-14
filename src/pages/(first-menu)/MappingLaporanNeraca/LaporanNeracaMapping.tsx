@@ -5,7 +5,7 @@ import * as React from "react";
 import InfoLaporanNeraca from "./page/InfoLaporanNeraca/InfoLaporanNeraca";
 import GenerateLaporanNeraca from "./page/GenerateLaporanNeraca/GenerateLaporanNeraca";
 
-export default function LaporanNeraca() {
+export default function LaporanNeracaMapping() {
   const [dynamicTabs, setDynamicTabs] = React.useState<
     { label: string; content: React.ReactNode; closable: boolean }[]
   >([]);
