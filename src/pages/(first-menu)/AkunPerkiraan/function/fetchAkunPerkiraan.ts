@@ -30,8 +30,6 @@ const fetchAkunPerkiraanBackend = async (
         "Content-Type": "application/json",
       },
       params: {
-        page: data.page ?? 1,
-        limit: data.limit ?? 100,
         ...(filter ? { filter: JSON.stringify(filter) } : {}),
       },
     });
