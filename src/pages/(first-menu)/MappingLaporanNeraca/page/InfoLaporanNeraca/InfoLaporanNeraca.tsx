@@ -2,7 +2,7 @@ import * as React from "react";
 import styles from "./styles.module.css";
 import AutocompleteTextField, { OptionType } from "@/component/textField/autoCompleteText";
 import Button from "@/component/button/button";
-import { Add } from "@mui/icons-material";
+import { Add, Edit, TableChart } from "@mui/icons-material";
 import Tag from "@/component/tag/tag";
 import { TableRow } from "../../model/laporanNeracaModel";
 import { fetchLaporanNeraca } from "../../function/fetchLaporanNeraca";
@@ -10,9 +10,18 @@ import { useAlert } from "@/context/AlertContext";
 import { fetchAkunPerkiraanDetail } from "../../function/fetchAkunPerkiraanDetail";
 import { bulkUpdateLaporanNeraca } from "../../function/bulkUpdate";
 import { useAppContext } from '@/context/context';
+import PopupMappingNeraca from "@/component/popupMappingNeraca/popupMappingNeraca";
+import { exportMappingLaporanNeracaExcel } from '@/utils/function/exportLaporanNeracaExcel';
 
 interface InfoLaporanNeracaProps {
   onGenerate?: () => void;
+}
+
+interface MappingRow {
+  id: string;
+  field1: string;
+  operator: string;
+  field2: (string | number)[];
 }
 
 export default function InfoLaporanNeraca({ onGenerate }: InfoLaporanNeracaProps) {
@@ -24,6 +33,13 @@ export default function InfoLaporanNeraca({ onGenerate }: InfoLaporanNeracaProps
   const { showAlert } = useAlert();
   const [akunPerkiraanOptions, setAkunPerkiraanOptions] = React.useState<OptionType[]>([]);
   const { addTab } = useAppContext();
+  const [showMappingPopup, setShowMappingPopup] = React.useState(false);
+  const [selectedRowId, setSelectedRowId] = React.useState<string>("");
+  const [selectedRowData, setSelectedRowData] = React.useState<{ 
+    kode_akun: string; 
+    nama_akun: string;
+    selectedAccountIds?: (string | number)[];
+  } | null>(null);
 
   const fetchData = async () => {
     try {
@@ -91,17 +107,32 @@ export default function InfoLaporanNeraca({ onGenerate }: InfoLaporanNeracaProps
     setHasChanges(isChanged);
   }, [tableData, initialTableData]);
 
-  const handleTambahData = (rowId: string) => {
-    const selectedOption = selectedOptions[rowId];
-    if (selectedOption) {
-      setTableData(prevData => 
-        prevData.map(row => 
-          row.id === rowId 
-            ? { ...row, selectedAkun: [...(row.selectedAkun || []), selectedOption] }
-            : row
-        )
-      );
-      setSelectedOptions(prev => ({ ...prev, [rowId]: undefined }));
+  const handleEditMapping = (rowId: string) => {
+    const rowData = tableData.find(row => row.id === rowId);
+    if (rowData) {
+      setSelectedRowId(rowId);
+      setSelectedRowData({
+        kode_akun: rowData.kode_akun,
+        nama_akun: rowData.nama_akun
+      });
+      // Extract selected account IDs from the existing data
+      const selectedAccountIds = rowData.selectedAkun?.map(akun => akun.value) || [];
+      setSelectedRowData({
+        ...rowData,
+        selectedAccountIds: selectedAccountIds
+      });
+      setShowMappingPopup(true);
+    }
+  };
+
+  const handleSaveMapping = async (mappings: MappingRow[]) => {
+    try {
+      // Refresh data after successful mapping save
+      await fetchData();
+      showAlert("Mapping berhasil disimpan", "success");
+    } catch (error) {
+      console.error("Error handling mapping save:", error);
+      showAlert("Gagal memproses mapping", "error");
     }
   };
 
@@ -115,7 +146,7 @@ export default function InfoLaporanNeraca({ onGenerate }: InfoLaporanNeracaProps
     );
   };
 
-  const handleSubmit = async () => {
+  const handleGenerate = async () => {
     try {
       const token = localStorage.getItem("token");
       const companyId = localStorage.getItem("companyID");
@@ -125,25 +156,11 @@ export default function InfoLaporanNeraca({ onGenerate }: InfoLaporanNeracaProps
         return;
       }
 
-      const updateData = tableData
-        .filter(row => !row.is_header && row.formula == null && row.selectedAkun?.length > 0)
-        .map(row => ({
-          laporan_neraca_id: parseInt(row.id),
-          akun_perkiraan_detail_ids: row.selectedAkun.map(akun => parseInt(akun.value))
-        }));
-
-      if (updateData.length === 0) {
-        showAlert("Tidak ada data yang akan disimpan", "error");
-        return;
-      }
-
-      await bulkUpdateLaporanNeraca(updateData, token, companyId);
-      showAlert("Data berhasil disimpan", "success");
-      await fetchData(); // Refresh data after successful save
-      setHasChanges(false); // Reset changes flag after successful save
+      await exportMappingLaporanNeracaExcel(companyId, token);
+      showAlert("Excel berhasil di-generate", "success");
     } catch (error) {
-      console.error("Error saving data:", error);
-      showAlert("Gagal menyimpan data", "error");
+      console.error("Error generating excel:", error);
+      showAlert("Gagal generate excel", "error");
     }
   };
 
@@ -157,15 +174,14 @@ export default function InfoLaporanNeraca({ onGenerate }: InfoLaporanNeracaProps
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, justifyContent: 'flex-end' }}>
         <Button
           size="large"
-          variant={hasChanges ? "confirm" : "disable"}
-          label="Save"
-          onClick={handleSubmit}
-          disabled={!hasChanges}
+          variant="confirm"
+          label="Generate Excel"
+          onClick={handleGenerate}
         />
         <Button
           size="large"
           variant="info"
-          label="Generate Report"
+          label="View Mapping Report"
           onClick={onGenerate}
         />
       </div>
@@ -176,8 +192,8 @@ export default function InfoLaporanNeraca({ onGenerate }: InfoLaporanNeracaProps
               <tr>
                 <th>Kode Akun Laporan</th>
                 <th>Nama Akun Laporan</th>
-                <th className={styles.akunPerkiraanDetailDropdown}>Pilih Akun Perkiraan</th>
                 <th className={styles.akunPerkiraanTerpilihColumn}>Akun Perkiraan Terpilih</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -187,25 +203,6 @@ export default function InfoLaporanNeraca({ onGenerate }: InfoLaporanNeracaProps
                   <td>
                     {Array(row.indent_num).fill('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0').join('')}
                     {row.nama_akun}
-                  </td>
-                  <td>
-                    {!row.is_header && row.formula == null && (
-                      <div className={styles.panel}>
-                        <AutocompleteTextField
-                          label="Akun Perkiraan"
-                          options={akunPerkiraanOptions}
-                          value={selectedOptions[row.id]}
-                          onChange={(option) => setSelectedOptions(prev => ({ ...prev, [row.id]: option }))}
-                          size="large"
-                        />
-                        <Button
-                          size="small"
-                          variant="confirm"
-                          icon={<Add sx={{ color: "white" }} />}
-                          onClick={() => handleTambahData(row.id)}
-                        />
-                      </div>
-                    )}
                   </td>
                   <td className={styles.akunPerkiraanTerpilihColumn}>
                     <div className={styles.tagPanel}>
@@ -218,12 +215,35 @@ export default function InfoLaporanNeraca({ onGenerate }: InfoLaporanNeracaProps
                       ))}
                     </div>
                   </td>
+                  <td>
+                    {!row.is_header && row.formula === null && (
+                      <Button
+                        size="small"
+                        variant="info"
+                        icon={<Edit sx={{ fontSize: 19.2 }} />}
+                        onClick={() => handleEditMapping(row.id)}
+                      />
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      <PopupMappingNeraca
+        open={showMappingPopup}
+        onClose={() => {
+          setShowMappingPopup(false);
+          setSelectedRowData(null);
+        }}
+        onSave={handleSaveMapping}
+        akunPerkiraanOptions={akunPerkiraanOptions}
+        accountCodeBeingEdited={selectedRowData ? `${selectedRowData.kode_akun} - ${selectedRowData.nama_akun}` : ""}
+        laporanNeracaId={selectedRowId ? parseInt(selectedRowId) : undefined}
+        initialSelectedAccounts={selectedRowData?.selectedAccountIds || []}
+      />
     </div>
   );
 } 

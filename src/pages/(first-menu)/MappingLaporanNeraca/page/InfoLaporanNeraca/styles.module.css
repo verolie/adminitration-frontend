@@ -4,21 +4,13 @@
   max-height: calc(100vh - 253px);
 }
 
-.titleText {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 24px;
-}
-
-.editFilterTable {
+.loadingText {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 24px;
-}
-
-.filterTextField {
-  width: 300px;
+  height: 200px;
+  font-size: 16px;
+  color: #666;
 }
 
 .scrollContent {
@@ -70,18 +62,8 @@
   color: #000;
 }
 
-.akunPerkiraanDetailDropdown {
-  width: 22%;
-}
-  
 .akunPerkiraanTerpilihColumn {
   width: 30%;
-}
-
-.panel {
-  display: flex;
-  gap: 8px;
-  align-items: center;
 }
 
 .tagPanel {
