@@ -34,6 +34,10 @@ const EditObjekHukum = () => {
   const [akunPerkiraanOptions, setAkunPerkiraanOptions] = useState<
     { label: string; value: string }[]
   >([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const ITEMS_PER_PAGE = 20;
   const [selectedBadanUsahaOption, setSelectedBadanUsahaOption] = useState<
     OptionType | undefined
   >(undefined);
@@ -160,21 +164,40 @@ const EditObjekHukum = () => {
     }
   };
 
-  const fetchAkunPerkiraanList = async () => {
-    if (!token || !companyId) return;
+  const fetchAkunPerkiraanList = async (page: number = 1) => {
+    if (!token || !companyId || !hasMore || isLoadingMore) return;
 
     try {
+      setIsLoadingMore(true);
       const akunData = await fetchAkunPerkiraan(
-        { companyId: companyId, page: 1, limit: 100 },
+        { companyId: companyId, page: page, limit: ITEMS_PER_PAGE },
         token
       );
+      
       const options = akunData.map((item: AkunPerkiraan) => ({
         label: `${item.kode_akun} - ${item.nama_akun}`,
         value: item.id,
       }));
-      setAkunPerkiraanOptions(options);
+
+      if (page === 1) {
+        setAkunPerkiraanOptions(options);
+      } else {
+        setAkunPerkiraanOptions(prev => [...prev, ...options]);
+      }
+
+      // If we received fewer items than the limit, we've reached the end
+      setHasMore(options.length === ITEMS_PER_PAGE);
+      setCurrentPage(page);
     } catch (err) {
       console.error("Gagal fetch akun perkiraan:", err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  const handleScrollAkunPerkiraan = () => {
+    if (hasMore && !isLoadingMore) {
+      fetchAkunPerkiraanList(currentPage + 1);
     }
   };
 
@@ -285,6 +308,8 @@ const EditObjekHukum = () => {
             value={selectedAkunPerkiraan}
             onChange={resetFormByAkunPerkiraan}
             size="medium"
+            onScrollEnd={handleScrollAkunPerkiraan}
+            isLoading={isLoadingMore}
           />
         </div>
         <Button

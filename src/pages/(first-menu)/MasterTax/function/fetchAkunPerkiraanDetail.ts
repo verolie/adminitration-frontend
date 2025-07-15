@@ -24,7 +24,7 @@ const fetchAkunPerkiraanBackend = async (
   filter?: FilterInput
 ) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/akun-perkiraan/${data.companyId}`, {
+    const response = await axios.get(`http://127.0.0.1:5000/akun-perkiraan/detail/${data.companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -37,20 +37,14 @@ const fetchAkunPerkiraanBackend = async (
     });
 
     const responseData = response.data;
+    console.log(responseData);
 
     if (!responseData.success) {
       throw new Error(responseData.message || "Unknown Error");
     }
 
-    console.log(responseData.data);
-
     // Map the response data to include id and kode_objek
-    return responseData.data.map((item: any) => ({
-      id: item.id, // Assuming the API returns an id field
-      kode_objek: item.kode_akun, // Assuming the API returns a kode_objek field
-      label: `${item.kode_akun} - ${item.nama_akun}`, // Adjust label as needed
-      value: item.id, // Use id as the value
-    }));
+    return responseData.data.data;
   } catch (error: any) {
     console.error("Error Response:", error);
     throw new Error(error.response?.data?.errors?.[0] || "Fetch jurnal failed");

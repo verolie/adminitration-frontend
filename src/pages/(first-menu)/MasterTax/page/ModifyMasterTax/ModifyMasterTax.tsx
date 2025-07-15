@@ -4,7 +4,7 @@ import { Typography } from "@mui/material";
 import Button from "@/component/button/button";
 import AutocompleteTextField, { OptionType } from "@/component/textField/autoCompleteText";
 import { useAlert } from "@/context/AlertContext";
-import { fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraan"; // Import the fetch function
+import { fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraanDetail"; // Import the fetch function
 import { fetchObjekPajakData } from "../../function/fetchObjekPajakDataMember"; // Import the fetch function for Master Tax
 import { saveMasterTax } from "../../function/saveMasterTax"; // Import the save function
 
@@ -19,6 +19,12 @@ export default function ModifyMasterTax({ onClose }: ModifyMasterTaxProps) {
   const [masterTaxOptions, setMasterTaxOptions] = React.useState<OptionType[]>([]);
   const { showAlert } = useAlert();
 
+  // Add pagination and loading states
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [hasMore, setHasMore] = React.useState(true);
+  const [isLoadingMore, setIsLoadingMore] = React.useState(false);
+  const ITEMS_PER_PAGE = 20;
+
   React.useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("token");
@@ -26,15 +32,15 @@ export default function ModifyMasterTax({ onClose }: ModifyMasterTaxProps) {
       if (!token || !companyId) return;
 
       try {
-        const akunData = await fetchAkunPerkiraan({ companyId, page: 1, limit: 100 }, token);
-        setAkunPerkiraanOptions(akunData); // Set the fetched options for Akun Perkiraan
+        // Fetch initial Akun Perkiraan data
+        await fetchAkunPerkiraanList(1);
 
         const masterTaxData = await fetchObjekPajakData({ companyId, page: 1, limit: 100 }, token);
         const masterTaxOptions = masterTaxData.map((item: any) => ({
-          label: item.kodeObjek + " - " + item.namaObjek, // Use nama_objek for the label
-          value: item.id, // Use kode_objek for the value
+          label: item.kodeObjek + " - " + item.namaObjek,
+          value: item.id,
         }));
-        setMasterTaxOptions(masterTaxOptions); // Set the fetched options for Master Tax
+        setMasterTaxOptions(masterTaxOptions);
       } catch (error) {
         console.error("Failed to fetch data:", error);
       }
@@ -42,6 +48,42 @@ export default function ModifyMasterTax({ onClose }: ModifyMasterTaxProps) {
 
     fetchData();
   }, []);
+
+  const fetchAkunPerkiraanList = async (page: number) => {
+    const token = localStorage.getItem("token");
+    const companyId = localStorage.getItem("companyID");
+    if (!token || !companyId || !hasMore || isLoadingMore) return;
+
+    try {
+      setIsLoadingMore(true);
+      const akunData = await fetchAkunPerkiraan({ companyId, page, limit: ITEMS_PER_PAGE }, token);
+      
+      const options = akunData.map((item: any) => ({
+        label: `${item.kode_akun} - ${item.nama_akun}`,
+        value: item.id,
+      }));
+
+      if (page === 1) {
+        setAkunPerkiraanOptions(options);
+      } else {
+        setAkunPerkiraanOptions(prev => [...prev, ...options]);
+      }
+
+      // If we received fewer items than the limit, we've reached the end
+      setHasMore(options.length === ITEMS_PER_PAGE);
+      setCurrentPage(page);
+    } catch (error) {
+      console.error("Failed to fetch Akun Perkiraan data:", error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  const handleScrollAkunPerkiraan = () => {
+    if (hasMore && !isLoadingMore) {
+      fetchAkunPerkiraanList(currentPage + 1);
+    }
+  };
 
   const handleSubmit = async () => {
     const token = localStorage.getItem("token");
@@ -55,8 +97,8 @@ export default function ModifyMasterTax({ onClose }: ModifyMasterTaxProps) {
     try {
       const result = await saveMasterTax(
         companyId,
-        parseInt(selectedAkunPerkiraan.value), // Assuming value is a string
-        parseInt(selectedMasterTax.value), // Assuming value is a string
+        parseInt(selectedAkunPerkiraan.value),
+        parseInt(selectedMasterTax.value),
         token
       );
       showAlert("Data saved successfully:", "success");
@@ -76,7 +118,7 @@ export default function ModifyMasterTax({ onClose }: ModifyMasterTaxProps) {
 
         <div className={styles.filterContainer}>
           <div className={styles.rowContainer}>
-          <div className={styles.inputField}>
+            <div className={styles.inputField}>
               <Typography className={styles.labelText}>Master Tax</Typography>
               <AutocompleteTextField
                 label="Master Tax"
@@ -94,6 +136,8 @@ export default function ModifyMasterTax({ onClose }: ModifyMasterTaxProps) {
                 value={selectedAkunPerkiraan}
                 onChange={(option: OptionType | undefined) => setSelectedAkunPerkiraan(option || undefined)}
                 size="large"
+                onScrollEnd={handleScrollAkunPerkiraan}
+                isLoading={isLoadingMore}
               />
             </div>
           </div>
