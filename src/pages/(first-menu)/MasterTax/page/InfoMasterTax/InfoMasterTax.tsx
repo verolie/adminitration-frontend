@@ -94,8 +94,7 @@ const InfoMasterTax = () => {
           ObjekPajakDetails: details,
           kodeObjekPersentase: item.namaObjek ? `${item.kodeObjek}` : "-",
           akunPerkiraanDetails: item.akunPerkiraanDetails?.map((akun: ImportedAkunPerkiraanDetail) => ({
-            kode_akun: akun.kode_akun || '',
-            nama_akun: akun.nama_akun || ''
+            kode_akun: akun.kodeAkun || '',
           })) || [],
           isBadanUsaha: item.isBadanUsaha,
         };
