@@ -35,7 +35,6 @@ const editDataInduk = async (
       kode_akun: data.kodeAkun,
       nama_akun: data.namaAkun,
       keterangan: data.keterangan,
-      tipe_akun_id: data.tipeAkunId,
     };
 
     const response = await axios.put(

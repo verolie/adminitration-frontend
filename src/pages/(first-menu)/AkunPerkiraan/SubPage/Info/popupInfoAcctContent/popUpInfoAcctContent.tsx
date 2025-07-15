@@ -10,29 +10,12 @@ import SelectedTextField from "@/component/textField/selectedText";
 interface DataRow {
   kodePerkiraan: string;
   nama: string;
-  tipeAkun: string;
   saldo: string;
 }
-
-const accountType = [
-  {
-    value: "test 1",
-    label: "test 1",
-  },
-  {
-    value: "test 2",
-    label: "test 2",
-  },
-  {
-    value: "test 3",
-    label: "test 3",
-  },
-];
 
 export const popUpInfoAcctContent = (data: DataRow, mode: "view" | "edit") => {
   const [saldoValue, setSaldoValue] = React.useState(data.saldo);
   const [tanggalAwalValue, setTanggalAwalValue] = React.useState<string>("");
-  const [selectedAcctType, setSelectedAcctType] = React.useState(data.tipeAkun);
   const [kodePerkiraanValue, setKodePerkiraanValue] = React.useState(
     data.kodePerkiraan
   );
@@ -48,7 +31,6 @@ export const popUpInfoAcctContent = (data: DataRow, mode: "view" | "edit") => {
   React.useEffect(() => {
     if (mode === "edit" && data) {
       setSaldoValue(data.saldo);
-      setSelectedAcctType(data.tipeAkun);
       setKodePerkiraanValue(data.kodePerkiraan);
       setNamaValue(data.nama);
       // Reset atau isi ulang field lainnya juga kalau perlu
@@ -79,15 +61,6 @@ export const popUpInfoAcctContent = (data: DataRow, mode: "view" | "edit") => {
         <Typography className={styles.titleText}>Informasi Umum</Typography>
       </div>
       <div className={styles.container}>
-        <div className={styles.inputField}>
-          <Typography className={styles.labelText}>Tipe Akun</Typography>
-          <SelectedTextField
-            label="Tipe Akun"
-            options={accountType}
-            value={selectedAcctType}
-            onChange={(e) => setSelectedAcctType(e.target.value)}
-          />
-        </div>
         <div className={styles.inputField}>
           <Typography className={styles.labelText}>Kode Perkiraan</Typography>
           <FieldText

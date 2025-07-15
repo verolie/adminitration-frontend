@@ -9,14 +9,6 @@ import { fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraan";
 import { deleteAkunPerkiraan } from "../../function/deleteAkunPerkiraan";
 import { useAlert } from "@/context/AlertContext";
 
-const accountType = [
-  { id: 1, name: "Asset" },
-  { id: 2, name: "Utang" },
-  { id: 3, name: "Modal" },
-  { id: 4, name: "Pendapatan" },
-  { id: 5, name: "Beban" },
-];
-
 const statusType = [
   { value: "active", label: "Active" },
   { value: "draft", label: "Draft" },
@@ -27,7 +19,6 @@ interface DataRow {
   id: string;
   kodePerkiraan: string;
   nama: string;
-  tipeAkun: string;
   saldo: string;
   jenisAkun: string;
 }
@@ -41,7 +32,6 @@ interface Column<T> {
 const columns: Column<DataRow>[] = [
   { key: "kodePerkiraan", label: "Kode Perkiraan" },
   { key: "nama", label: "Nama" },
-  { key: "tipeAkun", label: "Tipe Akun" },
   { key: "saldo", label: "Saldo", align: "right" },
 ];
 
@@ -60,20 +50,16 @@ function formatKodePerkiraan(kode: string, allData: DataRow[], jenisAkun: string
 }
 
 interface InfoAkunPerkiraanProps {
-  onEdit: (id: string, jenis_akun: string) => void;
+  onEdit: (id: string, jenisAkun: string) => void;
 }
 
 export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
   const { showAlert } = useAlert();
-  const [selectedAcctType, setSelectedAcctType] = React.useState<number | "">(
-    ""
-  );
   const [selectedStatusType, setStatusType] = React.useState("");
   const [tableData, setTableData] = React.useState<DataRow[]>([]);
 
   const handleTambahData = () => {
     console.log("Tambah Data diklik");
-    console.log("Tipe Akun:", selectedAcctType);
     console.log("Status:", selectedStatusType);
   };
 
@@ -135,7 +121,6 @@ export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
         id: item.id,
         kodePerkiraan: item.kode_akun,
         nama: item.nama_akun,
-        tipeAkun: item.tipe_akun,
         saldo: item.saldo,
         jenisAkun: item.jenis_akun,
       }));
@@ -155,15 +140,6 @@ export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
     <>
       <div className={styles.editFilterTable}>
         <div className={styles.filterTextField}>
-          <SelectedTextField
-            label="Tipe Akun"
-            value={selectedAcctType}
-            onChange={(e) => setSelectedAcctType(Number(e.target.value))}
-            options={accountType.map((type) => ({
-              value: type.id,
-              label: type.name,
-            }))}
-          />
           <SelectedTextField
             label="Status"
             options={statusType}
@@ -190,7 +166,7 @@ export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
         <Table
           columns={columns}
           data={tableData}
-          onDelete={handleDelete} // Pass handleDelete to Table component
+          onDelete={handleDelete}
           onEdit={handleEdit}
         />
       </div>

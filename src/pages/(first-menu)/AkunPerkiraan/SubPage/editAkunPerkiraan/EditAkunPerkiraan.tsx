@@ -12,14 +12,6 @@ import { fetchAkunPerkiraanSub } from "../../function/fetchAkunPerkiraanSub";
 import { useAlert } from "@/context/AlertContext";
 import { formatNumber, unformatNumber, isNumericInput } from "@/utils/formatNumber";
 
-const accountType = [
-  { id: 1, name: "Asset" },
-  { id: 2, name: "Utang" },
-  { id: 3, name: "Modal" },
-  { id: 4, name: "Pendapatan" },
-  { id: 5, name: "Beban" },
-];
-
 interface EditJurnalUmumProps {
   id: string;
   level: string;
@@ -43,7 +35,6 @@ export default function EditAkunPerkiraan({
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState("");
   const { showAlert } = useAlert();
-  const [selectedAcctType, setSelectedAcctType] = React.useState<number | "">("");
   const [kodePerkiraanValue, setKodePerkiraanValue] = React.useState("");
   const [namaValue, setNamaValue] = React.useState("");
   const [saldoValue, setSaldoValue] = React.useState("");
@@ -139,16 +130,12 @@ export default function EditAkunPerkiraan({
             setSelectedIndukAkun(akunSub !== undefined ? akunSub.id : "");
           }
 
-          const selectedAcctTypeId = accountType.find((type) => type.name === akun.tipe_akun)?.id || "";
-          console.log(selectedAcctTypeId);
-          
           setLevelAkun(level as "induk" | "sub" | "detail");
           setKodePerkiraanValue(akun.kode_akun || "");
           setNamaValue(akun.nama_akun || "");
           setSaldoValue(formatNumber(akun.saldo?.toString() || "0"));
           setTanggalAwalValue(akun.tanggal_awal || "");
           setCatatanValue(akun.keterangan || "");
-          setSelectedAcctType(selectedAcctTypeId || "");
         } else {
           setError("Data akun tidak ditemukan");
           showAlert("Data akun tidak ditemukan", "error");
@@ -196,7 +183,6 @@ export default function EditAkunPerkiraan({
         kodeAkun: kodePerkiraanValue,
         namaAkun: namaValue,
         keterangan: catatanValue,
-        tipeAkunId: selectedAcctType,
       };
 
       if (levelAkun === "sub") {
@@ -274,20 +260,6 @@ export default function EditAkunPerkiraan({
           <Typography className={styles.titleText}>Informasi Umum</Typography>
         </div>
         <div className={styles.container}>
-          {(levelAkun === "induk") && (
-            <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Tipe Akun</Typography>
-              <SelectedTextField
-                label="Tipe Akun"
-                value={selectedAcctType}
-                onChange={(e) => setSelectedAcctType(Number(e.target.value))}
-                options={accountType.map((type) => ({
-                  value: type.id,
-                  label: type.name,
-                }))}
-              />
-            </div>
-          )}
           <div className={styles.inputField}>
             <Typography className={styles.labelText}>Kode Perkiraan</Typography>
             <FieldText

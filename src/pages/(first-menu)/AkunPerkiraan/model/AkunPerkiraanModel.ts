@@ -4,7 +4,6 @@ export interface AkunPerkiraanInduk {
   companyId?: string;
   namaAkun?: string;
   keterangan?: string;
-  tipeAkunId?: number;
 }
 
 export interface AkunPerkiraanSub {
@@ -35,6 +34,5 @@ export interface AkunPerkiraan {
   kode_akun?: string;
   nama_akun?: string;
   keterangan?: string;
-  tipeAkun?: string;
   jenis_akun?: string;
 }
