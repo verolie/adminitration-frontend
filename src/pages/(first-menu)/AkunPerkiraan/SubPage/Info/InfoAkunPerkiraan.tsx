@@ -19,6 +19,7 @@ interface DataRow {
   id: string;
   kodePerkiraan: string;
   nama: string;
+  namaAkunSPT: string;
   saldo: string;
   jenisAkun: string;
 }
@@ -27,12 +28,53 @@ interface Column<T> {
   key: keyof T;
   label: string;
   align?: "left" | "right" | "center";
+  style?: (row: T) => React.CSSProperties;
 }
 
+const getRowStyle = (jenisAkun: string): React.CSSProperties => {
+  switch (jenisAkun) {
+    case 'induk':
+      return {
+        fontWeight: 600,
+        color: '#2563eb', // Bright blue for parent
+      };
+    case 'sub':
+      return {
+        fontWeight: 600,
+        color: '#4b5563', // Medium gray for sub
+      };
+    case 'detail':
+      return {
+        fontWeight: 400,
+        color: '#6b7280', // Light gray for details
+      };
+    default:
+      return {};
+  }
+};
+
 const columns: Column<DataRow>[] = [
-  { key: "kodePerkiraan", label: "Kode Perkiraan" },
-  { key: "nama", label: "Nama" },
-  { key: "saldo", label: "Saldo", align: "right" },
+  { 
+    key: "kodePerkiraan", 
+    label: "Nomor Perkiraan",
+    style: (row) => getRowStyle(row.jenisAkun)
+  },
+  { 
+    key: "nama", 
+    label: "Nama Perkiraan",
+    style: (row) => getRowStyle(row.jenisAkun)
+  },
+  { 
+    key: "namaAkunSPT", 
+    label: "Nama Akun SPT",
+    style: (row) => getRowStyle(row.jenisAkun)
+  },
+  { 
+    key: "saldo", 
+    label: "Saldo Normal", 
+    align: "right",
+    style: (row) => getRowStyle(row.jenisAkun)
+  },
 ];
 
 function formatKodePerkiraan(kode: string, allData: DataRow[], jenisAkun: string): string {
@@ -121,6 +163,7 @@ export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
         id: item.id,
         kodePerkiraan: item.kode_akun,
         nama: item.nama_akun,
+        namaAkunSPT: item.nama_akun_spt,
         saldo: item.saldo,
         jenisAkun: item.jenis_akun,
       }));

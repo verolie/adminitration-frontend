@@ -8,6 +8,7 @@ interface Column<T> {
   key: keyof T;
   label: string;
   align?: "left" | "right" | "center";
+  style?: (row: T) => React.CSSProperties;
 }
 
 interface TableProps<T> {
@@ -138,7 +139,10 @@ const Table = <T extends Record<string, any>>({
                 <td
                   key={col.key as string}
                   className={styles.cell}
-                  style={{ textAlign: col.align || "left" }}
+                  style={{ 
+                    textAlign: col.align || "left",
+                    ...(col.style ? col.style(item) : {})
+                  }}
                 >
                   {col.key === "saldo"
                     ? `Rp ${Number(item[col.key]).toLocaleString()}`
