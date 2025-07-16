@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AkunPerkiraan } from "@/pages/(first-menu)/AkunPerkiraan/model/AkunPerkiraanModel";
+import { AkunPerkiraan } from "@/pageTab/AkunPerkiraan/model/AkunPerkiraanModel";
 
 type FilterOperator = "equals" | "contains" ;
 

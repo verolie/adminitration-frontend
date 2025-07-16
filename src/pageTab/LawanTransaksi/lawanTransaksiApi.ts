@@ -1,4 +1,4 @@
-// src/pages/(first-menu)/LawanTransaksi/InfoLawanTransaksi/lawanTransaksiApi.ts
+// src/pages/pageComponent/LawanTransaksi/InfoLawanTransaksi/lawanTransaksiApi.ts
 
 import axios from "axios";
 import { LawanTransaksiModel } from "./lawanTransaksiModel";

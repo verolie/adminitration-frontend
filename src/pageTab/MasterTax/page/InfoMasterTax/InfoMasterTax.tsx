@@ -7,8 +7,8 @@ import { fetchObjekPajakData } from "../../function/fetchObjekPajakDataMember";
 import Button from "@/component/button/button";
 import { Add, Refresh } from "@mui/icons-material";
 import { useRouter } from "next/navigation"; // Import useRouter
-import AccordionTableMasterTax from "@/pages/(first-menu)/MasterTax/function/accordionTableMasterTax"; // Adjust the import path as needed
-import { AkunPerkiraanDetail as ImportedAkunPerkiraanDetail } from "@/pages/(first-menu)/AkunPerkiraan/model/AkunPerkiraanModel";
+import AccordionTableMasterTax from "@/pageTab/MasterTax/function/accordionTableMasterTax"; // Adjust the import path as needed
+import { AkunPerkiraanDetail as ImportedAkunPerkiraanDetail } from "@/pageTab/AkunPerkiraan/model/AkunPerkiraanModel";
 
 interface AkunPerkiraanDetail {
   kode_akun: string;

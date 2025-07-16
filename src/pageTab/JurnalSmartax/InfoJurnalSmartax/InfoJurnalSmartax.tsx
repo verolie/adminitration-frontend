@@ -4,7 +4,7 @@ import { Typography } from "@mui/material";
 import Table from "@/component/table/table";
 import { fetchJurnalSmartax } from "../function/fetchJurnalSmartax";
 import { deleteJurnalSmartax } from "../function/deleteJurnalSmartax";
-import { useAlert } from "../../../../context/AlertContext";
+import { useAlert } from "../../../context/AlertContext";
 import ModalConfirm from "@/component/confirmModalPopup/confirmModalPopup";
 
 interface InfoJurnalSmartaxProps {

@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { Box, TextField, CircularProgress, Typography } from "@mui/material";
 import styles from "./styles.module.css";
 import { useAlert } from "@/context/AlertContext";
-import { createCompany } from "./function/createCompany";
-import { CompanyModel } from "./model/companyModel";
+import { createCompany } from "../../../function/createCompany";
+import { CompanyModel } from "../../../model/companyModel";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { getUserData } from "@/utils/function/getUserData";
 

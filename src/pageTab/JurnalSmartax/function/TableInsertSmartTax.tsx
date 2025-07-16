@@ -3,11 +3,11 @@ import { TextField, IconButton, Select, MenuItem, FormControl, InputLabel } from
 import { Delete } from "@mui/icons-material";
 import styles from "./styles.module.css";
 import { fetchAkunPerkiraanDetail } from "./fetchAkunPerkiraanDetail";
-import Button from "../../../../component/button/button";
+import Button from "../../../component/button/button";
 import AkunPerkiraan from "../../AkunPerkiraan/AkunPerkiraan";
-import FieldText from "../../../../component/textField/fieldText";
+import FieldText from "../../../component/textField/fieldText";
 import { useAppContext } from "@/context/context";
-import { useAlert } from "../../../../context/AlertContext";
+import { useAlert } from "../../../context/AlertContext";
 import { CircularProgress } from "@mui/material";
 import { formatRupiah, parseInputNumber, formatRupiahInput } from "@/utils/formatNumber";
 

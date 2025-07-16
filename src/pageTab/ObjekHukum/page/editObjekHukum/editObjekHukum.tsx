@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { AkunPerkiraan } from "@/pages/(first-menu)/AkunPerkiraan/model/AkunPerkiraanModel";
+import { AkunPerkiraan } from "@/pageTab/AkunPerkiraan/model/AkunPerkiraanModel";
 import SelectedTextField from "@/component/textField/selectedText";
 import Button from "@/component/button/button";
 import { Add, Refresh } from "@mui/icons-material";
 import styles from "./styles.module.css";
-import { fetchAkunPerkiraan } from "@/pages/(first-menu)/AkunPerkiraan/function/fetchAkunPerkiraanDetails";
+import { fetchAkunPerkiraan } from "@/pageTab/AkunPerkiraan/function/fetchAkunPerkiraanDetails";
 import AutocompleteTextField, {
   OptionType,
 } from "@/component/textField/autoCompleteText";

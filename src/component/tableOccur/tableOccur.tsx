@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import styles from "./styles.module.css";
 import EditMenu from "../table/editMenu";
-import { ObjekDetail } from "@/pages/(first-menu)/ObjekHukum/model/objekHukumModel";
+import { ObjekDetail } from "@/pageTab/ObjekHukum/model/objekHukumModel";
 
 interface Column<T> {
   key: keyof T;

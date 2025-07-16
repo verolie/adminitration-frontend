@@ -1,5 +1,5 @@
 import axios from "axios";
-import { User } from "../../../utils/model/userModel";
+import { User } from "../utils/model/userModel";
 
 export const registerUser = async (user: User) => {
   return await createUserBackend(user);

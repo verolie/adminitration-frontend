@@ -17,7 +17,7 @@ import Button from "../button/button";
 import SelectedTextField from "../textField/selectedText";
 import SelectionCheckbox from "../textField/selectionCheckbox";
 import styles from "./styles.module.css";
-import { bulkUpdateLaporanNeraca } from "../../pages/(first-menu)/MappingLaporanNeraca/function/bulkUpdate";
+import { bulkUpdateLaporanNeraca } from "../../pageTab/MappingLaporanNeraca/function/bulkUpdate";
 import { useAlert } from "@/context/AlertContext";
 
 interface MappingRow {

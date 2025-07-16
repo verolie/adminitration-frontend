@@ -14,7 +14,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useAppContext } from "@/context/context";
 import { AccountCircle } from "@mui/icons-material";
 import { User } from "../../utils/model/userModel";
-import { registerUser } from "./function/registerUser";
+import { registerUser } from "../../function/registerUser";
 import { AlertBox } from "@/component/alertBox/alertBox";
 // import { fetchUserRole } from "./login/functions/frontend/fetchUserRole";
 

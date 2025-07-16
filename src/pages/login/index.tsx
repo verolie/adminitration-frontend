@@ -15,7 +15,7 @@ import { useAppContext } from "@/context/context";
 import { AccountCircle } from "@mui/icons-material";
 import { useAlert } from "@/context/AlertContext";
 import { User } from "@/utils/model/userModel";
-import { loginProcess } from "./function/loginProcess";
+import { loginProcess } from "../../function/loginProcess";
 // import { fetchUserRole } from "./login/functions/frontend/fetchUserRole";
 
 function Login() {

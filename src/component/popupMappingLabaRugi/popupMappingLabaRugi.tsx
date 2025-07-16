@@ -17,7 +17,7 @@ import Button from "../button/button";
 import SelectedTextField from "../textField/selectedText";
 import SelectionCheckbox from "../textField/selectionCheckbox";
 import styles from "./styles.module.css";
-import { bulkUpdateLaporanLabaRugi } from "../../pages/(first-menu)/MappingLabaRugi/function/bulkUpdate";
+import { bulkUpdateLaporanLabaRugi } from "../../pageTab/MappingLabaRugi/function/bulkUpdate";
 import { useAlert } from "@/context/AlertContext";
 
 interface MappingRow {
