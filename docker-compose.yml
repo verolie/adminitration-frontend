@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  admin-frontend:
+    image: adminitration-frontend:latest
+    container_name: admin-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_BASE_BASE_URL=${NEXT_PUBLIC_API_BASE_BASE_URL:-http://127.0.0.1:5000}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - admin-network
+
+networks:
+  admin-network:
+    driver: bridge 

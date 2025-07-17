@@ -4,6 +4,7 @@ import {
   AkunPerkiraanSub,
   AkunPerkiraanDetail
 } from "../model/AkunPerkiraanModel";
+import { API_BASE_URL } from "@/utils/config";
 
 // Fungsi utama yang digunakan di luar
 export const editAkunPerkiraan = async (
@@ -38,7 +39,7 @@ const editDataInduk = async (
     };
 
     const response = await axios.put(
-      `http://127.0.0.1:5000/akun-perkiraan/induk/${data.companyId}`,
+      `${API_BASE_URL}/akun-perkiraan/induk/${data.companyId}`,
       requestData,
       {
         headers: {
@@ -77,7 +78,7 @@ const editDataSub = async (
     };
 
     const response = await axios.put(
-      `http://127.0.0.1:5000/akun-perkiraan/sub/${data.companyId}`,
+      `${API_BASE_URL}/akun-perkiraan/sub/${data.companyId}`,
       requestData,
       {
         headers: {
@@ -118,7 +119,7 @@ const editDataDetail = async (
     };
 
     const response = await axios.put(
-      `http://127.0.0.1:5000/akun-perkiraan/detail/${data.companyId}`,
+      `${API_BASE_URL}/akun-perkiraan/detail/${data.companyId}`,
       requestData,
       {
         headers: {

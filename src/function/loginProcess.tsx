@@ -2,6 +2,7 @@ import { encryptData } from "@/utils/encryption";
 import { User } from "@/utils/model/userModel";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { API_BASE_URL } from "@/utils/config";
 
 export const loginProcess = async (data: User) => {
   const response = await loginUser(data);
@@ -17,7 +18,7 @@ const loginUser = async (data: User) => {
     };
 
     const response = await axios.post(
-      `http://127.0.0.1:5000/users/login`,
+      `${API_BASE_URL}/users/login`,
       requestData
     );
 

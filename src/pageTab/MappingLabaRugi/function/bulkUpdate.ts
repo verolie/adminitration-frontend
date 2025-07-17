@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "@/utils/config";
+
 interface BulkUpdateItem {
     laporan_laba_rugi_id: number;
     akun_perkiraan_detail_ids: number[];
@@ -10,7 +12,7 @@ interface BulkUpdateItem {
   ): Promise<void> => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:5000/laporan-laba-rugi/${companyId}/mapping`,
+        `${API_BASE_URL}/laporan-laba-rugi/${companyId}/mapping`,
         {
           method: "POST",
           headers: {

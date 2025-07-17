@@ -1,5 +1,6 @@
 import axios from "axios";
 import { CompanyModel } from "../model/companyModel";
+import { API_BASE_URL } from "@/utils/config";
 
 export const editCompany = async (data: CompanyModel, token: string) => {
   return await editCompanyBackend(data, token);
@@ -17,7 +18,7 @@ const editCompanyBackend = async (data: CompanyModel, token: string) => {
     };
 
     const response = await axios.put(
-      `http://127.0.0.1:5000/companies/${data.id}`,
+      `${API_BASE_URL}/companies/${data.id}`,
       requestData,
       {
         headers: {

@@ -1,8 +1,9 @@
 import axios from "axios";
+import { API_BASE_URL } from "@/utils/config";
 
 export const deleteJurnalSmartax = async (companyId: string, id: string, token: string) => {
   const response = await axios.post(
-    `http://127.0.0.1:5000/jurnal/${companyId}/delete-one`,
+    `${API_BASE_URL}/jurnal/${companyId}/delete-one`,
     { id },
     {
       headers: {

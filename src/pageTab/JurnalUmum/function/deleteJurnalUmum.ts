@@ -1,5 +1,6 @@
 import axios from "axios";
 import { JurnalUmum } from "../model/JurnalUmumModel";
+import { API_BASE_URL } from "@/utils/config";
 
 export const deleteJurnalUmum = async (data: JurnalUmum, token: string) => {
   return await deleteCompanyBackend(data, token);
@@ -12,7 +13,7 @@ const deleteCompanyBackend = async (data: JurnalUmum, token: string) => {
     };
 
     const response = await axios.post(
-      `http://127.0.0.1:5000/jurnal/${data.companyId}/delete-one`,
+      `${API_BASE_URL}/jurnal/${data.companyId}/delete-one`,
       requestData,
       {
         headers: {

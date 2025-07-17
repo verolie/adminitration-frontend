@@ -1,8 +1,9 @@
 import axios from "axios";
+import { API_BASE_URL } from "@/utils/config";
 
 export const fetchSmartTaxID = async (companyId: string, id: string, token: string) => {
   const response = await axios.get(
-    `http://127.0.0.1:5000/jurnal/${companyId}/${id}`,
+    `${API_BASE_URL}/jurnal/${companyId}/${id}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

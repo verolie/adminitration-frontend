@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_BASE_URL } from "@/utils/config";
 
 interface Mapping {
   objek_pajak_ids: number[];
@@ -17,7 +18,7 @@ export const editAkunObjekPajak = async (
 ) => {
   try {
     const response = await axios.post(
-      `http://127.0.0.1:5000/akun-objek-pajak/${companyId}`,
+      `${API_BASE_URL}/akun-objek-pajak/${companyId}`,
       data,
       {
         headers: {

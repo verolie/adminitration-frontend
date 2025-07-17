@@ -1,5 +1,6 @@
 import axios from "axios";
 import { JurnalUmum } from "../model/JurnalUmumModel";
+import { API_BASE_URL } from "@/utils/config";
 
 export const createJurnalUmum = async (data: JurnalUmum, token: string) => {
   return await createData(data, token);
@@ -43,7 +44,7 @@ const createData = async (data: JurnalUmum, token: string) => {
     }
 
     const response = await axios.post(
-      `http://127.0.0.1:5000/jurnal/${data.companyId}`,
+      `${API_BASE_URL}/jurnal/${data.companyId}`,
       formData,
       {
         headers: {

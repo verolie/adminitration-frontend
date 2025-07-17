@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_BASE_URL } from "@/utils/config";
 
 interface FetchParams {
   companyId: string;
@@ -14,7 +15,7 @@ interface FetchResponse {
 export const fetchJurnalSmartax = async (params: FetchParams, token: string): Promise<FetchResponse> => {
   try {
     const response = await axios.get(
-      `http://127.0.0.1:5000/jurnal/smart-tax/${params.companyId}`,
+      `${API_BASE_URL}/jurnal/smart-tax/${params.companyId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

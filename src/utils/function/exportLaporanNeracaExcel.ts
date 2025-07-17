@@ -1,8 +1,9 @@
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
+import { API_BASE_URL } from "@/utils/config";
 
 export async function exportMappingLaporanNeracaExcel(companyId: string, token: string) {
-  const url = `http://127.0.0.1:5000/laporan-neraca/${companyId}`;
+  const url = `${API_BASE_URL}/laporan-neraca/${companyId}`;
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` },
   });

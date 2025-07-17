@@ -1,4 +1,5 @@
 import { TableRow } from "../model/laporanLabaRugiModel";
+import { API_BASE_URL } from "@/utils/config";
 
 interface FetchLaporanLabaRugiParams {
   companyId: string;
@@ -10,7 +11,7 @@ export const fetchLaporanLabaRugi = async (
 ): Promise<TableRow[]> => {
   try {
     const response = await fetch(
-      `http://127.0.0.1:5000/laporan-laba-rugi/${params.companyId}`,
+      `${API_BASE_URL}/laporan-laba-rugi/${params.companyId}`,
       {
         method: "GET",
         headers: {

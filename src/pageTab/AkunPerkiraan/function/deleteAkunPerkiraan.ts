@@ -1,6 +1,6 @@
 import axios from "axios";
 import { AkunPerkiraan } from "../model/AkunPerkiraanModel";
-
+import { API_BASE_URL } from "@/utils/config";
 export const deleteAkunPerkiraan = async (
   data: AkunPerkiraan, 
   token: string,
@@ -20,7 +20,7 @@ const deleteAkunPerkiraanBackend = async (
     };
 
     const response = await axios.post(
-      `http://127.0.0.1:5000/akun-perkiraan/${data.kode_akun}/${data.companyId}/delete-one`,
+      `${API_BASE_URL}/akun-perkiraan/${data.kode_akun}/${data.companyId}/delete-one`,
       requestData,
       {
         headers: {

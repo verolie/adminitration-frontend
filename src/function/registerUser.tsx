@@ -1,5 +1,6 @@
 import axios from "axios";
 import { User } from "../utils/model/userModel";
+import { API_BASE_URL } from "@/utils/config";
 
 export const registerUser = async (user: User) => {
   return await createUserBackend(user);
@@ -14,7 +15,7 @@ const createUserBackend = async (user: User) => {
     };
 
     const response = await axios.post(
-      `http://127.0.0.1:5000/users`,
+      `${API_BASE_URL}/users`,
       requestData
     );
 

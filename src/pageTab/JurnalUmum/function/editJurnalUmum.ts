@@ -1,5 +1,6 @@
 import axios from "axios";
 import { JurnalUmum } from "../model/JurnalUmumModel";
+import { API_BASE_URL } from "@/utils/config";
 
 export const editJurnalUmum = async (data: JurnalUmum, token: string) => {
   return await editData(data,  token);
@@ -30,7 +31,7 @@ const editData = async (data: JurnalUmum, token: string) => {
     }
 
     const response = await axios.put(
-      `http://127.0.0.1:5000/jurnal/${data.companyId}`,
+      `${API_BASE_URL}/jurnal/${data.companyId}`,
       formData,
       {
         headers: {

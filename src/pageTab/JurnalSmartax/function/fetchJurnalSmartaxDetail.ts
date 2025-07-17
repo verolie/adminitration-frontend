@@ -1,9 +1,10 @@
 import axios from "axios";
+import { API_BASE_URL } from "@/utils/config";
 
 export const fetchJurnalSmartaxDetail = async (id: string, token: string) => {
   try {
     const response = await axios.get(
-      `http://127.0.0.1:5000/jurnal/detail/${id}`,
+      `${API_BASE_URL}/jurnal/detail/${id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

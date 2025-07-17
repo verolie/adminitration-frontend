@@ -1,5 +1,6 @@
 import axios from "axios";
 import { AkunPerkiraan } from "../../AkunPerkiraan/model/AkunPerkiraanModel";
+import { API_BASE_URL } from "@/utils/config";
 
 type FilterOperator = "equals" | "contains" | "startsWith" | "endsWith";
 
@@ -26,7 +27,7 @@ const fetchAkunHutangPajakBackend = async (
   filter?: FilterInput
 ) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/akun-hutang-objek-pajak/${companyId}/${id}`, {
+    const response = await axios.get(`${API_BASE_URL}/akun-hutang-objek-pajak/${companyId}/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -64,7 +65,7 @@ interface LawanTransaksi {
 export const fetchLawanTransaksi = async (token: string, companyId: string) => {
   try {
     const response = await axios.get(
-      `http://127.0.0.1:5000/lawan-transaksi/${companyId}`,
+      `${API_BASE_URL}/lawan-transaksi/${companyId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

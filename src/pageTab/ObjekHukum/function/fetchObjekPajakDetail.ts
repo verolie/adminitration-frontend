@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ObjekHukumData } from "../model/objekHukumModel";
+import { API_BASE_URL } from "@/utils/config";
 
 export const fetchObjekPajakDetail = async (data: ObjekHukumData, token: string) => {
   return await fetchObjekPajakBackend(data, token);
@@ -7,7 +8,7 @@ export const fetchObjekPajakDetail = async (data: ObjekHukumData, token: string)
 
 const fetchObjekPajakBackend = async (data: ObjekHukumData, token: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/objek-pajak`, {
+    const response = await axios.get(`${API_BASE_URL}/objek-pajak`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { AkunPerkiraan } from "../model/AkunPerkiraanModel";
+import { API_BASE_URL } from "@/utils/config";
 
 type FilterOperator = "equals" | "contains" | "startsWith" | "endsWith";
 
@@ -24,7 +25,7 @@ const fetchAkunPerkiraanBackend = async (
   filter?: FilterInput
 ) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/akun-perkiraan/detail/${data.companyId}`, {
+    const response = await axios.get(`${API_BASE_URL}/akun-perkiraan/detail/${data.companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

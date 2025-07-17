@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_BASE_URL } from "@/utils/config";
 
 interface JurnalSmartaxData {
   id: string;
@@ -21,7 +22,7 @@ interface JurnalSmartaxData {
 export const editJurnalSmartax = async (formData: FormData, token: string) => {
   try {
     const response = await axios.put(
-      `http://127.0.0.1:5000/jurnal/${formData.get('company_id')}`,
+      `${API_BASE_URL}/jurnal/${formData.get('company_id')}`,
       formData,
       {
         headers: {

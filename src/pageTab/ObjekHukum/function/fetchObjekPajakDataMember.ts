@@ -1,5 +1,6 @@
 import axios from "axios";
 import { InfoSubObjek } from "../model/objekHukumModel";
+import { API_BASE_URL } from "@/utils/config";
 
 type FilterOperator = "equals" | "contains" | "startsWith" | "endsWith";
 
@@ -46,7 +47,7 @@ const fetchObjekObjekBackend = async (
 ): Promise<InfoSubObjek[]> => {
   try {
     const response = await axios.get(
-      `http://127.0.0.1:5000/akun-objek-pajak/${data.companyId}`,
+      `${API_BASE_URL}/akun-objek-pajak/${data.companyId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

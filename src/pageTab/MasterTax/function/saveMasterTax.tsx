@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_BASE_URL } from "@/utils/config";
 
 export const saveMasterTax = async (
     companyId: string,
@@ -6,7 +7,7 @@ export const saveMasterTax = async (
     objekPajakId: number,
     token: string
   ) => {
-    const url = `http://127.0.0.1:5000/akun-hutang-objek-pajak/${companyId}`; // Adjust the URL as needed
+    const url = `${API_BASE_URL}/akun-hutang-objek-pajak/${companyId}`; // Adjust the URL as needed
   
     const body = {
       akun_perkiraan_detail_id: akunPerkiraanDetailId,

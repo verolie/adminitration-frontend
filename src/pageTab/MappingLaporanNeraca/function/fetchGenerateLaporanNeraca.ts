@@ -1,4 +1,5 @@
 // Fetch function for Generate Laporan Neraca
+import { API_BASE_URL } from "@/utils/config";
 
 export interface GenerateLaporanNeracaRow {
     id: number;
@@ -19,7 +20,7 @@ export const fetchGenerateLaporanNeraca = async (
 ): Promise<GenerateLaporanNeracaRow[]> => {
   try {
     const response = await fetch(
-      `http://127.0.0.1:5000/laporan-neraca/${params.companyId}/generate_laporan`,
+      `${API_BASE_URL}/laporan-neraca/${params.companyId}/generate_laporan`,
       {
         method: "GET",
         headers: {

@@ -1,5 +1,6 @@
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
+import { API_BASE_URL } from '@/utils/config';
 
 export async function exportGenerateLaporanLabaRugiExcel(
   companyId: string,
@@ -14,7 +15,7 @@ export async function exportGenerateLaporanLabaRugiExcel(
     const query = new URLSearchParams();
     if (startDate) query.append('start_date', startDate);
     if (endDate) query.append('end_date', endDate);
-    const url = `http://127.0.0.1:5000/laporan-laba-rugi/${companyId}/generate_laporan` + (query.toString() ? `?${query.toString()}` : '');
+    const url = `${API_BASE_URL}/laporan-laba-rugi/${companyId}/generate_laporan` + (query.toString() ? `?${query.toString()}` : '');
 
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${token}` },

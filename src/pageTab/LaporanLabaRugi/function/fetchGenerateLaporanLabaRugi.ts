@@ -1,4 +1,5 @@
 // Fetch function for Generate Laporan Laba Rugi
+import { API_BASE_URL } from "@/utils/config";
 
 export interface GenerateLaporanLabaRugiRow {
     id: number;
@@ -32,7 +33,7 @@ export const fetchGenerateLaporanLabaRugi = async (
     if (params.start_date) query.append('start_date', params.start_date);
     if (params.end_date) query.append('end_date', params.end_date);
     const url =
-      `http://127.0.0.1:5000/laporan-laba-rugi/${params.companyId}/generate_laporan` +
+      `${API_BASE_URL}/laporan-laba-rugi/${params.companyId}/generate_laporan` +
       (query.toString() ? `?${query.toString()}` : '');
 
     const response = await fetch(

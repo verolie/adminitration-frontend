@@ -1,4 +1,5 @@
 // Fetch function for Generate Laporan Laba Rugi
+import { API_BASE_URL } from "@/utils/config";
 
 export interface GenerateLaporanLabaRugiRow {
     id: number;
@@ -26,7 +27,7 @@ export const fetchGenerateLaporanLabaRugi = async (
 ): Promise<GenerateLaporanLabaRugiRow[]> => {
   try {
     const response = await fetch(
-      `http://127.0.0.1:5000/laporan-laba-rugi/${params.companyId}/generate_laporan`,
+      `${API_BASE_URL}/laporan-laba-rugi/${params.companyId}/generate_laporan`,
       {
         method: "GET",
         headers: {

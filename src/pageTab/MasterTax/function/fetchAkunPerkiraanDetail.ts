@@ -1,5 +1,6 @@
 import axios from "axios";
 import { AkunPerkiraan } from "@/pageTab/AkunPerkiraan/model/AkunPerkiraanModel";
+import { API_BASE_URL } from "@/utils/config";
 
 type FilterOperator = "equals" | "contains" ;
 
@@ -24,7 +25,7 @@ const fetchAkunPerkiraanBackend = async (
   filter?: FilterInput
 ) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/akun-perkiraan/detail/${data.companyId}`, {
+    const response = await axios.get(`${API_BASE_URL}/akun-perkiraan/detail/${data.companyId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -57,7 +58,7 @@ export const saveMasterTax = async (
   objekPajakId: number,
   token: string
 ) => {
-  const url = `http://127.0.0.1:5000/akun-hutang-objek-pajak/${companyId}`; // Adjust the URL as needed
+  const url = `${API_BASE_URL}/akun-hutang-objek-pajak/${companyId}`; // Adjust the URL as needed
 
   const body = {
     akun_perkiraan_detail_id: akunPerkiraanDetailId,

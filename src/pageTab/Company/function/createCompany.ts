@@ -1,5 +1,6 @@
 import axios from "axios";
 import { CompanyModel } from "../model/companyModel";
+import { API_BASE_URL } from "@/utils/config";
 
 export const createCompany = async (data: CompanyModel, token: string) => {
   return await createCompanyBackend(data, token);
@@ -12,7 +13,7 @@ const createCompanyBackend = async (data: CompanyModel, token: string) => {
     };
 
     const response = await axios.post(
-      `http://127.0.0.1:5000/companies`,
+      `${API_BASE_URL}/companies`,
       requestData,
       {
         headers: {

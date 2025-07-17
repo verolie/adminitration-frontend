@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { JurnalSmartaxFormData } from '../model/jurnalSmartaxModel';
+import { API_BASE_URL } from "@/utils/config";
 
 export const createJurnalSmartax = async (data: JurnalSmartaxFormData, token: string) => {
   try {
@@ -17,7 +18,7 @@ export const createJurnalSmartax = async (data: JurnalSmartaxFormData, token: st
     }
 
     const response = await axios.post(
-      `http://127.0.0.1:5000/jurnal/${data.company_id}`,
+      `${API_BASE_URL}/jurnal/${data.company_id}`,
       formData,
       {
         headers: {

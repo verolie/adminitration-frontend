@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_BASE_URL } from "@/utils/config";
 
 type FilterOperator = "equals" | "contains" | "startsWith" | "endsWith";
 
@@ -44,7 +45,7 @@ const fetchObjekPajakBackend = async (
 ) => {
   try {
     const response = await axios.get(
-      `http://127.0.0.1:5000/objek-pajak/company/${data.companyId}`, // Endpointnya diubah
+      `${API_BASE_URL}/objek-pajak/company/${data.companyId}`, // Endpointnya diubah
       {
         headers: {
           Authorization: `Bearer ${token}`,

@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "@/utils/config";
+
 export async function fetchGenerateLaporanNeraca(
   companyId: string,
   token: string,
@@ -6,7 +8,7 @@ export async function fetchGenerateLaporanNeraca(
 ) {
   try {
     const response = await fetch(
-      `http://127.0.0.1:5000/laporan-neraca/${companyId}/generate_laporan?start_date=${startDate}&end_date=${endDate}`,
+      `${API_BASE_URL}/laporan-neraca/${companyId}/generate_laporan?start_date=${startDate}&end_date=${endDate}`,
       {
         method: "GET",
         headers: {

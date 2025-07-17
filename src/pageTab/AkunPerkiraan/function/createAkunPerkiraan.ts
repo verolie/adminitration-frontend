@@ -4,6 +4,7 @@ import {
   AkunPerkiraanSub,
   AkunPerkiraanDetail
 } from "../model/AkunPerkiraanModel";
+import { API_BASE_URL } from "@/utils/config";
 
 // Fungsi utama yang digunakan di luar
 export const createAkunPerkiraan = async (
@@ -36,7 +37,7 @@ const createDataInduk = async (
     };
 
     const response = await axios.post(
-      `http://127.0.0.1:5000/akun-perkiraan/induk/${data.companyId}`,
+      `${API_BASE_URL}/akun-perkiraan/induk/${data.companyId}`,
       requestData,
       {
         headers: {
@@ -73,7 +74,7 @@ const createDataSub = async (
     };
 
     const response = await axios.post(
-      `http://127.0.0.1:5000/akun-perkiraan/sub/${data.companyId}`,
+      `${API_BASE_URL}/akun-perkiraan/sub/${data.companyId}`,
       requestData,
       {
         headers: {
@@ -113,7 +114,7 @@ const createDataDetail = async (
     };
 
     const response = await axios.post(
-      `http://127.0.0.1:5000/akun-perkiraan/detail/${data.companyId}`,
+      `${API_BASE_URL}/akun-perkiraan/detail/${data.companyId}`,
       requestData,
       {
         headers: {

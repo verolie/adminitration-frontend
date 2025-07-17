@@ -1,5 +1,6 @@
 import axios from "axios";
 import { JurnalUmum } from "../model/JurnalUmumModel";
+import { API_BASE_URL } from "@/utils/config";
 
 type FilterOperator = "equals" | "contains" | "startsWith" | "endsWith"; // Tambah kalau ada lagi
 
@@ -22,7 +23,7 @@ const fetchJurnalUmumDetailBackend = async (
   token: string,
 ) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:5000/jurnal/${data.companyId}/${data.id}`, {
+    const response = await axios.get(`${API_BASE_URL}/jurnal/${data.companyId}/${data.id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",

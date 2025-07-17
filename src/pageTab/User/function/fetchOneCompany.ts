@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_BASE_URL } from "@/utils/config";
 
 export const fetchOneCompany = async (token: string | null, companyId: string | null) => {
   return await fetchOneCompanyBackend(token, companyId);
@@ -8,7 +9,7 @@ const fetchOneCompanyBackend = async ( token: string | null, companyId: string |
   try {
 
     const response = await axios.get(
-      `http://127.0.0.1:5000/companies/${companyId}`,
+      `${API_BASE_URL}/companies/${companyId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
