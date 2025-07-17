@@ -15,11 +15,12 @@ import { useAppContext } from "@/context/context";
 import { AccountCircle } from "@mui/icons-material";
 import { User } from "../../utils/model/userModel";
 import { registerUser } from "../../function/registerUser";
-import { AlertBox } from "@/component/alertBox/alertBox";
+import { useAlert } from "@/context/AlertContext";
 // import { fetchUserRole } from "./login/functions/frontend/fetchUserRole";
 
 function Register() {
   const router = useRouter();
+  const { showAlert } = useAlert();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -59,22 +60,15 @@ function Register() {
     try {
       const data: User = { username, email, password };
       const response = await registerUser(data);
-      console.log("Register Success:", response);
-
-      setAlertMessage({
-        message: "Registration successful! Please log in.",
-        type: "success",
-      });
-
+      showAlert("Registration successful! Please log in.", "success");
       setTimeout(() => {
         router.push("/login");
-      }, 2000); // Biar user bisa lihat alert sebelum diarahkan ke login
+      }, 2000);
     } catch (error: any) {
-      console.error("Register Error:", error.message);
-      handleErrorbackend(error.message);
+      showAlert(error.message || "An error occurred during registration", "error");
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   const validate = () => {
@@ -152,12 +146,13 @@ function Register() {
   return (
     <>
       <Box className={styles.container}>
-        <div className={styles.RegisterContainer}>
+        <div className={styles.loginContainer}>
           <div className={styles.card}>
             <Box className={styles.titleContainer}>
-              {/* <Image alt="Logo" src={LogoImage} width={90} height={70} /> */}
               <AccountCircle style={{ fontSize: "60px" }} />
-              <h1>Company Name</h1>
+              <div className={styles.titleContent}>
+                <h1>Company Name</h1>
+              </div>
             </Box>
             <Box
               component="form"
@@ -174,8 +169,8 @@ function Register() {
                   className={styles.inputField}
                   onChange={onChangeUsername}
                   value={username || ""}
+                  placeholder="Enter your username"
                 />
-
                 {errorMessage.usernameMessage && (
                   <span className={styles.errorMessageTextColor}>
                     {errorMessage.usernameMessage}
@@ -191,8 +186,8 @@ function Register() {
                   className={styles.inputField}
                   onChange={onChangeEmail}
                   value={email || ""}
+                  placeholder="Enter your email"
                 />
-
                 {errorMessage.emailMessage && (
                   <span className={styles.errorMessageTextColor}>
                     {errorMessage.emailMessage}
@@ -208,6 +203,7 @@ function Register() {
                     name="password"
                     value={password || ""}
                     onChange={onChangePassword}
+                    placeholder="Enter your password"
                   />
                   <svg onClick={handleClickShowPassword}>
                     {showPassword ? <Visibility /> : <VisibilityOff />}
@@ -228,6 +224,7 @@ function Register() {
                     name="confirm password"
                     value={confirmPassword || ""}
                     onChange={onChangeConfirmPassword}
+                    placeholder="Confirm your password"
                   />
                   <svg onClick={handleClickShowConfirmPassword}>
                     {showConfirmPassword ? <Visibility /> : <VisibilityOff />}
@@ -239,28 +236,18 @@ function Register() {
                   </span>
                 )}
               </div>
-              <Link href="#" className={styles.forgetPassword}>
-                Forgot Password ?
-              </Link>
               <div className={styles.buttonSubmit}>
                 <button type="submit" disabled={isLoading}>
                   {isLoading ? "Loading" : "Register"}
                 </button>
                 <Link href="/login" className={styles.register}>
-                  have an account? <span>Sign In</span>
+                  Already have an account? <span>Sign In</span>
                 </Link>
               </div>
             </Box>
           </div>
         </div>
       </Box>
-      {alertMessage && (
-        <AlertBox
-          message={alertMessage.message}
-          type={alertMessage.type}
-          onClose={() => setAlertMessage(null)}
-        />
-      )}
     </>
   );
 }
