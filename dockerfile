@@ -1,21 +1,26 @@
 # Use Node official image
 FROM node:18-alpine
 
-# Set work directory
+# Set working directory
 WORKDIR /app
 
-# Install dependencies
+# ✅ Set production mode
+ENV NODE_ENV=production
+
+# Copy package files first
 COPY package*.json ./
+
+# Install only production dependencies
 RUN npm install
 
 # Copy source
 COPY . .
 
-# Build Next.js
+# Build Next.js for production
 RUN npm run build
 
 # Expose port
 EXPOSE 3000
 
-# Start the app
+# Start the app in production mode
 CMD ["npm", "start"]
