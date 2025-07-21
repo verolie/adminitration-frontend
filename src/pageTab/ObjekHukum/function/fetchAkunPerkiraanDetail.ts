@@ -1,5 +1,5 @@
 import axios from "axios";
-import { AkunPerkiraan } from "../../AkunPerkiraan/model/AkunPerkiraanModel";
+import { AkunPerkiraan } from "@/pageTab/AkunPerkiraan/model/AkunPerkiraanModel";
 import { API_BASE_URL } from "@/utils/config";
 
 type FilterOperator = "equals" | "contains" | "startsWith" | "endsWith";
@@ -11,7 +11,7 @@ type FilterValue = {
 
 type FilterInput = Record<string, FilterValue>;
 
-export const fetchAkunPerkiraanDetail = async (
+export const fetchAkunPerkiraan = async (
   data: AkunPerkiraan,
   token: string,
   filter?: FilterInput
@@ -31,11 +31,17 @@ const fetchAkunPerkiraanBackend = async (
         "Content-Type": "application/json",
       },
       params: {
+        company_id: data.companyId,
+        page: data.page ?? 1,
+        limit: data.limit ?? 100,
+        is_preference: true,
         ...(filter ? { filter: JSON.stringify(filter) } : {}),
       },
     });
 
-    const responseData = response.data;
+    const responseData = response.data.data;
+
+    console.log(responseData);
 
     if (responseData.success === false) {
       throw new Error(responseData);
@@ -43,7 +49,7 @@ const fetchAkunPerkiraanBackend = async (
 
     return responseData.data;
   } catch (error: any) {
-    console.error("Error Response:", error.response?.data?.errors?.[0]);
+    console.error("Error Response:", error);
     throw new Error(error.response?.data?.errors?.[0] || "Fetch akun perkiraan failed");
   }
 };

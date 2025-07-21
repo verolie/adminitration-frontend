@@ -33,6 +33,7 @@ const fetchAkunPerkiraanBackend = async (
       params: {
         page: data.page ?? 1,
         limit: data.limit ?? 100,
+        is_preference: true,
         ...(filter ? { filter: JSON.stringify(filter) } : {}),
       },
     });

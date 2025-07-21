@@ -4,7 +4,6 @@ import SelectedTextField from "@/component/textField/selectedText";
 import Button from "@/component/button/button";
 import { Add, Refresh } from "@mui/icons-material";
 import styles from "./styles.module.css";
-import { fetchAkunPerkiraan } from "@/pageTab/AkunPerkiraan/function/fetchAkunPerkiraanDetails";
 import AutocompleteTextField, {
   OptionType,
 } from "@/component/textField/autoCompleteText";
@@ -12,8 +11,7 @@ import Tag from "@/component/tag/tag";
 import { fetchObjekPajakDetail } from "../../function/fetchObjekPajakDetail";
 import { editAkunObjekPajak } from "../../function/fetchObjekPajakDataEdit";
 import { fetchObjekPajakDataMember } from "../../function/fetchObjekPajakDataMember";
-import { fetchAkunPerkiraanDetail } from "../../function/fetchAkunPerkiraanDetail";
-import FieldText from "@/component/textField/fieldText";
+import { fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraanDetail";
 import { useAlert } from "@/context/AlertContext";
 
 type FilterOperator = "equals" | "contains" | "startsWith" | "endsWith";
@@ -75,7 +73,7 @@ const EditObjekHukum = () => {
               operator: "equals",
             },
           };
-          const result = await fetchAkunPerkiraanDetail(
+          const result = await fetchAkunPerkiraan(
             { companyId: companyId},
             token,
             filter
