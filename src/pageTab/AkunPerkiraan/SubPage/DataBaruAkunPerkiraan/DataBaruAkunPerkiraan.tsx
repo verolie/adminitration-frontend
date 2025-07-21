@@ -1,11 +1,13 @@
 import * as React from "react";
 import styles from "./styles.module.css";
-import { Typography, TextField } from "@mui/material";
+import { Typography, TextField, FormControlLabel, Tooltip, IconButton } from "@mui/material";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import SelectedTextField from "@/component/textField/selectedText";
 import FieldText from "@/component/textField/fieldText";
 import Button from "@/component/button/button";
 import DatePickerField from "@/component/textField/dateAreaText";
 import AreaText from "@/component/textField/areaText";
+import ModernSwitch from "@/component/textField/modernSwitch";
 import { fetchAkunPerkiraanInduk } from "../../function/fetchAkunPerkiraanInduk";
 import { fetchAkunPerkiraanSub } from "../../function/fetchAkunPerkiraanSub";
 import { createAkunPerkiraan } from "../../function/createAkunPerkiraan";
@@ -18,6 +20,7 @@ export default function CreateAkunPerkiraan() {
   const [saldoValue, setSaldoValue] = React.useState("");
   const [tanggalAwalValue, setTanggalAwalValue] = React.useState("");
   const [catatanValue, setCatatanValue] = React.useState("");
+  const [preferenceValue, setPreferenceValue] = React.useState(false);
   const [levelAkun, setLevelAkun] = React.useState<"induk" | "sub" | "detail" | "">("");
   const [selectedIndukAkun, setSelectedIndukAkun] = React.useState("");
   const [selectedSubAkun, setSelectedSubAkun] = React.useState("");
@@ -94,6 +97,10 @@ export default function CreateAkunPerkiraan() {
     setSaldoValue(formatted);
   };
 
+  const handlePreferenceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPreferenceValue(event.target.checked);
+  };
+
   const onSubmit = (status: "active" | "submit") => async () => {
     const token = localStorage.getItem("token");
     const companyId = localStorage.getItem("companyID");
@@ -128,6 +135,7 @@ export default function CreateAkunPerkiraan() {
           akunPerkiraanSubId: selectedIndukAkun,
           saldo: unformatNumber(saldoValue),
           tanggalAwal: tanggalAwalValue,
+          preference: preferenceValue,
           status,
         };
       }
@@ -204,6 +212,49 @@ export default function CreateAkunPerkiraan() {
               Contoh: BCA a/c XXX-XXX, dll
             </Typography>
           </div>
+          {levelAkun === "detail" && (
+            <div className={styles.inputField} style={{ marginTop: '-4px', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FormControlLabel
+                  control={
+                    <ModernSwitch
+                      checked={preferenceValue}
+                      onChange={handlePreferenceChange}
+                    />
+                  }
+                  label={
+                    <Typography style={{ 
+                      fontSize: '14px',
+                      color: '#333F50',
+                      marginLeft: '8px',
+                      fontWeight: 600
+                    }}>
+                      Preference
+                    </Typography>
+                  }
+                  style={{
+                    margin: 0,
+                    alignItems: 'center'
+                  }}
+                />
+                <Tooltip 
+                  title="Akun ini akan digunakan sebagai preferensi untuk pencatatan transaksi perpajakan" 
+                  placement="right"
+                  arrow
+                >
+                  <IconButton 
+                    size="small" 
+                    style={{ 
+                      padding: '4px',
+                      color: '#00569f'
+                    }}
+                  >
+                    <InfoOutlinedIcon style={{ fontSize: '20px' }} />
+                  </IconButton>
+                </Tooltip>
+              </div>
+            </div>
+          )}
         </div>
 
         {(levelAkun === "detail") && (

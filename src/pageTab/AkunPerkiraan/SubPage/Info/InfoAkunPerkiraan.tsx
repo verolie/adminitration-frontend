@@ -20,6 +20,7 @@ interface DataRow {
   kodePerkiraan: string;
   nama: string;
   namaAkunSPT: string;
+  isPreference: boolean;
   saldo: string;
   jenisAkun: string;
 }
@@ -67,6 +68,11 @@ const columns: Column<DataRow>[] = [
   { 
     key: "namaAkunSPT", 
     label: "Nama Akun SPT",
+    style: (row) => getRowStyle(row.jenisAkun)
+  },
+  { 
+    key: "isPreference", 
+    label: "Preference",
     style: (row) => getRowStyle(row.jenisAkun)
   },
   { 
@@ -164,6 +170,7 @@ export default function InfoAkunPerkiraan({ onEdit }: InfoAkunPerkiraanProps) {
         kodePerkiraan: item.kode_akun,
         nama: item.nama_akun,
         namaAkunSPT: item.nama_akun_spt,
+        isPreference: item.is_preference ? "✅" : '',
         saldo: item.saldo,
         jenisAkun: item.jenis_akun,
       }));
