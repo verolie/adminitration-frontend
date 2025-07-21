@@ -110,7 +110,8 @@ const createDataDetail = async (
       nama_akun: data.namaAkun,
       keterangan: data.keterangan,
       akun_perkiraan_sub_id: data.akunPerkiraanSubId,
-      saldo: data.saldo
+      saldo: data.saldo,
+      is_preference: data.preference
     };
 
     const response = await axios.post(

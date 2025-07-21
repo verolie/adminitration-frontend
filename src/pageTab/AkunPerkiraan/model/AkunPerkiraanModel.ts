@@ -23,6 +23,7 @@ export interface AkunPerkiraanDetail {
   keterangan?: string;
   akunPerkiraanSubId?: number;
   saldo?: number;
+  preference?: boolean;
 }
 
 

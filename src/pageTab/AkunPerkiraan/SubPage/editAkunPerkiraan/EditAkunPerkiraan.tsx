@@ -1,10 +1,13 @@
 import * as React from "react";
 import styles from "./styles.module.css";
-import { Typography } from "@mui/material";
+import { Typography, FormControlLabel, Tooltip, IconButton } from "@mui/material";
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import SelectedTextField from "@/component/textField/selectedText";
 import FieldText from "@/component/textField/fieldText";
 import Button from "@/component/button/button";
+import DatePickerField from "@/component/textField/dateAreaText";
 import AreaText from "@/component/textField/areaText";
+import ModernSwitch from "@/component/textField/modernSwitch";
 import { editAkunPerkiraan } from "../../function/editAkunPerkiraan";
 import { fetchAkunPerkiraan as fetchAkunPerkiraan } from "../../function/fetchAkunPerkiraan";
 import { fetchAkunPerkiraanInduk } from "../../function/fetchAkunPerkiraanInduk";
@@ -40,6 +43,7 @@ export default function EditAkunPerkiraan({
   const [saldoValue, setSaldoValue] = React.useState("");
   const [tanggalAwalValue, setTanggalAwalValue] = React.useState("");
   const [catatanValue, setCatatanValue] = React.useState("");
+  const [preferenceValue, setPreferenceValue] = React.useState(false);
   const [levelAkun, setLevelAkun] = React.useState<"induk" | "sub" | "detail" | "">("");
   const [selectedIndukAkun, setSelectedIndukAkun] = React.useState("");
   const [selectedSubAkun, setSelectedSubAkun] = React.useState("");
@@ -136,6 +140,7 @@ export default function EditAkunPerkiraan({
           setSaldoValue(formatNumber(akun.saldo?.toString() || "0"));
           setTanggalAwalValue(akun.tanggal_awal || "");
           setCatatanValue(akun.keterangan || "");
+          setPreferenceValue(akun.is_preference || false);
         } else {
           setError("Data akun tidak ditemukan");
           showAlert("Data akun tidak ditemukan", "error");
@@ -150,7 +155,7 @@ export default function EditAkunPerkiraan({
     };
 
     fetchDetailAndSetup();
-  }, [id, level]);
+  }, [id, level, showAlert]);
 
   const handleNamaChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setNamaValue(event.target.value);
@@ -167,40 +172,37 @@ export default function EditAkunPerkiraan({
     setCatatanValue(event.target.value);
   };
 
-  const onSubmit = (status: "active" | "submit") => async () => {
+  const handlePreferenceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPreferenceValue(event.target.checked);
+  };
+
+  const onSubmit = async () => {
     const token = localStorage.getItem("token");
     const companyId = localStorage.getItem("companyID");
 
     if (!token || !companyId || !levelAkun) {
-      showAlert("Token, Company ID, atau level akun tidak tersedia", "error");
+      console.error("Token, Company ID, atau level akun tidak tersedia");
       return;
     }
 
     try {
       let payload: any = {
-        companyId: companyId,
-        id: id,
+        id,
+        companyId,
         kodeAkun: kodePerkiraanValue,
         namaAkun: namaValue,
         keterangan: catatanValue,
       };
 
       if (levelAkun === "sub") {
-        if (saldoValue.endsWith('.') || isNaN(parseFloat(saldoValue))) {
-          showAlert("Saldo harus berupa angka", "error");
-          return;
-        }
         payload = {
           ...payload,
           akunPerkiraanIndukId: selectedIndukAkun,
-          saldo: unformatNumber(saldoValue),
-          tanggalAwal: tanggalAwalValue,
-          status,
         };
       }
 
       if (levelAkun === "detail") {
-        if (saldoValue.endsWith('.') || isNaN(parseFloat(saldoValue))) {
+        if(saldoValue.endsWith('.') || isNaN(parseFloat(saldoValue))) {
           showAlert("Saldo harus berupa angka", "error");
           return;
         }
@@ -209,7 +211,7 @@ export default function EditAkunPerkiraan({
           akunPerkiraanSubId: selectedIndukAkun,
           saldo: unformatNumber(saldoValue),
           tanggalAwal: tanggalAwalValue,
-          status,
+          preference: preferenceValue
         };
       }
 
@@ -217,7 +219,7 @@ export default function EditAkunPerkiraan({
       showAlert("Data berhasil disimpan", "success");
       onClose();
     } catch (error: any) {
-      showAlert(`Gagal membuat akun: ${error.message}`, "error");
+      showAlert(`Gagal edit akun: ${error.message}`, "error");
     }
   };
 
@@ -265,7 +267,7 @@ export default function EditAkunPerkiraan({
             <FieldText
               label="Kode Perkiraan"
               value={kodePerkiraanValue}
-              disabled
+              onChange={(e) => setKodePerkiraanValue(e.target.value)}
             />
           </div>
           <div className={styles.inputField}>
@@ -279,6 +281,49 @@ export default function EditAkunPerkiraan({
               Contoh: BCA a/c XXX-XXX, dll
             </Typography>
           </div>
+          {levelAkun === "detail" && (
+            <div className={styles.inputField} style={{ marginTop: '-4px', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FormControlLabel
+                  control={
+                    <ModernSwitch
+                      checked={preferenceValue}
+                      onChange={handlePreferenceChange}
+                    />
+                  }
+                  label={
+                    <Typography style={{ 
+                      fontSize: '14px',
+                      color: '#333F50',
+                      marginLeft: '8px',
+                      fontWeight: 600
+                    }}>
+                      Preference
+                    </Typography>
+                  }
+                  style={{
+                    margin: 0,
+                    alignItems: 'center'
+                  }}
+                />
+                <Tooltip 
+                  title="Akun ini akan digunakan sebagai preferensi untuk pencatatan transaksi perpajakan" 
+                  placement="right"
+                  arrow
+                >
+                  <IconButton 
+                    size="small" 
+                    style={{ 
+                      padding: '4px',
+                      color: '#00569f'
+                    }}
+                  >
+                    <InfoOutlinedIcon style={{ fontSize: '20px' }} />
+                  </IconButton>
+                </Tooltip>
+              </div>
+            </div>
+          )}
         </div>
 
         {(levelAkun === "detail") && (
@@ -318,13 +363,7 @@ export default function EditAkunPerkiraan({
           size="large"
           variant="confirm"
           label="Save"
-          onClick={onSubmit("active")}
-        />
-        <Button
-          size="large"
-          variant="info"
-          label="Save As Draft"
-          onClick={onSubmit("submit")}
+          onClick={onSubmit}
         />
       </div>
     </div>
