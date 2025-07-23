@@ -295,9 +295,9 @@ export default function EditData({ id, onClose }: EditJurnalUmumProps) {
         <div className={styles.filterContainer}>
           <div className={styles.rowContainer}>
             <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Nomor Faktur</Typography>
+              <Typography className={styles.labelText}>Nomor Transaksi</Typography>
               <FieldText
-                label="Nomor Faktur"
+                label="Nomor Transaksi"
                 value={kodeAkunValue}
                 onChange={(e) => setKodeAkunValue(e.target.value)}
                 sx={{ width: "100%" }}

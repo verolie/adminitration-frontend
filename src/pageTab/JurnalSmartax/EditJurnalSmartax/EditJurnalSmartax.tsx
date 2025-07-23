@@ -795,9 +795,9 @@ export default function EditJurnalSmartax({ id, onClose }: { id: string; onClose
               />
             </div>
             <div className={styles.inputField}>
-              <Typography className={styles.labelText}>Nomor Faktur</Typography>
+              <Typography className={styles.labelText}>Nomor Transaksi</Typography>
               <FieldText
-                label="Nomor Faktur"
+                label="Nomor Transaksi"
                 value={fakturValue}
                 onChange={(e) => setFakturValue(e.target.value)}
                 sx={{ width: "100%" }}
