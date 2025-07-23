@@ -1,10 +1,10 @@
 import * as React from "react";
 import styles from "./styles.module.css";
 import { fetchGenerateLaporanLabaRugi, GenerateLaporanLabaRugiRow } from "../../function/fetchGenerateLaporanLabaRugi";
-import DatePickerField from "@/component/textField/dateAreaText";
 import Button from "@/component/button/button";
 import { useAlert } from "@/context/AlertContext";
 import { exportGenerateLaporanLabaRugiExcel } from '../function/generateLaporanLabaRugiExcel';
+import { TextField } from "@mui/material";
 
 const columns = [
   { label: "Kode Akun", sub: "(1)" },
@@ -19,31 +19,52 @@ const columns = [
   { label: "Nilai Fiskal (Sebelum Fasilitas Perpajakan)", sub: "(10)" },
 ];
 
-function getDefaultDates() {
-  const end = new Date();
-  const start = new Date();
-  start.setDate(end.getDate() - 10);
-  const toISO = (d: Date) => d.toISOString().slice(0, 10);
-  return { start: toISO(start), end: toISO(end) };
+function getDefaultYear() {
+  return new Date().getFullYear();
+}
+
+function getYearDates(year: number) {
+  const start = `${year}-01-01`;
+  const end = `${year}-12-31`;
+  return { start, end };
 }
 
 export default function GenerateLaporanLabaRugi() {
-  const { start, end } = getDefaultDates();
-  const [startDate, setStartDate] = React.useState(start);
-  const [endDate, setEndDate] = React.useState(end);
+  const defaultYear = getDefaultYear();
+  const [selectedYear, setSelectedYear] = React.useState(defaultYear);
+  const [inputYear, setInputYear] = React.useState(String(defaultYear));
   const [data, setData] = React.useState<GenerateLaporanLabaRugiRow[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const { showAlert } = useAlert();
 
-  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => setStartDate(e.target.value);
-  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => setEndDate(e.target.value);
+  const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputYear(e.target.value);
+  };
 
-  const fetchData = React.useCallback(async (start_date: string, end_date: string) => {
+  const handleYearBlur = () => {
+    const year = parseInt(inputYear);
+    if (!isNaN(year) && year >= 1900 && year <= 9999) {
+      setSelectedYear(year);
+    } else {
+      // Reset to previous valid year if input is invalid
+      setInputYear(String(selectedYear));
+      showAlert("Tahun harus antara 1900 dan 9999", "error");
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      (e.target as HTMLInputElement).blur();
+    }
+  };
+
+  const fetchData = React.useCallback(async (year: number) => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("token") || "dummy-token";
       const companyId = localStorage.getItem("companyID") || "dummy-company";
-      const result = await fetchGenerateLaporanLabaRugi({ companyId, start_date, end_date }, token);
+      const { start, end } = getYearDates(year);
+      const result = await fetchGenerateLaporanLabaRugi({ companyId, start_date: start, end_date: end }, token);
       setData(result);
     } catch (err) {
       setData([]);
@@ -53,8 +74,8 @@ export default function GenerateLaporanLabaRugi() {
   }, []);
 
   React.useEffect(() => {
-    fetchData(startDate, endDate);
-  }, [startDate, endDate, fetchData]);
+    fetchData(selectedYear);
+  }, [selectedYear, fetchData]);
 
   const handleGenerateExcel = async () => {
     try {
@@ -66,7 +87,8 @@ export default function GenerateLaporanLabaRugi() {
         return;
       }
 
-      await exportGenerateLaporanLabaRugiExcel(companyId, token, startDate, endDate, data);
+      const { start, end } = getYearDates(selectedYear);
+      await exportGenerateLaporanLabaRugiExcel(companyId, token, start, end, data);
       showAlert("Excel berhasil di-generate", "success");
     } catch (error) {
       console.error("Error generating excel:", error);
@@ -74,7 +96,6 @@ export default function GenerateLaporanLabaRugi() {
     }
   };
 
-  // Tambahkan handler untuk update cell
   const handleCellChange = (rowIdx: number, field: keyof GenerateLaporanLabaRugiRow, value: string) => {
     setData(prev => prev.map((row, idx) => {
       if (idx !== rowIdx) return row;
@@ -87,18 +108,23 @@ export default function GenerateLaporanLabaRugi() {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.titleText}>Laporan Laba Rugi</h2>
+      <h2 className={styles.titleText}>Laporan Laba Rugi SPT</h2>
       
       {/* Action buttons row */}
       <div style={{ display: 'flex', marginBottom: 20, justifyContent: 'space-between', alignItems: 'center' }}>
         <div className={styles.dateFieldsContainer}>
           <div className={styles.dateFieldContainer}>
-            <label className={styles.dateFieldLabel}>Start Date:</label>
-            <DatePickerField value={startDate} onChange={handleStartDateChange} sx={{ width: '100%' }} />
-          </div>
-          <div className={styles.dateFieldContainer}>
-            <label className={styles.dateFieldLabel}>End Date:</label>
-            <DatePickerField value={endDate} onChange={handleEndDateChange} sx={{ width: '100%' }} />
+            <label className={styles.dateFieldLabel}>Tahun:</label>
+            <TextField
+              type="number"
+              value={inputYear}
+              onChange={handleYearChange}
+              onBlur={handleYearBlur}
+              onKeyPress={handleKeyPress}
+              inputProps={{ min: 1900, max: 9999 }}
+              sx={{ width: '150px' }}
+              size="small"
+            />
           </div>
         </div>
         <Button
@@ -139,7 +165,6 @@ export default function GenerateLaporanLabaRugi() {
                   <td className={styles.namaAkunCol}>
                     {Array(row.indent_num).fill('\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0').join('')}{row.nama_akun}
                   </td>
-                  {/* Untuk setiap kolom angka, cek null, jika tidak null render input */}
                   {["nilai_komersial","tidak_termasuk_objek_pajak","dikenakan_pph_bersifat_final","objek_pajak_tidak_final","penyesuaian_fiskal_positif","penyesuaian_fiskal_negatif","kode_penyesuaian_fiskal","nilai_fiskal"].map((field, colIdx) => {
                     const value = row[field as keyof GenerateLaporanLabaRugiRow];
                     const isEditable = value !== null;
@@ -157,7 +182,6 @@ export default function GenerateLaporanLabaRugi() {
                               background: 'transparent',
                               padding: '2px 6px',
                               outline: 'none',
-                              // borderBottom: '1px solid #ccc',
                               fontSize: 'inherit',
                               textAlign: 'right',
                             }}
